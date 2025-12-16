@@ -1,12 +1,11 @@
-import { View, Text } from 'react-native'
 import React from 'react'
+import { Text, View } from 'react-native'
 
-const matches = () => {
+const Matches = () => {
   return (
     <View>
       <Text>matches</Text>
     </View>
   )
 }
-
-export default matches
+export default Matches

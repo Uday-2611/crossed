@@ -1,12 +1,12 @@
 import { View, Text } from 'react-native'
 import React from 'react'
 
-const activities = () => {
+const Activities = () => {
   return (
     <View>
-      <Text>activities</Text>
+      <Text>Activities</Text>
     </View>
   )
 }
 
-export default activities
+export default Activities
