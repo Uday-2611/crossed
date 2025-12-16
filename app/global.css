@@ -1,0 +1,76 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ======================================================
+   Crossed – Global Design Tokens
+   Light Mode (Default)
+   ====================================================== */
+
+:root {
+  /* ------------------------------
+     Brand Identity
+     ------------------------------ */
+  --color-brand: 31 111 92;          /* #1F6F5C */
+  --color-brand-dark: 25 92 77;      /* #195C4D */
+
+  /* ------------------------------
+     Backgrounds & Surfaces
+     ------------------------------ */
+  --color-background: 246 248 247;   /* #F6F8F7 */
+  --color-surface: 255 255 255;      /* #FFFFFF */
+  --color-surface-muted: 233 240 238; /* #E9F0EE */
+
+  /* ------------------------------
+     Text Colors
+     ------------------------------ */
+  --color-text-primary: 30 42 39;    /* #1E2A27 */
+  --color-text-secondary: 95 111 107; /* #5F6F6B */
+  --color-text-muted: 154 168 163;   /* #9AA8A3 */
+
+  /* ------------------------------
+     Feedback & Accents
+     ------------------------------ */
+  --color-success: 127 179 162;      /* #7FB3A2 */
+  --color-warning: 227 201 138;      /* #E3C98A */
+  --color-accent: 217 165 160;       /* #D9A5A0 */
+
+  /* ------------------------------
+     Borders & Dividers
+     ------------------------------ */
+  --color-border: 221 229 226;       /* #DDE5E2 */
+}
+
+/* ======================================================
+   Base Element Styling
+   ====================================================== */
+
+@layer base {
+  body {
+    background-color: rgb(var(--color-background));
+    color: rgb(var(--color-text-primary));
+  }
+}
+
+/* ======================================================
+   Reusable Utility Components
+   (Optional but recommended)
+   ====================================================== */
+
+@layer components {
+  .card {
+    @apply bg-surface border border-border rounded-2xl p-4;
+  }
+
+  .btn-primary {
+    @apply bg-brand rounded-xl px-4 py-3;
+  }
+
+  .btn-secondary {
+    @apply bg-surface-muted border border-border rounded-xl px-4 py-3;
+  }
+
+  .text-muted {
+    @apply text-text-muted;
+  }
+}
