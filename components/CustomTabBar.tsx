@@ -30,6 +30,8 @@ function TabButton({
         settings: 'settings-outline',
     };
 
+    const iconName = iconMap[route.name] || 'help-circle-outline';
+
     // Animate width ONLY
     const animatedStyle = useAnimatedStyle(() => ({
         width: withTiming(isFocused ? 140 : 60, {
@@ -56,7 +58,7 @@ function TabButton({
                 ]}
             >
                 <Ionicons
-                    name={iconMap[route.name] as any}
+                    name={iconName as any}
                     size={28}
                     color={iconColor}
                     style={{ marginRight: isFocused ? 8 : 0 }}
