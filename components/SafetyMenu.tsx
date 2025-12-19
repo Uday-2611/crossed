@@ -28,6 +28,9 @@ export const SafetyMenu = ({ visible, onClose, onUnmatch, onBlock, onReport }: S
                                 <TouchableOpacity
                                     onPress={onUnmatch}
                                     className='p-4 bg-gray-50 rounded-2xl active:bg-gray-100 items-center'
+                                    accessibilityRole="button"
+                                    accessibilityLabel="Unmatch user"
+                                    accessibilityHint="Removes this match from your list"
                                 >
                                     <Text className='text-base font-semibold text-black'>Unmatch</Text>
                                 </TouchableOpacity>
@@ -35,6 +38,9 @@ export const SafetyMenu = ({ visible, onClose, onUnmatch, onBlock, onReport }: S
                                 <TouchableOpacity
                                     onPress={onBlock}
                                     className='p-4 bg-gray-50 rounded-2xl active:bg-gray-100 items-center'
+                                    accessibilityRole="button"
+                                    accessibilityLabel="Block user"
+                                    accessibilityHint="Prevents this user from contacting you"
                                 >
                                     <Text className='text-base font-semibold text-red-500'>Block</Text>
                                 </TouchableOpacity>
@@ -42,6 +48,9 @@ export const SafetyMenu = ({ visible, onClose, onUnmatch, onBlock, onReport }: S
                                 <TouchableOpacity
                                     onPress={onReport}
                                     className='p-4 bg-gray-50 rounded-2xl active:bg-gray-100 items-center'
+                                    accessibilityRole="button"
+                                    accessibilityLabel="Report user"
+                                    accessibilityHint="Reports this user for inappropriate behavior"
                                 >
                                     <Text className='text-base font-semibold text-red-500'>Report</Text>
                                 </TouchableOpacity>
@@ -50,10 +59,12 @@ export const SafetyMenu = ({ visible, onClose, onUnmatch, onBlock, onReport }: S
                             <TouchableOpacity
                                 onPress={onClose}
                                 className='mt-4 p-4 items-center'
+                                accessibilityRole="button"
+                                accessibilityLabel="Cancel"
+                                accessibilityHint="Close this menu without taking action"
                             >
                                 <Text className='text-base font-medium text-gray-500'>Cancel</Text>
-                            </TouchableOpacity>
-                        </View>
+                            </TouchableOpacity>                        </View>
                     </TouchableWithoutFeedback>
                 </View>
             </TouchableWithoutFeedback>

@@ -104,7 +104,7 @@ export function CustomTabBar({ state, navigation }: any) {
     });
 
     return (
-        
+
         <LinearGradient
             colors={['rgba(255, 255, 255, 0)', 'rgba(255, 255, 255, 0.9)']}
             style={{
@@ -112,8 +112,7 @@ export function CustomTabBar({ state, navigation }: any) {
                 bottom: 0,
                 left: 0,
                 right: 0,
-                paddingBottom: insets.bottom - 12,
-                paddingTop: 30, // Fade height
+                paddingBottom: Math.max(0, insets.bottom - 12), paddingTop: 30, // Fade height
                 alignItems: 'center',
                 justifyContent: 'flex-end',
             }}

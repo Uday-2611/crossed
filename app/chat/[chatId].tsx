@@ -115,7 +115,8 @@ const ChatScreen = () => {
           data={messages}
           keyExtractor={(item) => item.id}
           className='flex-1 px-4'
-          contentContainerStyle={{ paddingVertical: 20, gap: 16 }}
+          contentContainerStyle={{ paddingVertical: 20 }}
+          ItemSeparatorComponent={() => <View style={{ height: 16 }} />}
           renderItem={({ item }) => {
             const isMe = item.sender === 'me';
             return (
@@ -138,7 +139,6 @@ const ChatScreen = () => {
           }}
           showsVerticalScrollIndicator={false}
         />
-
         {/* Input Area */}
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}

@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { ScrollView, StatusBar, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -14,14 +14,31 @@ const REASONS = [
 
 const ReportScreen = () => {
     const router = useRouter();
+    const { id } = useLocalSearchParams<{ id: string }>();
     const [selectedReason, setSelectedReason] = useState<string | null>(null);
-
     const handleSubmit = () => {
-        // In a real app, send report to backend here
-        router.back();
-        // Optional: Show a toast or feedback
-    };
+        if (!selectedReason || !id) return;
 
+        // TODO: Add loading state and error handling
+        // Example structure:
+        fetch('/api/reports', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                reportedUserId: id,
+                reason: selectedReason,
+                timestamp: new Date().toISOString()
+            })
+        })
+            .then(() => {
+                router.back();
+                // Show success feedback
+            })
+            .catch((error) => {
+                // Handle error
+                console.error('Failed to submit report:', error);
+            });
+    };
     return (
         <View className='flex-1 bg-white'>
             <StatusBar barStyle="dark-content" />
@@ -43,8 +60,8 @@ const ReportScreen = () => {
                                 key={reason}
                                 onPress={() => setSelectedReason(reason)}
                                 className={`p-5 rounded-2xl border flex-row items-center justify-between ${selectedReason === reason
-                                        ? 'bg-black border-black'
-                                        : 'bg-gray-50 border-transparent'
+                                    ? 'bg-black border-black'
+                                    : 'bg-gray-50 border-transparent'
                                     }`}
                             >
                                 <Text className={`text-base font-medium ${selectedReason === reason ? 'text-white' : 'text-black'
