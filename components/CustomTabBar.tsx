@@ -11,7 +11,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const TAB_WIDTH = 60;
+const TAB_WIDTH = 65;
 const PADDING = 8;
 
 function TabButton({
@@ -34,7 +34,7 @@ function TabButton({
 
     // Animate width ONLY
     const animatedStyle = useAnimatedStyle(() => ({
-        width: withTiming(isFocused ? 140 : 60, {
+        width: withTiming(isFocused ? 150 : 65, {
             duration: 250,
             easing: Easing.out(Easing.cubic),
         }),
@@ -107,8 +107,8 @@ export function CustomTabBar({ state, navigation }: any) {
             style={{
                 position: 'absolute',
                 bottom: insets.bottom - 12,
-                left: 16,
-                right: 16,
+                left: 10,
+                right: 10,
                 alignItems: 'center',
             }}
         >
@@ -130,7 +130,7 @@ export function CustomTabBar({ state, navigation }: any) {
                             left: 0,
                             top: PADDING, // Match vertical padding
                             height: 60,
-                            width: 140, // Match expanded width
+                            width: 150, // Match expanded width
                             backgroundColor: 'white',
                             borderRadius: 30,
                             zIndex: 0,
