@@ -1,8 +1,9 @@
+import { SafetyMenu } from '@/components/SafetyMenu';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React from 'react';
-import { Pressable, ScrollView, StatusBar, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import React, { useState } from 'react';
+import { Alert, Pressable, ScrollView, StatusBar, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Mock Data for the Profile
@@ -28,9 +29,39 @@ const MatchProfile = () => {
   const { width } = useWindowDimensions();
   const router = useRouter();
   const { matchId } = useLocalSearchParams(); // In a real app, use this ID to fetch data
+  const [menuVisible, setMenuVisible] = useState(false);
+
+  const handleUnmatch = () => {
+    setMenuVisible(false);
+    Alert.alert(
+      "Unmatch this user?",
+      "This will remove this match and you won’t be able to chat anymore.",
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "Unmatch", style: "destructive", onPress: () => router.replace('/(tabs)/matches') }
+      ]
+    );
+  };
+
+  const handleBlock = () => {
+    setMenuVisible(false);
+    Alert.alert(
+      "Block this user?",
+      "They won't be able to see your profile or message you.",
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "Block", style: "destructive", onPress: () => router.replace('/(tabs)/matches') }
+      ]
+    );
+  };
+
+  const handleReport = () => {
+    setMenuVisible(false);
+    router.push(`/report/${matchId}` as any);
+  };
 
   return (
-    <View className='flex-1 bg-gray-50'>
+    <View className='flex-1 bg-background'>
       <StatusBar barStyle="dark-content" />
       <SafeAreaView className='flex-1' edges={['top']}>
 
@@ -40,7 +71,7 @@ const MatchProfile = () => {
             <Ionicons name="arrow-back" size={24} color="black" />
           </TouchableOpacity>
           <Text className='font-bold text-xl text-black'>{MOCK_PROFILE.name}, {MOCK_PROFILE.age}</Text>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => setMenuVisible(true)}>
             <Ionicons name="ellipsis-horizontal" size={24} color="black" />
           </TouchableOpacity>
         </View>
@@ -117,25 +148,34 @@ const MatchProfile = () => {
         </ScrollView>
 
         {/* SECTION 6: Action Buttons (Fixed) */}
-        <LinearGradient
-          colors={['rgba(249, 250, 251, 0)', 'rgba(249, 250, 251, 0.9)']}
-          className='absolute bottom-0 left-0 w-full px-8 pb-10 flex-row justify-center gap-8 pt-4'
-        >
-          <Pressable
-            className='h-16 w-16 bg-white rounded-full items-center justify-center shadow-md border border-gray-100'
-            style={({ pressed }) => [{ transform: [{ scale: pressed ? 0.95 : 1 }] }]}
+        <View className="absolute bottom-0 left-0 w-full">
+          <LinearGradient
+            colors={['rgba(249, 250, 251, 0)', 'rgba(249, 250, 251, 0.9)']}
+            style={{ width: '100%', paddingHorizontal: 32, paddingBottom: 40, paddingTop: 16, flexDirection: 'row', justifyContent: 'center', gap: 32 }}
           >
-            <Ionicons name="close" size={32} color="#9CA3AF" />
-          </Pressable>
+            <Pressable
+              className='h-16 w-16 bg-white rounded-full items-center justify-center shadow-md border border-gray-100'
+              style={({ pressed }) => [{ transform: [{ scale: pressed ? 0.95 : 1 }] }]}
+            >
+              <Ionicons name="close" size={32} color="#9CA3AF" />
+            </Pressable>
 
-          <Pressable
-            className='h-16 w-16 bg-black rounded-full items-center justify-center shadow-md'
-            style={({ pressed }) => [{ transform: [{ scale: pressed ? 0.95 : 1 }] }]}
-          >
-            <Ionicons name="heart" size={30} color="#22C55E" />
-          </Pressable>
-        </LinearGradient>
+            <Pressable
+              className='h-16 w-16 bg-brand rounded-full items-center justify-center shadow-md'
+              style={({ pressed }) => [{ transform: [{ scale: pressed ? 0.95 : 1 }] }]}
+            >
+              <Ionicons name="heart" size={30} color="#22C55E" />
+            </Pressable>
+          </LinearGradient>
+        </View>
 
+        <SafetyMenu
+          visible={menuVisible}
+          onClose={() => setMenuVisible(false)}
+          onUnmatch={handleUnmatch}
+          onBlock={handleBlock}
+          onReport={handleReport}
+        />
       </SafeAreaView>
     </View>
   );
