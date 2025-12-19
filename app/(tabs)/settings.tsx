@@ -22,12 +22,12 @@ const Settings = () => {
     const ETHNICITIES = ['Prefer not to say', 'No preference', 'Asian', 'Black', 'Hispanic/Latino', 'Indian', 'Middle Eastern', 'White'];
 
     return (
-        <View className='flex-1 bg-white pb-24'>
+        <View className='flex-1 bg-background pb-24'>
             <StatusBar barStyle="dark-content" />
             <SafeAreaView className='flex-1' edges={['top']}>
                 {/* Header */}
                 <View className='px-6 pt-4 pb-6'>
-                    <Text className='font-bold text-4xl text-black tracking-tight'>Settings</Text>
+                    <Text className='font-bold text-4xl text-text-primary tracking-tight'>Settings</Text>
                 </View>
 
                 <ScrollView className='flex-1' showsVerticalScrollIndicator={false}>

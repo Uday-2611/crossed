@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Pressable, View } from 'react-native';
 import Animated, {
     Easing,
@@ -103,14 +104,20 @@ export function CustomTabBar({ state, navigation }: any) {
     });
 
     return (
-        <View
+        
+        <LinearGradient
+            colors={['rgba(255, 255, 255, 0)', 'rgba(255, 255, 255, 0.9)']}
             style={{
                 position: 'absolute',
-                bottom: insets.bottom - 12,
-                left: 10,
-                right: 10,
+                bottom: 0,
+                left: 0,
+                right: 0,
+                paddingBottom: insets.bottom - 12,
+                paddingTop: 30, // Fade height
                 alignItems: 'center',
+                justifyContent: 'flex-end',
             }}
+            pointerEvents="box-none" // Let touches pass through the empty part of gradient if needed, but here we want to hold the buttons
         >
             <View
                 className="flex-row bg-black rounded-full p-2 items-center"
@@ -165,6 +172,6 @@ export function CustomTabBar({ state, navigation }: any) {
                     );
                 })}
             </View>
-        </View>
+        </LinearGradient>
     );
 }

@@ -2,11 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ======================================================
-   Crossed – Global Design Tokens
-   Light Mode (Default)
-   ====================================================== */
-
 :root {
   /* ------------------------------
      Brand Identity
