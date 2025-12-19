@@ -32,30 +32,36 @@ const Chats = () => {
 
           {/* Section 1: Matches (Active Chats) */}
           <View className='px-6 mb-8'>
-
-            <View className='gap-6'>
-              {MATCHES.map((match) => (
-                <TouchableOpacity key={match.id} className='flex-row items-center gap-4 active:opacity-70'>
-                  {/* Avatar Placeholder */}
-                  <View className='h-16 w-16 rounded-full bg-gray-200 items-center justify-center border border-gray-100'>
-                    <Ionicons name="person" size={24} color="#9CA3AF" />
-                  </View>
-
-                  {/* Text Content */}
-                  <View className='flex-1 justify-center border-b border-gray-100 pb-4'>
-                    <View className='flex-row justify-between items-center mb-1'>
-                      <Text className='font-bold text-lg text-black'>{match.name}</Text>
-                      <Text className='text-xs text-gray-400 font-medium'>{match.time}</Text>
+            {MATCHES.length === 0 ? (
+              <View className='items-center py-8'>
+                <Text className='text-gray-400 text-base text-center'>
+                  No matches yet. Start swiping to find connections!
+                </Text>
+              </View>
+            ) : (
+              <View className='gap-6'>
+                {MATCHES.map((match) => (
+                  <TouchableOpacity key={match.id} className='flex-row items-center gap-4 active:opacity-70'>
+                    {/* Avatar Placeholder */}
+                    <View className='h-16 w-16 rounded-full bg-gray-200 items-center justify-center border border-gray-100'>
+                      <Ionicons name="person" size={24} color="#9CA3AF" />
                     </View>
-                    <Text className='text-base text-gray-500 truncate leading-5' numberOfLines={1}>
-                      {match.message}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
 
+                    {/* Text Content */}
+                    <View className='flex-1 justify-center border-b border-gray-100 pb-4'>
+                      <View className='flex-row justify-between items-center mb-1'>
+                        <Text className='font-bold text-lg text-black'>{match.name}</Text>
+                        <Text className='text-xs text-gray-400 font-medium'>{match.time}</Text>
+                      </View>
+                      <Text className='text-base text-gray-500 truncate leading-5' numberOfLines={1}>
+                        {match.message}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
+          </View>
           <View className='px-6 pt-4 pb-4'>
             <Text className='font-bold text-4xl text-black tracking-tight'>Liked You</Text>
           </View>
@@ -64,7 +70,7 @@ const Chats = () => {
           <View className='px-6 mb-10'>
             <View className='gap-6'>
               {LIKED_YOU.map((user) => (
-                <TouchableOpacity key={user.id} className='flex-row items-center gap-4 active:opacity-70'>
+                <TouchableOpacity key={user.id} className='flex-row items-center gap-4 active:opacity-70' accessibilityRole="button" accessibilityLabel={`${user.name} liked your profile. Tap to view`}>
                   {/* Avatar Placeholder */}
                   <View className='h-16 w-16 rounded-full bg-gray-100 items-center justify-center border border-gray-50 opacity-80'>
                     <Ionicons name="heart" size={20} color="#D1D5DB" />

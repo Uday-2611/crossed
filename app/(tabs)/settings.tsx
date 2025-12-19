@@ -105,9 +105,9 @@ const Settings = () => {
                                             <TouchableOpacity
                                                 key={option}
                                                 onPress={() => setInterestedIn([option])} // Single select for gender usually
-                                                className={`flex - 1 py - 3 items - center ${isSelected ? 'bg-black' : 'bg-white'} ${idx !== 2 ? 'border-r border-gray-200' : ''} `}
+                                                className={`flex-1 py-3 items-center ${isSelected ? 'bg-black' : 'bg-white'} ${idx !== 2 ? 'border-r border-gray-200' : ''} `}
                                             >
-                                                <Text className={`font - medium ${isSelected ? 'text-white' : 'text-black'} `}>{option}</Text>
+                                                <Text className={`font-medium ${isSelected ? 'text-white' : 'text-black'} `}>{option}</Text>
                                             </TouchableOpacity>
                                         );
                                     })}
@@ -124,9 +124,9 @@ const Settings = () => {
                                             <TouchableOpacity
                                                 key={item}
                                                 onPress={() => toggleSelection(item, selectedReligions, setSelectedReligions)}
-                                                className={`px - 4 py - 2 rounded - full border ${isSelected ? 'bg-black border-black' : 'bg-white border-gray-200'} `}
+                                                className={`px-4 py-2 rounded-full border ${isSelected ? 'bg-black border-black' : 'bg-white border-gray-200'} `}
                                             >
-                                                <Text className={`font - medium ${isSelected ? 'text-white' : 'text-gray-700'} `}>{item}</Text>
+                                                <Text className={`font-medium ${isSelected ? 'text-white' : 'text-gray-700'} `}>{item}</Text>
                                             </TouchableOpacity>
                                         );
                                     })}
@@ -143,9 +143,9 @@ const Settings = () => {
                                             <TouchableOpacity
                                                 key={item}
                                                 onPress={() => toggleSelection(item, selectedEthnicities, setSelectedEthnicities)}
-                                                className={`px - 4 py - 2 rounded - full border ${isSelected ? 'bg-black border-black' : 'bg-white border-gray-200'} `}
+                                                className={`px-4 py-2 rounded-full border ${isSelected ? 'bg-black border-black' : 'bg-white border-gray-200'} `}
                                             >
-                                                <Text className={`font - medium ${isSelected ? 'text-white' : 'text-gray-700'} `}>{item}</Text>
+                                                <Text className={`font-medium ${isSelected ? 'text-white' : 'text-gray-700'} `}>{item}</Text>
                                             </TouchableOpacity>
                                         );
                                     })}

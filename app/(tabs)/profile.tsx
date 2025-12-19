@@ -25,8 +25,6 @@ const ACTIVITIES = ['Hiking', 'Photography', 'Cooking'];
 
 const Profile = () => {
   const [bio, setBio] = useState('Coffee enthusiast, travel lover, and amateur photographer. Always looking for the next best ramen spot.');
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
-
   return (
     <View className='flex-1 bg-background'>
       <StatusBar barStyle="dark-content" />

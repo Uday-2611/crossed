@@ -1,7 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
-import { Dimensions, ScrollView, StatusBar, Text, TouchableOpacity, View } from 'react-native';
+import { Pressable, ScrollView, StatusBar, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Mock Data for the Profile
@@ -23,9 +24,8 @@ const MOCK_PROFILE = {
   activities: ['Running', 'Reading', 'Photography', 'Jazz'],
 };
 
-const { width } = Dimensions.get('window');
-
 const MatchProfile = () => {
+  const { width } = useWindowDimensions();
   const router = useRouter();
   const { matchId } = useLocalSearchParams(); // In a real app, use this ID to fetch data
 
@@ -117,16 +117,24 @@ const MatchProfile = () => {
         </ScrollView>
 
         {/* SECTION 6: Action Buttons (Fixed) */}
-        <View className='absolute bottom-0 left-0 w-full px-8 pb-10 flex-row justify-center gap-8 bg-gradient-to-t from-gray-50/90 to-transparent pt-4'>
-          <TouchableOpacity className='h-16 w-16 bg-white rounded-full items-center justify-center shadow-md border border-gray-100 active:scale-95 transition-transform'>
+        <LinearGradient
+          colors={['rgba(249, 250, 251, 0)', 'rgba(249, 250, 251, 0.9)']}
+          className='absolute bottom-0 left-0 w-full px-8 pb-10 flex-row justify-center gap-8 pt-4'
+        >
+          <Pressable
+            className='h-16 w-16 bg-white rounded-full items-center justify-center shadow-md border border-gray-100'
+            style={({ pressed }) => [{ transform: [{ scale: pressed ? 0.95 : 1 }] }]}
+          >
             <Ionicons name="close" size={32} color="#9CA3AF" />
-          </TouchableOpacity>
+          </Pressable>
 
-          <TouchableOpacity className='h-16 w-16 bg-black rounded-full items-center justify-center shadow-md active:scale-95 transition-transform'>
+          <Pressable
+            className='h-16 w-16 bg-black rounded-full items-center justify-center shadow-md'
+            style={({ pressed }) => [{ transform: [{ scale: pressed ? 0.95 : 1 }] }]}
+          >
             <Ionicons name="heart" size={30} color="#22C55E" />
-
-          </TouchableOpacity>
-        </View>
+          </Pressable>
+        </LinearGradient>
 
       </SafeAreaView>
     </View>
