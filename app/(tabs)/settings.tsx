@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import { useClerk } from '@clerk/clerk-expo';
+import { useState } from 'react';
 import { ScrollView, StatusBar, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Settings = () => {
+    const { signOut } = useClerk();
     // Preferences State
     const [interestedIn, setInterestedIn] = useState<string[]>(['Women']);
     const [ageRange, setAgeRange] = useState([21, 26]);
@@ -45,7 +47,17 @@ const Settings = () => {
                                 <Text className='text-sm text-gray-500'>uday@example.com • Google</Text>
                             </View>
 
-                            <TouchableOpacity className='p-4 border-b border-gray-200 active:bg-gray-100/50'>
+                            <TouchableOpacity
+                                className='p-4 border-b border-gray-200 active:bg-gray-100/50'
+                                onPress={async () => {
+                                    await signOut();
+                                    // Navigate to sign-in screen if not handled by auth layout listener
+                                    /* 
+                                     * Note: The Clerk useAuth listener in app/index.tsx should auto-redirect,
+                                     * but we can force it here for immediate feedback if needed.
+                                     */
+                                }}
+                            >
                                 <Text className='text-base font-medium text-black'>Log Out</Text>
                             </TouchableOpacity>
 

@@ -1,17 +1,54 @@
+import { useOAuth } from '@clerk/clerk-expo';
 import { Ionicons } from '@expo/vector-icons';
+import * as Linking from 'expo-linking';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import * as WebBrowser from 'expo-web-browser';
 import React from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { SignInAnimation } from '../../components/SignInAnimation';
 import '../global.css';
 
-const SignIn = () => {
-  const router = useRouter();
+export const useWarmUpBrowser = () => {
+  React.useEffect(() => {
+    // Warm up the android browser to improve UX
+    // https://docs.expo.dev/guides/authentication/#improving-user-experience
+    void WebBrowser.warmUpAsync();
+    return () => {
+      void WebBrowser.coolDownAsync();
+    };
+  }, []);
+};
 
-  const handleSignIn = () => {
-    router.replace('/(tabs)/matches');
+WebBrowser.maybeCompleteAuthSession();
+
+const SignIn = () => {
+  useWarmUpBrowser();
+
+  const router = useRouter();
+  const { startOAuthFlow: startGoogleFlow } = useOAuth({ strategy: 'oauth_google' });
+  const { startOAuthFlow: startAppleFlow } = useOAuth({ strategy: 'oauth_apple' });
+
+  const onSelectAuth = async (strategy: 'oauth_google' | 'oauth_apple') => {
+    const selectedFlow = strategy === 'oauth_google' ? startGoogleFlow : startAppleFlow;
+
+    try {
+      const { createdSessionId, setActive } = await selectedFlow({
+        redirectUrl: Linking.createURL('/(tabs)/matches', { scheme: 'crossed' }),
+      });
+
+      if (createdSessionId) {
+        if (setActive) {
+          await setActive({ session: createdSessionId });
+          router.replace('/(tabs)/matches');
+        }
+      } else {
+        // Use signIn or signUp for next steps such as MFA
+      }
+    } catch (err) {
+      console.error('OAuth error', err);
+    }
   };
 
   return (
@@ -36,7 +73,7 @@ const SignIn = () => {
           <View className="space-y-5 flex flex-col gap-2">
             {/* Google */}
             <Pressable
-              onPress={handleSignIn}
+              onPress={() => onSelectAuth('oauth_google')}
               className="flex-row items-center justify-center bg-white/90 px-6 py-5 rounded-3xl shadow-md active:bg-white"
             >
               <Ionicons
@@ -52,7 +89,7 @@ const SignIn = () => {
 
             {/* Apple */}
             <Pressable
-              onPress={handleSignIn}
+              onPress={() => onSelectAuth('oauth_apple')}
               className="flex-row items-center justify-center bg-black/80 px-6 py-5 rounded-3xl shadow-md active:bg-black"
             >
               <Ionicons
