@@ -1,8 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useMutation, useQuery } from 'convex/react';
 import * as ImagePicker from 'expo-image-picker';
+import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Dimensions, Image, ScrollView, StatusBar, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Dimensions, Image, ScrollView, StatusBar, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { api } from '../../convex/_generated/api';
 import { uploadToCloudinary } from '../../lib/cloudinary';
@@ -12,10 +13,10 @@ const { width } = Dimensions.get('window');
 const PHOTO_SLOTS = [1, 2, 3, 4, 5, 6];
 
 const Profile = () => {
+  const router = useRouter();
   const profile = useQuery(api.profiles.getMyProfile);
   const upsertProfile = useMutation(api.profiles.upsertMyProfile);
 
-  // Local state for editing
   const [formData, setFormData] = useState({
     name: '',
     bio: '',
@@ -24,7 +25,7 @@ const Profile = () => {
     location: '',
     gender: '',
     religion: '',
-    // Default values for fields not yet in UI but required by schema
+    university: '',
     age: 18,
     sexuality: 'Heterosexual',
     photos: [] as string[],
@@ -32,8 +33,6 @@ const Profile = () => {
   });
 
   const [isSaving, setIsSaving] = useState(false);
-
-  const [selectedImage, setSelectedImage] = useState<ImagePicker.ImagePickerAsset | null>(null);
 
   const pickImage = async () => {
 
@@ -98,6 +97,7 @@ const Profile = () => {
         location: profile.location || '',
         gender: profile.gender || '',
         religion: profile.religion || '',
+        university: profile.university || '',
         age: profile.age || 18,
         sexuality: profile.sexuality || 'Heterosexual',
         photos: profile.photos || [],
@@ -115,9 +115,10 @@ const Profile = () => {
         height: Number(formData.height),
         age: Number(formData.age),
       });
-      console.log('Profile saved!');
+      Alert.alert('Success', 'Profile saved successfully!');
     } catch (error) {
       console.error('Failed to save profile:', error);
+      Alert.alert('Error', 'Failed to save profile. Please try again.');
     } finally {
       setIsSaving(false);
     }
@@ -240,6 +241,22 @@ const Profile = () => {
                 scrollEnabled={false}
               />
             </View>
+
+            <TouchableOpacity
+              onPress={() => router.push('/about-you' as any)}
+              className="mt-4 flex-row items-center justify-between bg-surface p-4 rounded-2xl border border-border/20"
+            >
+              <View className="flex-row items-center gap-3">
+                <View className="bg-sky-100 p-2 rounded-full">
+                  <Ionicons name="information-circle" size={20} color="#000" />
+                </View>
+                <View>
+                  <Text className="font-bold text-base">About You</Text>
+                  <Text className="text-secondary text-xs">Work, Education, Beliefs</Text>
+                </View>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color="#CCC" />
+            </TouchableOpacity>
           </View>
 
           {/* SECTION 3: Personal Details */}
@@ -249,60 +266,41 @@ const Profile = () => {
               {/* Work */}
               <View className='flex-row justify-between items-center py-4 px-5 border-b border-border/30'>
                 <Text className='text-text-secondary font-medium'>Work</Text>
-                <TextInput
-                  className='text-text-primary font-semibold text-right flex-1 ml-4'
-                  value={formData.occupation}
-                  onChangeText={(text) => updateField('occupation', text)}
-                  placeholder="Add"
-                />
+                <Text className='text-text-primary font-semibold text-right flex-1 ml-4'>
+                  {formData.university ? `Student at ${formData.university}` : (formData.occupation || 'Add')}
+                </Text>
               </View>
 
               {/* Height */}
               <View className='flex-row justify-between items-center py-4 px-5 border-b border-border/30'>
                 <Text className='text-text-secondary font-medium'>Height (cm)</Text>
-                <TextInput
-                  className='text-text-primary font-semibold text-right flex-1 ml-4'
-                  value={formData.height ? formData.height.toString() : ''}
-                  onChangeText={(text) => {
-                    const num = parseInt(text, 10);
-                    updateField('height', isNaN(num) ? 0 : num);
-                  }}
-                  keyboardType="numeric"
-                  placeholder="Add"
-                />
+                <Text className='text-text-primary font-semibold text-right flex-1 ml-4'>
+                  {formData.height || 'Add'}
+                </Text>
               </View>
 
               {/* Hometown (Location) */}
               <View className='flex-row justify-between items-center py-4 px-5 border-b border-border/30'>
                 <Text className='text-text-secondary font-medium'>Hometown</Text>
-                <TextInput
-                  className='text-text-primary font-semibold text-right flex-1 ml-4'
-                  value={formData.location}
-                  onChangeText={(text) => updateField('location', text)}
-                  placeholder="Add"
-                />
+                <Text className='text-text-primary font-semibold text-right flex-1 ml-4'>
+                  {formData.location || 'Add'}
+                </Text>
               </View>
 
               {/* Gender */}
               <View className='flex-row justify-between items-center py-4 px-5 border-b border-border/30'>
                 <Text className='text-text-secondary font-medium'>Gender</Text>
-                <TextInput
-                  className='text-text-primary font-semibold text-right flex-1 ml-4'
-                  value={formData.gender}
-                  onChangeText={(text) => updateField('gender', text)}
-                  placeholder="Add"
-                />
+                <Text className='text-text-primary font-semibold text-right flex-1 ml-4'>
+                  {formData.gender || 'Add'}
+                </Text>
               </View>
 
               {/* Religion */}
               <View className='flex-row justify-between items-center py-4 px-5'>
                 <Text className='text-text-secondary font-medium'>Religion</Text>
-                <TextInput
-                  className='text-text-primary font-semibold text-right flex-1 ml-4'
-                  value={formData.religion}
-                  onChangeText={(text) => updateField('religion', text)}
-                  placeholder="Add"
-                />
+                <Text className='text-text-primary font-semibold text-right flex-1 ml-4'>
+                  {formData.religion || 'Add'}
+                </Text>
               </View>
             </View>
           </View>
