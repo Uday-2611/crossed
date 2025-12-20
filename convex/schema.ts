@@ -6,4 +6,20 @@ export default defineSchema({
     clerkId: v.string(),
     createdAt: v.number(),
   }).index("by_clerkId", ["clerkId"]),
+
+  profiles: defineTable({
+    userId: v.string(), // Clerk userId
+    name: v.string(),
+    age: v.number(),
+    bio: v.string(),
+    gender: v.string(),
+    sexuality: v.string(),
+    height: v.number(),
+    occupation: v.string(),
+    religion: v.string(),
+    location: v.string(),
+    photos: v.array(v.string()),
+    activities: v.array(v.string()),
+    updatedAt: v.number(),
+  }).index("by_userId", ["userId"]),
 });
