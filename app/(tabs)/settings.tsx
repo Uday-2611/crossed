@@ -1,10 +1,18 @@
-import { useClerk } from '@clerk/clerk-expo';
+import { api } from '@/convex/_generated/api';
+import { useClerk, useUser } from '@clerk/clerk-expo';
+import { useMutation } from 'convex/react';
+import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { ScrollView, StatusBar, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, ActivityIndicator, Modal, ScrollView, StatusBar, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Settings = () => {
     const { signOut } = useClerk();
+    const { user } = useUser();
+    const router = useRouter(); // Explicit navigation
+    const deleteAccountMutation = useMutation(api.profiles.deleteMyAccount);
+    const [isDeleting, setIsDeleting] = useState(false); // Loading state
+
     // Preferences State
     const [interestedIn, setInterestedIn] = useState<string[]>(['Women']);
     const [ageRange, setAgeRange] = useState([21, 26]);
@@ -44,28 +52,93 @@ const Settings = () => {
 
                             <View className='p-4 border-b border-gray-200'>
                                 <Text className='text-base font-medium text-black mb-1'>Account Information</Text>
-                                <Text className='text-sm text-gray-500'>uday@example.com • Google</Text>
+                                <Text className='text-sm text-gray-500'>
+                                    {user?.primaryEmailAddress?.emailAddress || 'Linked with Apple/Google'}
+                                </Text>
                             </View>
 
                             <TouchableOpacity
                                 className='p-4 border-b border-gray-200 active:bg-gray-100/50'
                                 onPress={async () => {
-                                    await signOut();
-                                    // Navigate to sign-in screen if not handled by auth layout listener
-                                    /* 
-                                     * Note: The Clerk useAuth listener in app/index.tsx should auto-redirect,
-                                     * but we can force it here for immediate feedback if needed.
-                                     */
+                                    // Log Out logic
+                                    try {
+                                        await signOut();
+                                    } catch (err) {
+                                        console.error("Logout failed", err);
+                                        Alert.alert("Error", "Failed to log out. Please try again.");
+                                    } finally {
+                                        // Always redirect, even if signOut fails/timeouts
+                                        router.replace("/(auth)/sign-in");
+                                    }
                                 }}
                             >
                                 <Text className='text-base font-medium text-black'>Log Out</Text>
                             </TouchableOpacity>
 
-                            <TouchableOpacity className='p-4 active:bg-red-50/50'>
-                                <Text className='text-base font-medium text-red-500'>Delete Account</Text>
+                            <TouchableOpacity
+                                className='p-4 active:bg-red-50/50'
+                                disabled={isDeleting}
+                                onPress={() => {
+                                    Alert.alert(
+                                        "Delete account?",
+                                        "This will permanently delete your profile, photos, matches, and chats.\nThis action cannot be undone.",
+                                        [
+                                            {
+                                                text: "Cancel",
+                                                style: "cancel"
+                                            },
+                                            {
+                                                text: "Delete account",
+                                                style: "destructive",
+                                                onPress: async () => {
+                                                    try {
+                                                        setIsDeleting(true);
+                                                        
+                                                        // 1. Delete from Convex (Must come first while auth token is valid)
+                                                        await deleteAccountMutation();
+
+                                                        // 2. Delete from Clerk
+                                                        if (user) {
+                                                            await user.delete();
+                                                        } else {
+                                                            await signOut();
+                                                        }
+
+                                                        // 3. Redirect
+                                                        router.replace("/(auth)/sign-in");
+                                                        
+                                                    } catch (error) {
+                                                        console.error("Delete account failed:", error as any);
+                                                        Alert.alert("Error", "Failed to delete account. Please try again.");
+                                                        setIsDeleting(false);
+                                                    } finally {
+                                                        // If successful, we navigated away. 
+                                                        // If failed, we stopped loading.
+                                                        // No need to set false if unmounted, but safe to do so in catch/finally if component lives.
+                                                    }
+                                                }
+                                            }
+                                        ]
+                                    );
+                                }}
+                            >
+                                <Text className={`text-base font-medium ${isDeleting ? 'text-gray-400' : 'text-red-500'}`}>
+                                    {isDeleting ? 'Deleting...' : 'Delete Account'}
+                                </Text>
                             </TouchableOpacity>
                         </View>
                     </View>
+
+                    {/* Loading Overlay */}
+                    <Modal transparent visible={isDeleting}>
+                        <View className="flex-1 bg-black/50 items-center justify-center">
+                            <View className="bg-white p-6 rounded-2xl items-center shadow-xl">
+                                <ActivityIndicator size="large" color="#FF3B30" />
+                                <Text className="mt-4 font-bold text-lg text-text-primary">Deleting Account...</Text>
+                                <Text className="text-gray-500 text-sm mt-1">Please wait</Text>
+                            </View>
+                        </View>
+                    </Modal>
 
                     {/* Section 1.5: Dating Preferences */}
                     <View className='px-6 mb-8'>
