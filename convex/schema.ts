@@ -8,7 +8,7 @@ export default defineSchema({
   }).index("by_clerkId", ["clerkId"]),
 
   profiles: defineTable({
-    userId: v.string(), // Clerk userId
+    clerkId: v.string(), // Clerk userId
     name: v.string(),
     age: v.number(),
     bio: v.string(),
@@ -21,5 +21,5 @@ export default defineSchema({
     photos: v.array(v.string()),
     activities: v.array(v.string()),
     updatedAt: v.number(),
-  }).index("by_userId", ["userId"]),
+  }).index("by_clerkId", ["clerkId"]),
 });

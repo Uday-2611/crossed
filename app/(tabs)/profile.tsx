@@ -1,12 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useMutation, useQuery } from 'convex/react';
+import * as ImagePicker from 'expo-image-picker';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Dimensions, ScrollView, StatusBar, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Dimensions, Image, ScrollView, StatusBar, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { api } from '../../convex/_generated/api';
-import * as ImagePicker from 'expo-image-picker';
 import { uploadToCloudinary } from '../../lib/cloudinary';
-import { Image } from 'react-native';
 
 const { width } = Dimensions.get('window');
 
@@ -45,6 +44,7 @@ const Profile = () => {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== 'granted') {
         alert('Sorry, we need camera roll permissions to make this work');
+        setIsSaving(false);
         return
       }
 
@@ -263,7 +263,10 @@ const Profile = () => {
                 <TextInput
                   className='text-text-primary font-semibold text-right flex-1 ml-4'
                   value={formData.height ? formData.height.toString() : ''}
-                  onChangeText={(text) => updateField('height', text)}
+                  onChangeText={(text) => {
+                    const num = parseInt(text, 10);
+                    updateField('height', isNaN(num) ? 0 : num);
+                  }}
                   keyboardType="numeric"
                   placeholder="Add"
                 />

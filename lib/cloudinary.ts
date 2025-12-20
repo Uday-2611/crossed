@@ -6,9 +6,21 @@ export const uploadToCloudinary = async (imageUri: string) => {
         throw new Error("Missing Cloudinary env variables");
     }
 
-    const uriParts = imageUri.split('.');
-    const fileType = uriParts[uriParts.length - 1];
-    const mimeType = fileType === 'png' ? 'image/png' : fileType === 'webp' ? 'image/webp' : 'image/jpeg';
+    // Extract file extension from URI, handling query params and fragments
+    const urlPath = imageUri.split('?')[0].split('#')[0];
+    const fileType = urlPath.split('.').pop()?.toLowerCase() || 'jpeg';
+
+    const mimeTypeMap: Record<string, string> = {
+        'png': 'image/png',
+        'jpg': 'image/jpeg',
+        'jpeg': 'image/jpeg',
+        'webp': 'image/webp',
+        'gif': 'image/gif',
+        'bmp': 'image/bmp',
+        'heic': 'image/heic',
+    };
+
+    const mimeType = mimeTypeMap[fileType] || 'image/jpeg';
 
     const formData = new FormData();
     formData.append("file", {
@@ -20,19 +32,33 @@ export const uploadToCloudinary = async (imageUri: string) => {
     formData.append("upload_preset", uploadPreset);
     formData.append("cloud_name", cloudName);
 
-    const response = await fetch(
-        `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
-        {
-            method: "POST",
-            body: formData,
+    // Add timeout using AbortController
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
+
+    try {
+        const response = await fetch(
+            `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+            {
+                method: "POST",
+                body: formData,
+                signal: controller.signal,
+            }
+        );
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Upload failed with status ${response.status}: ${errorText}`);
         }
-    );
 
-    const data = await response.json();
+        const data = await response.json();
 
-    if (data.secure_url) {
-        return data.secure_url;
-    } else {
-        throw new Error("Upload failed: " + JSON.stringify(data));
+        if (data.secure_url) {
+            return data.secure_url;
+        } else {
+            throw new Error(`Upload failed: ${data.error?.message || 'Unknown error'}`);
+        }
+    } finally {
+        clearTimeout(timeoutId);
     }
 };

@@ -10,9 +10,9 @@ export const getMyProfile = query({
             throw new Error("Not authenticated");
         }
 
-        const userId = identity.subject;
+        const clerkId = identity.subject;
 
-        const profile = await ctx.db.query("profiles").withIndex("by_userId", (q) => q.eq("userId", userId)).unique();
+        const profile = await ctx.db.query("profiles").withIndex("by_clerkId", (q) => q.eq("clerkId", clerkId)).unique();
 
         return profile;
     },
@@ -39,11 +39,11 @@ export const upsertMyProfile = mutation({
             throw new Error("Not authenticated");
         }
 
-        const userId = identity.subject;
+        const clerkId = identity.subject;
 
         const existingProfile = await ctx.db
             .query("profiles")
-            .withIndex("by_userId", (q) => q.eq("userId", userId))
+            .withIndex("by_clerkId", (q) => q.eq("clerkId", clerkId))
             .unique();
 
         if (existingProfile) {
@@ -54,7 +54,7 @@ export const upsertMyProfile = mutation({
             return existingProfile._id;
         } else {
             const newProfileId = await ctx.db.insert("profiles", {
-                userId,
+                clerkId,
                 ...args,
                 updatedAt: Date.now(),
             });
