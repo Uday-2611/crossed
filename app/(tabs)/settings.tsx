@@ -3,7 +3,7 @@ import { useClerk, useUser } from '@clerk/clerk-expo';
 import { useMutation } from 'convex/react';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Alert, ActivityIndicator, Modal, ScrollView, StatusBar, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Modal, ScrollView, StatusBar, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Settings = () => {
@@ -60,18 +60,14 @@ const Settings = () => {
                             <TouchableOpacity
                                 className='p-4 border-b border-gray-200 active:bg-gray-100/50'
                                 onPress={async () => {
-                                    // Log Out logic
                                     try {
                                         await signOut();
+                                        router.replace("/(auth)/sign-in");
                                     } catch (err) {
                                         console.error("Logout failed", err);
                                         Alert.alert("Error", "Failed to log out. Please try again.");
-                                    } finally {
-                                        // Always redirect, even if signOut fails/timeouts
-                                        router.replace("/(auth)/sign-in");
                                     }
-                                }}
-                            >
+                                }}                            >
                                 <Text className='text-base font-medium text-black'>Log Out</Text>
                             </TouchableOpacity>
 
@@ -93,7 +89,7 @@ const Settings = () => {
                                                 onPress: async () => {
                                                     try {
                                                         setIsDeleting(true);
-                                                        
+
                                                         // 1. Delete from Convex (Must come first while auth token is valid)
                                                         await deleteAccountMutation();
 
@@ -106,7 +102,7 @@ const Settings = () => {
 
                                                         // 3. Redirect
                                                         router.replace("/(auth)/sign-in");
-                                                        
+
                                                     } catch (error) {
                                                         console.error("Delete account failed:", error as any);
                                                         Alert.alert("Error", "Failed to delete account. Please try again.");

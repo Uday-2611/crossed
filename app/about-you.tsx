@@ -65,7 +65,7 @@ export default function AboutYouScreen() {
                 // Updated fields:
                 occupation: formData.occupation,
                 university: formData.isStudent ? formData.university : undefined, // clear uni if not student
-                height: parseInt(formData.height) || 0,
+                height: formData.height ? (parseInt(formData.height) || 0) : 0,
                 location: formData.location,
                 gender: formData.gender,
                 religion: formData.religion,

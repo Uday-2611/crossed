@@ -17,7 +17,6 @@ const Profile = () => {
   const profile = useQuery(api.profiles.getMyProfile);
   const upsertProfile = useMutation(api.profiles.upsertMyProfile);
 
-  // Local state for editing
   const [formData, setFormData] = useState({
     name: '',
     bio: '',
@@ -26,7 +25,7 @@ const Profile = () => {
     location: '',
     gender: '',
     religion: '',
-    // Default values for fields not yet in UI but required by schema
+    university: '',
     age: 18,
     sexuality: 'Heterosexual',
     photos: [] as string[],
@@ -34,8 +33,6 @@ const Profile = () => {
   });
 
   const [isSaving, setIsSaving] = useState(false);
-
-  const [selectedImage, setSelectedImage] = useState<ImagePicker.ImagePickerAsset | null>(null);
 
   const pickImage = async () => {
 
@@ -100,6 +97,7 @@ const Profile = () => {
         location: profile.location || '',
         gender: profile.gender || '',
         religion: profile.religion || '',
+        university: profile.university || '',
         age: profile.age || 18,
         sexuality: profile.sexuality || 'Heterosexual',
         photos: profile.photos || [],
@@ -269,7 +267,7 @@ const Profile = () => {
               <View className='flex-row justify-between items-center py-4 px-5 border-b border-border/30'>
                 <Text className='text-text-secondary font-medium'>Work</Text>
                 <Text className='text-text-primary font-semibold text-right flex-1 ml-4'>
-                  {profile?.university ? `Student at ${profile?.university}` : (formData.occupation || 'Add')}
+                  {formData.university ? `Student at ${formData.university}` : (formData.occupation || 'Add')}
                 </Text>
               </View>
 
