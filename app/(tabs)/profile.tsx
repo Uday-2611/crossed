@@ -1,30 +1,140 @@
 import { Ionicons } from '@expo/vector-icons';
-import React, { useState } from 'react';
-import { Dimensions, ScrollView, StatusBar, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { useMutation, useQuery } from 'convex/react';
+import * as ImagePicker from 'expo-image-picker';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, Dimensions, Image, ScrollView, StatusBar, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { api } from '../../convex/_generated/api';
+import { uploadToCloudinary } from '../../lib/cloudinary';
 
 const { width } = Dimensions.get('window');
 
 const PHOTO_SLOTS = [1, 2, 3, 4, 5, 6];
 
-const DETAILS = [
-  { label: 'Work', value: 'Software Engineer' },
-  { label: 'Education', value: 'Stanford University' },
-  { label: 'Height', value: '5\'11"' },
-  { label: 'Hometown', value: 'San Francisco' },
-  { label: 'Gender', value: 'Male' },
-  { label: 'Interested in', value: 'Women' },
-  { label: 'Relationship type', value: 'Long-term' },
-  { label: 'Dating intentions', value: 'Serious' },
-  { label: 'Religion', value: 'Agnostic' },
-  { label: 'Smoke', value: 'No' },
-  { label: 'Drink', value: 'Socially' },
-];
-
-const ACTIVITIES = ['Hiking', 'Photography', 'Cooking'];
-
 const Profile = () => {
-  const [bio, setBio] = useState('Coffee enthusiast, travel lover, and amateur photographer. Always looking for the next best ramen spot.');
+  const profile = useQuery(api.profiles.getMyProfile);
+  const upsertProfile = useMutation(api.profiles.upsertMyProfile);
+
+  // Local state for editing
+  const [formData, setFormData] = useState({
+    name: '',
+    bio: '',
+    occupation: '',
+    height: 0,
+    location: '',
+    gender: '',
+    religion: '',
+    // Default values for fields not yet in UI but required by schema
+    age: 18,
+    sexuality: 'Heterosexual',
+    photos: [] as string[],
+    activities: [] as string[],
+  });
+
+  const [isSaving, setIsSaving] = useState(false);
+
+  const [selectedImage, setSelectedImage] = useState<ImagePicker.ImagePickerAsset | null>(null);
+
+  const pickImage = async () => {
+
+    setIsSaving(true);
+
+    try {
+      // Request permission ->
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        alert('Sorry, we need camera roll permissions to make this work');
+        setIsSaving(false);
+        return
+      }
+
+      // Launch Image Library -> 
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [3, 4],
+        quality: 0.8,
+        exif: false
+      })
+
+      if (!result.canceled) {
+        const asset = result.assets[0]
+        const secureUrl = await uploadToCloudinary(asset.uri); //Upload to cloudinary
+
+        // Update local state, limit to 6 photos. 
+        if (formData.photos.length < 6) {
+          const updatedPhotos = [...formData.photos, secureUrl];
+          updateField('photos', updatedPhotos);
+
+          // Auo-save to convex -> 
+          await upsertProfile({
+            ...formData,
+            photos: updatedPhotos,
+            height: Number(formData.height),
+            age: Number(formData.age)
+          })
+
+          console.log('Photo uploaded and profile saved')
+        } else {
+          alert('You can only have 6 photos')
+        }
+      }
+    } catch (error) {
+      console.error("Upload failed", error);
+      alert("Upload failed. Please try again.");
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  // Sync Convex data to local state when loaded
+  useEffect(() => {
+    if (profile) {
+      setFormData({
+        name: profile.name || '',
+        bio: profile.bio || '',
+        occupation: profile.occupation || '',
+        height: profile.height || 0,
+        location: profile.location || '',
+        gender: profile.gender || '',
+        religion: profile.religion || '',
+        age: profile.age || 18,
+        sexuality: profile.sexuality || 'Heterosexual',
+        photos: profile.photos || [],
+        activities: profile.activities || [],
+      });
+    }
+  }, [profile]);
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      await upsertProfile({
+        ...formData,
+        // Ensure numbers are numbers
+        height: Number(formData.height),
+        age: Number(formData.age),
+      });
+      console.log('Profile saved!');
+    } catch (error) {
+      console.error('Failed to save profile:', error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const updateField = (field: string, value: any) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  if (profile === undefined) {
+    return (
+      <View className='flex-1 justify-center items-center'>
+        <ActivityIndicator size="large" color="#1F6F5C" />
+      </View>
+    );
+  }
+
   return (
     <View className='flex-1 bg-background'>
       <StatusBar barStyle="dark-content" />
@@ -37,10 +147,21 @@ const Profile = () => {
               <Ionicons name="person" size={40} color="#9AA8A3" />
             </View>
             <View className='flex-1'>
-              <View className='flex-row items-center gap-2'>
-                <Text className='font-bold text-3xl text-text-primary tracking-tight'>Uday</Text>
-                <TouchableOpacity>
-                  <Ionicons name="pencil-sharp" size={18} color="#9AA8A3" />
+              <View className='flex-row items-center justify-between'>
+                <View className='flex-1 pr-4'>
+                  <TextInput
+                    className='font-bold text-3xl text-text-primary tracking-tight'
+                    value={formData.name}
+                    onChangeText={(text) => updateField('name', text)}
+                    placeholder="Your Name"
+                  />
+                </View>
+                <TouchableOpacity onPress={handleSave} disabled={isSaving}>
+                  {isSaving ? (
+                    <ActivityIndicator size="small" color="#1F6F5C" />
+                  ) : (
+                    <Text className='text-brand font-bold text-lg'>Save</Text>
+                  )}
                 </TouchableOpacity>
               </View>
             </View>
@@ -56,17 +177,50 @@ const Profile = () => {
               decelerationRate="fast"
               snapToInterval={width * 0.4 + 12} // Card width + gap
             >
-              {PHOTO_SLOTS.map((slot) => (
+              {PHOTO_SLOTS.map((slot, index) => (
                 <View
                   key={slot}
                   style={{ width: width * 0.4, height: width * 0.55 }}
                   className='bg-surface-muted rounded-2xl border border-border items-center justify-center relative overflow-hidden'
                 >
-                  <Ionicons name="add" size={32} color="#9AA8A3" style={{ opacity: 0.5 }} />
-                  {/* Placeholder for "Add Photo" UI */}
-                  <View className='absolute bottom-3 right-3 bg-white/50 p-1.5 rounded-full'>
-                    <Ionicons name="image-outline" size={14} color="#5F6F6B" />
-                  </View>
+                  {formData.photos[index] ? (
+                    <Image
+                      source={{ uri: formData.photos[index] }}
+                      className='w-full h-full'
+                      resizeMode='cover'
+                    />
+                  ) : (
+                    <>
+                      {index === formData.photos.length ? (
+                        <TouchableOpacity
+                          onPress={pickImage}
+                          className='w-full h-full items-center justify-center'
+                        >
+                          <Ionicons
+                            name='add'
+                            size={32}
+                            color='#9AA8A3'
+                            style={{ opacity: 0.5 }}
+                          />
+
+                          <View className='absolute bottom-3 right-3 bg-white/50 p-1.5 rounded-full'>
+                            <Ionicons
+                              name='image-outline'
+                              size={14}
+                              color='#5F6F6B'
+                            />
+                          </View>
+                        </TouchableOpacity>
+                      ) : (
+                        <Ionicons
+                          name='add'
+                          size={32}
+                          color='#E5E7EB'
+                          style={{ opacity: 0.2 }}
+                        />
+                      )}
+                    </>
+                  )}
                 </View>
               ))}
             </ScrollView>
@@ -79,8 +233,8 @@ const Profile = () => {
               <TextInput
                 className='text-base text-text-primary leading-6'
                 multiline
-                value={bio}
-                onChangeText={setBio}
+                value={formData.bio}
+                onChangeText={(text) => updateField('bio', text)}
                 placeholder="Write something about yourself..."
                 placeholderTextColor="#9AA8A3"
                 scrollEnabled={false}
@@ -92,17 +246,64 @@ const Profile = () => {
           <View className='px-6 mb-8'>
             <Text className='text-lg font-bold text-text-primary mb-4'>Details</Text>
             <View className='bg-surface rounded-3xl border border-border/60 overflow-hidden'>
-              {DETAILS.map((detail, index) => (
-                <View key={detail.label} className={`flex-row justify-between items-center py-4 px-5 ${index !== DETAILS.length - 1 ? 'border-b border-border/30' : ''}`}>
-                  <View className='flex-row items-center gap-3'>
-                    <Text className='text-text-secondary font-medium'>{detail.label}</Text>
-                  </View>
-                  <TouchableOpacity className='flex-row items-center gap-1'>
-                    <Text className='text-text-primary font-semibold'>{detail.value || 'Add'}</Text>
-                    <Ionicons name="chevron-forward" size={16} color="#DDE5E2" />
-                  </TouchableOpacity>
-                </View>
-              ))}
+              {/* Work */}
+              <View className='flex-row justify-between items-center py-4 px-5 border-b border-border/30'>
+                <Text className='text-text-secondary font-medium'>Work</Text>
+                <TextInput
+                  className='text-text-primary font-semibold text-right flex-1 ml-4'
+                  value={formData.occupation}
+                  onChangeText={(text) => updateField('occupation', text)}
+                  placeholder="Add"
+                />
+              </View>
+
+              {/* Height */}
+              <View className='flex-row justify-between items-center py-4 px-5 border-b border-border/30'>
+                <Text className='text-text-secondary font-medium'>Height (cm)</Text>
+                <TextInput
+                  className='text-text-primary font-semibold text-right flex-1 ml-4'
+                  value={formData.height ? formData.height.toString() : ''}
+                  onChangeText={(text) => {
+                    const num = parseInt(text, 10);
+                    updateField('height', isNaN(num) ? 0 : num);
+                  }}
+                  keyboardType="numeric"
+                  placeholder="Add"
+                />
+              </View>
+
+              {/* Hometown (Location) */}
+              <View className='flex-row justify-between items-center py-4 px-5 border-b border-border/30'>
+                <Text className='text-text-secondary font-medium'>Hometown</Text>
+                <TextInput
+                  className='text-text-primary font-semibold text-right flex-1 ml-4'
+                  value={formData.location}
+                  onChangeText={(text) => updateField('location', text)}
+                  placeholder="Add"
+                />
+              </View>
+
+              {/* Gender */}
+              <View className='flex-row justify-between items-center py-4 px-5 border-b border-border/30'>
+                <Text className='text-text-secondary font-medium'>Gender</Text>
+                <TextInput
+                  className='text-text-primary font-semibold text-right flex-1 ml-4'
+                  value={formData.gender}
+                  onChangeText={(text) => updateField('gender', text)}
+                  placeholder="Add"
+                />
+              </View>
+
+              {/* Religion */}
+              <View className='flex-row justify-between items-center py-4 px-5'>
+                <Text className='text-text-secondary font-medium'>Religion</Text>
+                <TextInput
+                  className='text-text-primary font-semibold text-right flex-1 ml-4'
+                  value={formData.religion}
+                  onChangeText={(text) => updateField('religion', text)}
+                  placeholder="Add"
+                />
+              </View>
             </View>
           </View>
 
@@ -113,8 +314,8 @@ const Profile = () => {
             </View>
 
             <View className='flex-row flex-wrap gap-3'>
-              {ACTIVITIES.map((activity) => (
-                <View key={activity} className='bg-surface-muted px-4 py-2.5 rounded-full border border-border/40'>
+              {formData.activities.map((activity, index) => (
+                <View key={index} className='bg-surface-muted px-4 py-2.5 rounded-full border border-border/40'>
                   <Text className='text-text-primary font-medium'>{activity}</Text>
                 </View>
               ))}
