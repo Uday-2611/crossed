@@ -27,7 +27,7 @@ const Profile = () => {
     religion: '',
     university: '',
     age: 18,
-    sexuality: 'Heterosexual',
+    sexuality: '',
     photos: [] as string[],
     activities: [] as string[],
   });
@@ -99,7 +99,7 @@ const Profile = () => {
         religion: profile.religion || '',
         university: profile.university || '',
         age: profile.age || 18,
-        sexuality: profile.sexuality || 'Heterosexual',
+        sexuality: profile.sexuality || '',
         photos: profile.photos || [],
         activities: profile.activities || [],
       });

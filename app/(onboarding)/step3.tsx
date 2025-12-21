@@ -89,16 +89,22 @@ export default function Step3Screen() {
     };
 
     const removePhoto = async (index: number) => {
+        const previousPhotos = photos;
         const newPhotos = photos.filter((_, i) => i !== index);
         setPhotos(newPhotos);
-        await upsertProfile({
-            name: profile?.name || '',
-            age: profile?.age || 18,
-            photos: newPhotos,
-            activities: profile?.activities || [],
-        });
+        try {
+            await upsertProfile({
+                name: profile?.name || '',
+                age: profile?.age || 18,
+                photos: newPhotos,
+                activities: profile?.activities || [],
+            });
+        } catch (error) {
+            console.error('Failed to remove photo:', error);
+            setPhotos(previousPhotos);
+            Alert.alert('Error', 'Failed to remove photo. Please try again.');
+        }
     };
-
     const handleNext = async () => {
         if (photos.length === 0) {
             Alert.alert('Photo Required', 'Please upload at least one photo.');

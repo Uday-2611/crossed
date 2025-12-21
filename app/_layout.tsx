@@ -74,9 +74,8 @@ const useHelper = () => {
         }
       }
     }
-  }, [isAuthenticated, isLoading, profile, segments]);
+  }, [isAuthenticated, isLoading, profile, segments, router]);
 }
-
 const RootLayoutNav = () => {
   const { isAuthenticated, isLoading } = useConvexAuth();
   useHelper();

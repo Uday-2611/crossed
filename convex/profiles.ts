@@ -33,6 +33,7 @@ export const upsertMyProfile = mutation({
         university: v.optional(v.string()),
         politicalLeaning: v.optional(v.string()),
         datingIntentions: v.optional(v.string()),
+        isStudent: v.optional(v.boolean()),
         photos: v.optional(v.array(v.string())),
         activities: v.optional(v.array(v.string())),
         datingPreferences: v.optional(v.object({
@@ -78,8 +79,14 @@ export const upsertMyProfile = mutation({
                 }
             }
 
+            // Merge datingPreferences to preserve existing nested fields
+            const mergedDatingPreferences = args.datingPreferences
+                ? { ...existingProfile.datingPreferences, ...args.datingPreferences }
+                : existingProfile.datingPreferences;
+
             await ctx.db.patch(existingProfile._id, {
                 ...args,
+                datingPreferences: mergedDatingPreferences,
                 activitiesUpdatedAt,
                 updatedAt: Date.now(),
             });
@@ -104,7 +111,7 @@ export const upsertMyProfile = mutation({
                 clerkId,
                 ...defaults,
                 ...args,
-                activitiesUpdatedAt: Date.now(),
+                activitiesUpdatedAt: args.activities ? Date.now() : undefined,
                 updatedAt: Date.now(),
             });
             return newProfileId;

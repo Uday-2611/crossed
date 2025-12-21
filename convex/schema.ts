@@ -21,6 +21,7 @@ export default defineSchema({
     university: v.optional(v.string()),
     politicalLeaning: v.optional(v.string()),
     datingIntentions: v.optional(v.string()),
+    isStudent: v.optional(v.boolean()),
     photos: v.array(v.string()),
     activities: v.array(v.string()),
     activitiesUpdatedAt: v.optional(v.number()),

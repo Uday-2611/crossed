@@ -23,14 +23,23 @@ export default function Step4Screen() {
     const [activities, setActivities] = useState(['', '', '']);
     const [isSaving, setIsSaving] = useState(false);
 
+    if (profile === undefined) {
+        return (
+            <SafeAreaView className="flex-1 bg-background px-6 py-4 items-center justify-center">
+                <ActivityIndicator size="large" />
+            </SafeAreaView>
+        );
+    } const [isInitialized, setIsInitialized] = useState(false);
+
     useEffect(() => {
-        if (profile && profile.activities && profile.activities.length > 0) {
+        if (!isInitialized && profile && profile.activities && profile.activities.length > 0) {
             // Pad with empty strings if less than 3
             const loaded = [...profile.activities];
             while (loaded.length < 3) loaded.push('');
             setActivities(loaded);
+            setIsInitialized(true);
         }
-    }, [profile]);
+    }, [profile, isInitialized]);
 
     const updateActivity = (index: number, text: string) => {
         const newActivities = [...activities];

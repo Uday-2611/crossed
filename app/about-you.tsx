@@ -70,8 +70,7 @@ export default function AboutYouScreen() {
                 height: formData.height ? (parseInt(formData.height) || 0) : 0,
                 location: formData.location,
                 gender: formData.gender,
-                sexuality: formData.sexuality || 'Heterosexual', // Default if empty, or allow empty? Schema says string, maybe not optional? Schema says v.string(), so required.
-                religion: formData.religion,
+                sexuality: formData.sexuality || 'Straight', religion: formData.religion,
                 politicalLeaning: formData.politicalLeaning,
                 datingIntentions: formData.datingIntentions,
             });

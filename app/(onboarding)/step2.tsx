@@ -45,18 +45,11 @@ export default function Step2Screen() {
         try {
             setIsSaving(true);
             await upsertProfile({
-                // Previous fields safe-guard
-                name: profile?.name || '',
-                age: profile?.age || 18,
-                gender: profile?.gender || '',
-                bio: profile?.bio || '',
-                photos: profile?.photos || [],
-                activities: profile?.activities || [],
-
                 // New fields
                 occupation,
+                isStudent,
                 university: isStudent ? university : undefined,
-                height: height ? Number(height) : 0,
+                height: height && !isNaN(Number(height)) ? Number(height) : 0,
                 location: hometown,
                 religion,
                 politicalLeaning: politics,
@@ -142,15 +135,6 @@ export default function Step2Screen() {
                         />
                     </View>
 
-                    {/* Religion Input (Simplified as text/radio for now, user requested radio but text is easier for MVP unless options specified. Re-reading: 'Religion (radio)' was requested. Options from AboutYouScreen: Hindu, Muslim, etc.) */}
-                    {/* I'll implement a simple picker or use the options from AboutYouScreen for consistency if possible, or just text for speed if not specified. User said 'Radio'. I will use a simplified scrollable selector. */}
-
-                    {/* For now, sticking to standard text inputs to ensure stability, or a modal selector. Let's use simple text for Free-text or a specific list? 
-               Wait, in AboutYouScreen there were options: 'Hindu', 'Muslim', 'Christian', 'Sikh', etc. 
-               I should arguably provide a selector. But to keep file complexity low, I'll use a text input for now or a limited set. 
-               Actually, the user requirements were specific: "Religion (radio)".
-               I will attempt to implement a simple radio list.
-           */}
                     <View>
                         <Text className="text-text-secondary text-base mb-2 font-medium">Religion</Text>
                         <TextInput

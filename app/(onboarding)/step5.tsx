@@ -37,13 +37,18 @@ export default function Step5Screen() {
     }, [profile]);
 
     const handleFinish = async () => {
+        if (!profile) {
+            Alert.alert('Error', 'Profile data is still loading. Please wait.');
+            return;
+        }
+
         try {
             setIsSaving(true);
             await upsertProfile({
-                name: profile?.name || '',
-                age: profile?.age || 18,
-                photos: profile?.photos || [],
-                activities: profile?.activities || [],
+                name: profile.name,
+                age: profile.age,
+                photos: profile.photos,
+                activities: profile.activities,
                 datingPreferences: {
                     maxDistanceKm: distance,
                     interestedIn: interestedIn,
@@ -61,7 +66,6 @@ export default function Step5Screen() {
             setIsSaving(false);
         }
     };
-
     // Render interested in options as separate components
     const renderInterestedInOption = (option: string) => {
         const isSelected = interestedIn === option;

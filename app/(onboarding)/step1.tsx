@@ -31,8 +31,7 @@ export default function Step1Screen() {
             if (!age) setAge(profile.age?.toString() || '');
             if (!gender) setGender(profile.gender || '');
         }
-    }, [profile]);
-
+    }, [profile, name, age, gender]);
     const handleNext = async () => {
         if (!name.trim()) {
             Alert.alert('Required', 'Please enter your name.');
@@ -93,11 +92,10 @@ export default function Step1Screen() {
                             onChangeText={setAge}
                             placeholder="18+"
                             keyboardType="number-pad"
-                            maxLength={2}
+                            maxLength={3}
                             className="bg-surface p-4 rounded-xl text-lg text-text-primary border border-border/50"
                         />
                     </View>
-
                     {/* Gender */}
                     <View>
                         <Text className="text-text-secondary text-base mb-2 font-medium">Gender</Text>

@@ -22,8 +22,10 @@ export default function WeeklyActivitiesScreen() {
         "I spent time..."
     ];
 
+    const [hasInitialized, setHasInitialized] = useState(false);
+
     useEffect(() => {
-        if (profile) {
+        if (profile && !hasInitialized) {
             // Fill existing activities or keep empty slots
             const currentActivities = profile.activities || [];
             const newActivities = ['', '', ''];
@@ -31,22 +33,23 @@ export default function WeeklyActivitiesScreen() {
                 if (currentActivities[i]) newActivities[i] = currentActivities[i];
             }
             setActivities(newActivities);
+            setHasInitialized(true);
+        }
 
-            // Check lock status
-            if (profile.activitiesUpdatedAt) {
-                const now = Date.now();
-                const sevenDays = 7 * 24 * 60 * 60 * 1000;
-                const timeDiff = now - profile.activitiesUpdatedAt;
+        // Check lock status
+        if (profile?.activitiesUpdatedAt) {
+            const now = Date.now();
+            const sevenDays = 7 * 24 * 60 * 60 * 1000;
+            const timeDiff = now - profile.activitiesUpdatedAt;
 
-                if (timeDiff < sevenDays) {
-                    setIsLocked(true);
-                    setDaysLeft(Math.ceil((sevenDays - timeDiff) / (24 * 60 * 60 * 1000)));
-                } else {
-                    setIsLocked(false);
-                }
+            if (timeDiff < sevenDays) {
+                setIsLocked(true);
+                setDaysLeft(Math.ceil((sevenDays - timeDiff) / (24 * 60 * 60 * 1000)));
+            } else {
+                setIsLocked(false);
             }
         }
-    }, [profile]);
+    }, [profile, hasInitialized]);
 
     const handleSave = async () => {
         try {
