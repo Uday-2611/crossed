@@ -10,6 +10,7 @@ const GENDER_OPTIONS = ['Male', 'Female', 'Prefer not to say'];
 const RELIGION_OPTIONS = ['Hindu', 'Muslim', 'Christian', 'Sikh', 'Buddhist', 'Jewish', 'Spiritual', 'Atheist', 'Agnostic', 'Other', 'Prefer not to say'];
 const POLITICS_OPTIONS = ['Liberal', 'Moderate', 'Conservative', 'Apolitical', 'Prefer not to say'];
 const DATING_INTENTIONS = ['Long-term relationship', 'Short-term', 'Casual dating', 'Not sure yet'];
+const SEXUALITY_OPTIONS = ['Straight', 'Gay', 'Lesbian', 'Bisexual', 'Asexual', 'Pansexual', 'Queer', 'Questioning', 'Prefer not to say'];
 
 export default function AboutYouScreen() {
     const router = useRouter();
@@ -24,6 +25,7 @@ export default function AboutYouScreen() {
         height: '',
         location: '', // Hometown
         gender: '',
+        sexuality: '',
         religion: '',
         politicalLeaning: '',
         datingIntentions: '',
@@ -40,6 +42,7 @@ export default function AboutYouScreen() {
                 height: profile.height ? profile.height.toString() : '',
                 location: profile.location || '',
                 gender: profile.gender || '',
+                sexuality: profile.sexuality || '',
                 religion: profile.religion || '',
                 politicalLeaning: profile.politicalLeaning || '',
                 datingIntentions: profile.datingIntentions || '',
@@ -61,14 +64,13 @@ export default function AboutYouScreen() {
                 bio: profile?.bio || '',
                 photos: profile?.photos || [],
                 activities: profile?.activities || [],
-                sexuality: profile?.sexuality || 'Heterosexual',
                 // Updated fields:
                 occupation: formData.occupation,
                 university: formData.isStudent ? formData.university : undefined, // clear uni if not student
                 height: formData.height ? (parseInt(formData.height) || 0) : 0,
                 location: formData.location,
                 gender: formData.gender,
-                religion: formData.religion,
+                sexuality: formData.sexuality || 'Straight', religion: formData.religion,
                 politicalLeaning: formData.politicalLeaning,
                 datingIntentions: formData.datingIntentions,
             });
@@ -195,6 +197,22 @@ export default function AboutYouScreen() {
                                     className={`px-4 py-2 rounded-full border ${formData.gender === option ? 'bg-black border-black' : 'bg-transparent border-gray-300'}`}
                                 >
                                     <Text className={`font-medium ${formData.gender === option ? 'text-white' : 'text-primary'}`}>{option}</Text>
+                                </TouchableOpacity>
+                            ))}
+                        </View>
+                    </View>
+
+                    {/* SECTION 4.5: Sexuality */}
+                    <View className="mb-8">
+                        <Text className="text-lg font-bold mb-4">Sexuality</Text>
+                        <View className="flex-row flex-wrap gap-2">
+                            {SEXUALITY_OPTIONS.map(option => (
+                                <TouchableOpacity
+                                    key={option}
+                                    onPress={() => updateField('sexuality', formData.sexuality === option ? '' : option)}
+                                    className={`px-4 py-2 rounded-full border ${formData.sexuality === option ? 'bg-black border-black' : 'bg-transparent border-gray-300'}`}
+                                >
+                                    <Text className={`font-medium ${formData.sexuality === option ? 'text-white' : 'text-primary'}`}>{option}</Text>
                                 </TouchableOpacity>
                             ))}
                         </View>

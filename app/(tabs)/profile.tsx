@@ -27,7 +27,7 @@ const Profile = () => {
     religion: '',
     university: '',
     age: 18,
-    sexuality: 'Heterosexual',
+    sexuality: '',
     photos: [] as string[],
     activities: [] as string[],
   });
@@ -99,7 +99,7 @@ const Profile = () => {
         religion: profile.religion || '',
         university: profile.university || '',
         age: profile.age || 18,
-        sexuality: profile.sexuality || 'Heterosexual',
+        sexuality: profile.sexuality || '',
         photos: profile.photos || [],
         activities: profile.activities || [],
       });
@@ -295,6 +295,14 @@ const Profile = () => {
                 </Text>
               </View>
 
+              {/* Sexuality */}
+              <View className='flex-row justify-between items-center py-4 px-5 border-b border-border/30'>
+                <Text className='text-text-secondary font-medium'>Sexuality</Text>
+                <Text className='text-text-primary font-semibold text-right flex-1 ml-4'>
+                  {formData.sexuality || 'Add'}
+                </Text>
+              </View>
+
               {/* Religion */}
               <View className='flex-row justify-between items-center py-4 px-5'>
                 <Text className='text-text-secondary font-medium'>Religion</Text>
@@ -317,9 +325,12 @@ const Profile = () => {
                   <Text className='text-text-primary font-medium'>{activity}</Text>
                 </View>
               ))}
-              <TouchableOpacity className='bg-transparent px-4 py-2.5 rounded-full border border-brand border-dashed flex-row items-center gap-1'>
-                <Ionicons name="add" size={16} color="#1F6F5C" />
-                <Text className='text-brand font-medium'>Add new</Text>
+              <TouchableOpacity
+                onPress={() => router.push('/weekly-activities' as any)}
+                className='bg-transparent px-4 py-2.5 rounded-full border border-brand border-dashed flex-row items-center gap-1 active:bg-brand/5'
+              >
+                <Ionicons name="pencil" size={16} color="#1F6F5C" />
+                <Text className='text-brand font-medium'>Update activities</Text>
               </TouchableOpacity>
             </View>
             <Text className='text-text-muted text-sm mt-3 ml-1'>Activities can be changed once a week</Text>

@@ -21,8 +21,17 @@ export default defineSchema({
     university: v.optional(v.string()),
     politicalLeaning: v.optional(v.string()),
     datingIntentions: v.optional(v.string()),
+    isStudent: v.optional(v.boolean()),
     photos: v.array(v.string()),
     activities: v.array(v.string()),
+    activitiesUpdatedAt: v.optional(v.number()),
+    datingPreferences: v.optional(v.object({
+      ageRange: v.optional(v.array(v.number())),
+      maxDistanceKm: v.optional(v.number()),
+      interestedIn: v.optional(v.string()),
+      religion: v.optional(v.array(v.string())),
+    })),
+    isOnboardingComplete: v.optional(v.boolean()),
     updatedAt: v.number(),
   }).index("by_clerkId", ["clerkId"]),
 });
