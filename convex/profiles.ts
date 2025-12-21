@@ -21,20 +21,27 @@ export const getMyProfile = query({
 // Create or update the current user's profile ->
 export const upsertMyProfile = mutation({
     args: {
-        name: v.string(),
-        age: v.number(),
-        bio: v.string(),
-        gender: v.string(),
-        sexuality: v.string(),
-        height: v.number(),
-        occupation: v.string(),
-        religion: v.string(),
-        location: v.string(),
+        name: v.optional(v.string()),
+        age: v.optional(v.number()),
+        bio: v.optional(v.string()),
+        gender: v.optional(v.string()),
+        sexuality: v.optional(v.string()),
+        height: v.optional(v.number()),
+        occupation: v.optional(v.string()),
+        religion: v.optional(v.string()),
+        location: v.optional(v.string()),
         university: v.optional(v.string()),
         politicalLeaning: v.optional(v.string()),
         datingIntentions: v.optional(v.string()),
-        photos: v.array(v.string()),
-        activities: v.array(v.string()),
+        photos: v.optional(v.array(v.string())),
+        activities: v.optional(v.array(v.string())),
+        datingPreferences: v.optional(v.object({
+            ageRange: v.optional(v.array(v.number())),
+            maxDistanceKm: v.optional(v.number()),
+            interestedIn: v.optional(v.string()),
+            religion: v.optional(v.array(v.string())),
+        })),
+        isOnboardingComplete: v.optional(v.boolean()),
     },
     handler: async (ctx, args) => {
         const identity = await ctx.auth.getUserIdentity();
@@ -50,15 +57,54 @@ export const upsertMyProfile = mutation({
             .unique();
 
         if (existingProfile) {
+            let activitiesUpdatedAt = existingProfile.activitiesUpdatedAt;
+
+            // Check if activities changed
+            // Only check if args.activities is provided
+            if (args.activities) {
+                const activitiesChanged = JSON.stringify(existingProfile.activities) !== JSON.stringify(args.activities);
+
+                if (activitiesChanged) {
+                    const now = Date.now();
+                    const sevenDays = 7 * 24 * 60 * 60 * 1000;
+
+                    if (activitiesUpdatedAt && (now - activitiesUpdatedAt < sevenDays)) {
+                        const daysLeft = Math.ceil((sevenDays - (now - activitiesUpdatedAt)) / (24 * 60 * 60 * 1000));
+                        throw new Error(`Activities can only be updated once every 7 days. You can update again in ${daysLeft} days.`);
+                    }
+
+                    // Update timestamp since we are successfully updating activities
+                    activitiesUpdatedAt = now;
+                }
+            }
+
             await ctx.db.patch(existingProfile._id, {
                 ...args,
+                activitiesUpdatedAt,
                 updatedAt: Date.now(),
             });
             return existingProfile._id;
         } else {
+            // Default values for new profile to satisfy schema constraints if args are missing
+            const defaults = {
+                name: "",
+                age: 18,
+                bio: "",
+                gender: "",
+                sexuality: "",
+                height: 0,
+                occupation: "",
+                religion: "",
+                location: "",
+                photos: [],
+                activities: [],
+            };
+
             const newProfileId = await ctx.db.insert("profiles", {
                 clerkId,
+                ...defaults,
                 ...args,
+                activitiesUpdatedAt: Date.now(),
                 updatedAt: Date.now(),
             });
             return newProfileId;

@@ -13,6 +13,8 @@
   "dependencies": {
     "@clerk/clerk-expo": "^2.19.14",
     "@expo/vector-icons": "^15.0.3",
+    "@ptomasroos/react-native-multi-slider": "^2.2.2",
+    "@react-native-community/slider": "^5.0.1",
     "@react-navigation/bottom-tabs": "^7.4.0",
     "@react-navigation/elements": "^2.6.3",
     "@react-navigation/native": "^7.1.8",

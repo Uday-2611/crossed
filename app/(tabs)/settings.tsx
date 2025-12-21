@@ -1,8 +1,10 @@
 import { api } from '@/convex/_generated/api';
 import { useClerk, useUser } from '@clerk/clerk-expo';
-import { useMutation } from 'convex/react';
+import MultiSlider from '@ptomasroos/react-native-multi-slider';
+import Slider from '@react-native-community/slider';
+import { useMutation, useQuery } from 'convex/react';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Modal, ScrollView, StatusBar, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -13,18 +15,71 @@ const Settings = () => {
     const deleteAccountMutation = useMutation(api.profiles.deleteMyAccount);
     const [isDeleting, setIsDeleting] = useState(false); // Loading state
 
-    // Preferences State
-    const [interestedIn, setInterestedIn] = useState<string[]>(['Women']);
-    const [ageRange, setAgeRange] = useState([21, 26]);
-    const [distance, setDistance] = useState(30);
-    const [selectedReligions, setSelectedReligions] = useState<string[]>([]);
-    const [selectedEthnicities, setSelectedEthnicities] = useState<string[]>([]);
+    const profile = useQuery(api.profiles.getMyProfile);
+    const upsertProfile = useMutation(api.profiles.upsertMyProfile);
 
-    const toggleSelection = (item: string, list: string[], setList: (l: string[]) => void) => {
-        if (list.includes(item)) {
-            setList(list.filter(i => i !== item));
-        } else {
-            setList([...list, item]);
+    // Preferences State
+    const [interestedIn, setInterestedIn] = useState('Women');
+    const [ageRange, setAgeRange] = useState([21, 26]); // [min, max]
+    const [distance, setDistance] = useState(50);
+    const [selectedReligions, setSelectedReligions] = useState<string[]>([]);
+    const [isSavingPrefs, setIsSavingPrefs] = useState(false);
+
+    // Sync with backend
+    useEffect(() => {
+        if (profile?.datingPreferences) {
+            const prefs = profile.datingPreferences;
+            if (prefs.interestedIn) setInterestedIn(prefs.interestedIn);
+            if (prefs.ageRange) setAgeRange(prefs.ageRange);
+            if (prefs.maxDistanceKm) setDistance(prefs.maxDistanceKm);
+            if (prefs.religion) setSelectedReligions(prefs.religion || []);
+        }
+    }, [profile]);
+
+    type DatingPreferences = {
+        interestedIn?: string;
+        ageRange?: number[];
+        maxDistanceKm?: number;
+        religion?: string[];
+    };
+
+    const handleSavePreferences = async (updates: DatingPreferences = {}) => {
+        if (!profile) return;
+
+        // Merge current state with new updates to ensure we save the latest data
+        // (State might be stale inside this closure if we didn't pass updates)
+        const finalPreferences = {
+            interestedIn: updates.interestedIn ?? interestedIn,
+            ageRange: updates.ageRange ?? ageRange,
+            maxDistanceKm: updates.maxDistanceKm ?? distance,
+            religion: updates.religion ?? selectedReligions,
+        };
+
+        try {
+            // We don't show a loader for auto-save to keep it snappy
+            await upsertProfile({
+                name: profile.name,
+                age: profile.age,
+                bio: profile.bio,
+                photos: profile.photos,
+                activities: profile.activities,
+                // activitiesUpdatedAt is managed by backend
+                sexuality: profile.sexuality,
+                occupation: profile.occupation,
+                university: profile.university,
+                height: profile.height,
+                location: profile.location,
+                gender: profile.gender,
+                religion: profile.religion,
+                politicalLeaning: profile.politicalLeaning,
+                datingIntentions: profile.datingIntentions,
+                datingPreferences: finalPreferences
+            });
+            // Optional: Haptic feedback here would be nice
+        } catch (error) {
+            console.error(error);
+            // Silently fail or show toast? For auto-save, distinct error alerts can be annoying. 
+            // Maybe just console log for now or show a small toast if we had one.
         }
     };
 
@@ -141,38 +196,69 @@ const Settings = () => {
                         <Text className='text-lg font-bold text-black mb-4 tracking-tight'>Dating Preferences</Text>
                         <View className='bg-gray-50 rounded-2xl p-4 gap-6'>
 
-                            {/* Age Range Slider (Visual Mock) */}
+                            {/* Age Range Slider */}
                             <View>
                                 <View className='flex-row justify-between mb-3'>
                                     <Text className='text-base font-medium text-black'>Age range</Text>
                                     <Text className='text-base font-medium text-gray-500'>{ageRange[0]} – {ageRange[1]}</Text>
                                 </View>
-                                <View className='h-10 justify-center'>
-                                    {/* Track */}
-                                    <View className='h-1.5 bg-gray-200 rounded-full w-full absolute' />
-                                    {/* Active Track */}
-                                    <View className='h-1.5 bg-black rounded-full absolute left-[15%] w-[20%]' />
-                                    {/* Min Thumb */}
-                                    <View className='h-7 w-7 bg-white rounded-full border border-gray-200 shadow-sm absolute left-[15%] -ml-3.5 z-10' />
-                                    {/* Max Thumb */}
-                                    <View className='h-7 w-7 bg-white rounded-full border border-gray-200 shadow-sm absolute left-[35%] -ml-3.5 z-10' />
+
+                                <View className="items-center w-full px-2">
+                                    <MultiSlider
+                                        values={[ageRange[0], ageRange[1]]}
+                                        sliderLength={280} // Approx width
+                                        onValuesChange={(values) => setAgeRange(values)}
+                                        onValuesChangeFinish={(values) => handleSavePreferences({ ageRange: values })}
+                                        min={18}
+                                        max={60}
+                                        step={1}
+                                        allowOverlap={false}
+                                        snapped
+                                        markerStyle={{
+                                            backgroundColor: '#FFFFFF',
+                                            height: 24,
+                                            width: 24,
+                                            borderRadius: 12,
+                                            borderWidth: 1,
+                                            borderColor: '#E5E7EB',
+                                            shadowColor: "#000",
+                                            shadowOffset: { width: 0, height: 1 },
+                                            shadowOpacity: 0.2,
+                                            shadowRadius: 1.41,
+                                            elevation: 2,
+                                        }}
+                                        selectedStyle={{
+                                            backgroundColor: '#000000',
+                                        }}
+                                        unselectedStyle={{
+                                            backgroundColor: '#E5E7EB',
+                                        }}
+                                        trackStyle={{
+                                            height: 4,
+                                            backgroundColor: '#E5E7EB',
+                                        }}
+                                    />
                                 </View>
                             </View>
 
-                            {/* Distance Slider (Visual Mock) */}
+                            {/* Distance Slider */}
                             <View>
                                 <View className='flex-row justify-between mb-3'>
                                     <Text className='text-base font-medium text-black'>Distance</Text>
                                     <Text className='text-base font-medium text-gray-500'>Up to {distance} km</Text>
                                 </View>
-                                <View className='h-10 justify-center'>
-                                    {/* Track */}
-                                    <View className='h-1.5 bg-gray-200 rounded-full w-full absolute' />
-                                    {/* Active Track */}
-                                    <View className='h-1.5 bg-black rounded-full absolute w-[30%]' />
-                                    {/* Thumb */}
-                                    <View className='h-7 w-7 bg-white rounded-full border border-gray-200 shadow-sm absolute left-[30%] -ml-3.5' />
-                                </View>
+                                <Slider
+                                    style={{ width: '100%', height: 40 }}
+                                    minimumValue={1}
+                                    maximumValue={100}
+                                    step={1}
+                                    value={distance}
+                                    onValueChange={(val: number) => setDistance(val)}
+                                    onSlidingComplete={(val: number) => handleSavePreferences({ maxDistanceKm: val })}
+                                    minimumTrackTintColor="#000000"
+                                    maximumTrackTintColor="#E5E7EB"
+                                    thumbTintColor="#FFFFFF"
+                                />
                                 <Text className='text-xs text-gray-400 mt-1'>We'll show people within this distance</Text>
                             </View>
 
@@ -185,10 +271,13 @@ const Settings = () => {
                                         return (
                                             <TouchableOpacity
                                                 key={option}
-                                                onPress={() => setInterestedIn([option])} // Single select for gender usually
-                                                className={`flex-1 py-3 items-center ${isSelected ? 'bg-black' : 'bg-white'} ${idx !== 2 ? 'border-r border-gray-200' : ''} `}
+                                                onPress={() => {
+                                                    setInterestedIn(option);
+                                                    handleSavePreferences({ interestedIn: option });
+                                                }} // Single select for gender usually
+                                                className={`flex-1 py-3 items-center ${interestedIn === option ? 'bg-black' : 'bg-white'} ${idx !== 2 ? 'border-r border-gray-200' : ''} `}
                                             >
-                                                <Text className={`font-medium ${isSelected ? 'text-white' : 'text-black'} `}>{option}</Text>
+                                                <Text className={`font-medium ${interestedIn === option ? 'text-white' : 'text-black'} `}>{option}</Text>
                                             </TouchableOpacity>
                                         );
                                     })}
@@ -204,26 +293,16 @@ const Settings = () => {
                                         return (
                                             <TouchableOpacity
                                                 key={item}
-                                                onPress={() => toggleSelection(item, selectedReligions, setSelectedReligions)}
-                                                className={`px-4 py-2 rounded-full border ${isSelected ? 'bg-black border-black' : 'bg-white border-gray-200'} `}
-                                            >
-                                                <Text className={`font-medium ${isSelected ? 'text-white' : 'text-gray-700'} `}>{item}</Text>
-                                            </TouchableOpacity>
-                                        );
-                                    })}
-                                </View>
-                            </View>
-
-                            {/* Ethnicity */}
-                            <View>
-                                <Text className='text-base font-medium text-black mb-3'>Ethnicity <Text className='text-gray-400 font-normal'>(Optional)</Text></Text>
-                                <View className='flex-row flex-wrap gap-2'>
-                                    {ETHNICITIES.map((item) => {
-                                        const isSelected = selectedEthnicities.includes(item);
-                                        return (
-                                            <TouchableOpacity
-                                                key={item}
-                                                onPress={() => toggleSelection(item, selectedEthnicities, setSelectedEthnicities)}
+                                                onPress={() => {
+                                                    let newVal: string[];
+                                                    if (isSelected) {
+                                                        newVal = selectedReligions.filter(r => r !== item);
+                                                    } else {
+                                                        newVal = [...selectedReligions, item];
+                                                    }
+                                                    setSelectedReligions(newVal);
+                                                    handleSavePreferences({ religion: newVal });
+                                                }}
                                                 className={`px-4 py-2 rounded-full border ${isSelected ? 'bg-black border-black' : 'bg-white border-gray-200'} `}
                                             >
                                                 <Text className={`font-medium ${isSelected ? 'text-white' : 'text-gray-700'} `}>{item}</Text>
