@@ -1,3 +1,4 @@
+import LocationDiscoveryToggle from '@/components/LocationDiscoveryToggle';
 import { Ionicons } from '@expo/vector-icons';
 import { useMutation, useQuery } from 'convex/react';
 import * as ImagePicker from 'expo-image-picker';
@@ -336,7 +337,12 @@ const Profile = () => {
             <Text className='text-text-muted text-sm mt-3 ml-1'>Activities can be changed once a week</Text>
           </View>
 
-          {/* SECTION 5: Pinned Locations */}
+          {/* SECTION 5: Location Discovery */}
+          <View className='px-6 mb-8'>
+            <LocationDiscoveryToggle />
+          </View>
+
+          {/* SECTION 6: Pinned Locations */}
           <View className='px-6 mb-32'>
             <Text className='text-lg font-bold text-text-primary mb-4'>Pinned locations</Text>
             <TouchableOpacity
@@ -357,7 +363,8 @@ const Profile = () => {
                 <View className='bg-white p-3 rounded-full shadow-sm'>
                   <Ionicons name="location" size={24} color="#1F6F5C" />
                 </View>
-                <Text className='text-text-secondary font-medium mt-2'>{formData.location || 'No location set'}</Text>              </View>
+                <Text className='text-text-secondary font-medium mt-2'>{formData.location || 'No location set'}</Text>
+              </View>
             </TouchableOpacity>
           </View>
 
