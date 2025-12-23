@@ -95,7 +95,7 @@ export default function LocationDiscoveryToggle() {
         } catch (error) {
             console.error("Toggle error:", error);
             Alert.alert("Error", "Could not update settings.");
-            setIsEnabled(false);
+            await checkStatus();
         } finally {
             setIsLoading(false);
         }

@@ -4,20 +4,35 @@ import * as TaskManager from 'expo-task-manager';
 
 export const LOCATION_GEOFENCE_TASK = 'LOCATION_GEOFENCE_TASK';
 
+// Define the shape of the data manually since it's not exported
+type GeofencingTaskData = {
+    eventType: Location.GeofencingEventType;
+    region?: Location.LocationRegion;
+};
+
 // Define the task that runs when a geofence is entered
-TaskManager.defineTask(LOCATION_GEOFENCE_TASK, async ({ data, error }: any) => {
+TaskManager.defineTask(LOCATION_GEOFENCE_TASK, async ({ data, error }: { data: GeofencingTaskData, error: any }) => {
     if (error) {
         console.error("Geofencing task error:", error);
         return;
     }
 
     if (data.eventType === Location.GeofencingEventType.Enter) {
+        if (!data.region) {
+            console.error("Geofencing event missing region data");
+            return;
+        }
         const { region } = data;
         console.log("📍 Entered region:", region.identifier);
 
-        // We use the identifier to pass the place Name. 
-        // In real app, might pass ID and fetch details, but Name is faster for notification.
         const placeName = region.identifier;
+
+        // Check notification permissions before scheduling
+        const { status } = await Notifications.getPermissionsAsync();
+        if (status !== 'granted') {
+            console.warn("Notification permissions not granted");
+            return;
+        }
 
         // Schedule a local notification
         await Notifications.scheduleNotificationAsync({
