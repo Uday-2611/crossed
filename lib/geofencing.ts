@@ -2,12 +2,6 @@ import * as Location from 'expo-location';
 import { LOCATION_GEOFENCE_TASK } from './backgroundLocation';
 import { fetchNearbyPlaces } from './googlePlaces';
 
-/**
- * Sets up geofences around the top 20 nearby places.
- * This should be called when:
- * 1. The user enables the feature.
- * 2. The user moves significantly (background fetch or significant location change).
- */
 export const setupGeofencing = async () => {
     try {
         // 1. Get current location (Foreground check)
@@ -26,8 +20,7 @@ export const setupGeofencing = async () => {
 
         console.log("Setting up geofences around:", latitude, longitude);
 
-        // 2. Fetch Top Places
-        // Google Places API: Get spots within 2km
+        // 2. Fetch Top Places - Google Places API: Get spots within 2km
         const places = await fetchNearbyPlaces(latitude, longitude, 2000);
 
         if (!places || !Array.isArray(places)) {
@@ -35,9 +28,7 @@ export const setupGeofencing = async () => {
             return;
         }
 
-        // 3. Filter/Select Top 20
-        // iOS Limit: 20 regions per app. We leave room for 1-2 "Refresh" regions if needed.
-        // For now, let's take top 15 to be safe.
+        // 3. Filter/Select Top 20 - iOS Limit: 20 regions per app. We leave room for 1-2 "Refresh" regions if needed. For now, let's take top 15 to be safe.
         const topPlaces = places.slice(0, 15);
         if (topPlaces.length === 0) {
             console.log("No places found to geofence.");

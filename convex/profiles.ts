@@ -150,3 +150,11 @@ export const deleteMyAccount = mutation({
         // TODO: Delete Matches, Chats, etc. when those tables are active
     },
 });
+
+export const get = query({
+    args: { id: v.string() },
+    handler: async (ctx, args) => {
+        // Optional: Block logic check here (don't return if blocked)
+        return await ctx.db.get(args.id as any);
+    },
+});

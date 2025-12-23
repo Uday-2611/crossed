@@ -9,6 +9,7 @@
  */
 
 import type * as locations from "../locations.js";
+import type * as matches from "../matches.js";
 import type * as profiles from "../profiles.js";
 import type * as users from "../users.js";
 
@@ -20,6 +21,7 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   locations: typeof locations;
+  matches: typeof matches;
   profiles: typeof profiles;
   users: typeof users;
 }>;

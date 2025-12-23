@@ -1,4 +1,3 @@
-import React from 'react';
 import { Modal, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 
 interface SafetyMenuProps {
@@ -64,7 +63,8 @@ export const SafetyMenu = ({ visible, onClose, onUnmatch, onBlock, onReport }: S
                                 accessibilityHint="Close this menu without taking action"
                             >
                                 <Text className='text-base font-medium text-gray-500'>Cancel</Text>
-                            </TouchableOpacity>                        </View>
+                            </TouchableOpacity>
+                        </View>
                     </TouchableWithoutFeedback>
                 </View>
             </TouchableWithoutFeedback>
