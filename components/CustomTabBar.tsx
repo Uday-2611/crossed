@@ -15,6 +15,13 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 const TAB_WIDTH = 65;
 const PADDING = 8;
 
+const iconMap: Record<string, string> = {
+    matches: 'heart-outline',
+    chats: 'chatbox-outline',
+    profile: 'person-outline',
+    settings: 'settings-outline',
+};
+
 function TabButton({
     route,
     isFocused,
@@ -24,13 +31,6 @@ function TabButton({
     isFocused: boolean;
     onPress: () => void;
 }) {
-    const iconMap: Record<string, string> = {
-        matches: 'heart-outline',
-        chats: 'chatbox-outline',
-        profile: 'person-outline',
-        settings: 'settings-outline',
-    };
-
     const iconName = iconMap[route.name] || 'help-circle-outline';
 
     // Animate width ONLY

@@ -339,7 +339,11 @@ const Profile = () => {
           {/* SECTION 5: Pinned Locations */}
           <View className='px-6 mb-32'>
             <Text className='text-lg font-bold text-text-primary mb-4'>Pinned locations</Text>
-            <View className='h-48 w-full bg-surface-muted rounded-3xl border border-border overflow-hidden relative'>
+            <TouchableOpacity
+              activeOpacity={0.9}
+              onPress={() => router.push('/your-places' as any)}
+              className='h-48 w-full bg-surface-muted rounded-3xl border border-border overflow-hidden relative'
+            >
               {/* Map Placeholder Art */}
               <View className='absolute inset-0 opacity-20'>
                 {/* Abstract map lines */}
@@ -355,7 +359,7 @@ const Profile = () => {
                 </View>
                 <Text className='text-text-secondary font-medium mt-2'>San Francisco, CA</Text>
               </View>
-            </View>
+            </TouchableOpacity>
           </View>
 
         </ScrollView>

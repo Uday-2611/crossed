@@ -80,11 +80,21 @@ const RootLayoutNav = () => {
   const { isAuthenticated, isLoading } = useConvexAuth();
   useHelper();
 
-  // While Convex is loading auth state, show nothing or a splash
-  // We use an overlay instead of validation to ensure the Router (Stack) is always mounted.
   return (
     <View className="flex-1">
-      <Stack screenOptions={{ headerShown: false }} />
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="(auth)" />
+        <Stack.Screen name="(onboarding)" />
+        <Stack.Screen
+          name="your-places"
+          options={{
+            headerShown: false,
+            presentation: 'fullScreenModal',
+            animation: 'slide_from_bottom'
+          }}
+        />
+      </Stack>
       {isLoading && (
         <View className="absolute inset-0 bg-background items-center justify-center z-50">
           <ActivityIndicator />
