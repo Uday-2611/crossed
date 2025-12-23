@@ -357,8 +357,7 @@ const Profile = () => {
                 <View className='bg-white p-3 rounded-full shadow-sm'>
                   <Ionicons name="location" size={24} color="#1F6F5C" />
                 </View>
-                <Text className='text-text-secondary font-medium mt-2'>San Francisco, CA</Text>
-              </View>
+                <Text className='text-text-secondary font-medium mt-2'>{formData.location || 'No location set'}</Text>              </View>
             </TouchableOpacity>
           </View>
 

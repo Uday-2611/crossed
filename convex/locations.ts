@@ -17,6 +17,13 @@ export const saveLocation = mutation({
             throw new Error("Unauthorized");
         }
 
+        if (args.lat < -90 || args.lat > 90) {
+            throw new Error("Latitude must be between -90 and 90");
+        }
+        if (args.lng < -180 || args.lng > 180) {
+            throw new Error("Longitude must be between -180 and 180");
+        }
+
         const savedAt = Date.now();
 
         const locationId = await ctx.db.insert("locations", {

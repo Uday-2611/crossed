@@ -37,13 +37,13 @@ export default defineSchema({
 
 
   locations: defineTable({
-    userId: v.string(), // Clerk userId
+    userId: v.string(),
     name: v.string(),
-    lat: v.number(), // Rounded
-    lng: v.number(), // Rounded
+    lat: v.number(), 
+    lng: v.number(),
     geohash: v.string(),
-    category: v.optional(v.string()), // e.g. "cafe", "gym"
-    address: v.optional(v.string()), // Optional: keep a rough address if needed, but name is key
+    category: v.optional(v.string()),
+    address: v.optional(v.string()), 
     savedAt: v.number(),
   })
     .index("by_userId", ["userId"])

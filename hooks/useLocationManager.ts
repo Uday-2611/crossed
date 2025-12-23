@@ -1,5 +1,5 @@
 import * as Location from 'expo-location';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Alert } from 'react-native';
 import { fetchNearbyPlaces, PlaceResult } from '../lib/googlePlaces';
 
@@ -10,13 +10,15 @@ export interface LocationData {
         lat: number;
         lng: number;
     };
-    suggestedPlace?: PlaceResult; // The venue we think they are at
-    nearbyPlaces?: PlaceResult[]; // Other options
+    suggestedPlace?: PlaceResult;
+    nearbyPlaces?: PlaceResult[];
 }
 
 export const useLocationManager = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [permissionStatus, setPermissionStatus] = useState<Location.PermissionStatus | null>(null);
+
+    const inFlightRequest = useRef<Promise<LocationData | null> | null>(null);
 
     const requestPermissions = async () => {
         try {
@@ -30,45 +32,56 @@ export const useLocationManager = () => {
     };
 
     const getCurrentPlace = async (): Promise<LocationData | null> => {
-        setIsLoading(true);
-        try {
-            // 1. Check/Get Permission
-            let status = permissionStatus;
-            if (!status) {
-                const result = await Location.getForegroundPermissionsAsync();
-                status = result.status;
-            }
-
-            if (status !== Location.PermissionStatus.GRANTED) {
-                const granted = await requestPermissions();
-                if (!granted) {
-                    Alert.alert("Permission Required", "Crossed needs location access to save places.");
-                    return null;
-                }
-            }
-
-            // 2. Get Coords
-            const location = await Location.getCurrentPositionAsync({
-                accuracy: Location.Accuracy.High,
-            });
-            const { latitude, longitude } = location.coords;
-
-            // 3. Identify Place (Google Places)
-            const places = await fetchNearbyPlaces(latitude, longitude);
-
-            return {
-                coords: { lat: latitude, lng: longitude },
-                suggestedPlace: places[0] || undefined,
-                nearbyPlaces: places.slice(1),
-            };
-
-        } catch (error) {
-            console.error("Error getting location:", error);
-            Alert.alert("Error", "Could not fetch location.");
-            return null;
-        } finally {
-            setIsLoading(false);
+        // Return existing promise if call is already in flight
+        if (inFlightRequest.current) {
+            return inFlightRequest.current;
         }
+
+        const request = (async () => {
+            setIsLoading(true);
+            try {
+                // 1. Check/Get Permission
+                let status = permissionStatus;
+                if (!status) {
+                    const result = await Location.getForegroundPermissionsAsync();
+                    status = result.status;
+                }
+
+                if (status !== Location.PermissionStatus.GRANTED) {
+                    const granted = await requestPermissions();
+                    if (!granted) {
+                        Alert.alert("Permission Required", "Crossed needs location access to save places.");
+                        return null;
+                    }
+                }
+
+                // 2. Get Coords
+                const location = await Location.getCurrentPositionAsync({
+                    accuracy: Location.Accuracy.High,
+                });
+                const { latitude, longitude } = location.coords;
+
+                // 3. Identify Place (Google Places)
+                const places = await fetchNearbyPlaces(latitude, longitude);
+
+                return {
+                    coords: { lat: latitude, lng: longitude },
+                    suggestedPlace: places[0] || undefined,
+                    nearbyPlaces: places.slice(1),
+                };
+
+            } catch (error) {
+                console.error("Error getting location:", error);
+                Alert.alert("Error", "Could not fetch location.");
+                return null;
+            } finally {
+                setIsLoading(false);
+                inFlightRequest.current = null;
+            }
+        })();
+
+        inFlightRequest.current = request;
+        return request;
     };
 
     return {

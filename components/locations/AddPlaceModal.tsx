@@ -14,8 +14,8 @@ interface AddPlaceModalProps {
 
 export default function AddPlaceModal({ visible, onClose, locationData }: AddPlaceModalProps) {
     const saveLocation = useMutation(api.locations.saveLocation);
-    const [name, setName] = useState(locationData?.suggestedPlace?.name || '');
-    const [category, setCategory] = useState(locationData?.suggestedPlace?.types?.[0] || 'place');
+    const [name, setName] = useState('');
+    const [category, setCategory] = useState('place');
     const [isSaving, setIsSaving] = useState(false);
 
     // Update state when new data comes in
@@ -34,10 +34,6 @@ export default function AddPlaceModal({ visible, onClose, locationData }: AddPla
         setIsSaving(true);
         try {
             const { lat, lng } = locationData.coords;
-            // PRIVACY: Round coordinates before saving
-            // We store rounded coords effectively, but the prompt says 
-            // "Approximate coordinates (rounded)".
-            // Our Schema expects rounded.
             const roundedLat = roundCoordinate(lat);
             const roundedLng = roundCoordinate(lng);
             const geohash = getGeohash(roundedLat, roundedLng);

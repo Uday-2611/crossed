@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from 'convex/react';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Text, TouchableOpacity, View } from 'react-native';
 import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps'; // PROVIDER_DEFAULT uses Apple Maps on iOS
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AddPlaceModal from '../components/locations/AddPlaceModal';
@@ -17,13 +17,20 @@ export default function PlacesScreen() {
     const [currentLocationData, setCurrentLocationData] = useState<any>(null);
 
     const handleAddPlace = async () => {
-        const data = await getCurrentPlace();
-        if (data) {
-            setCurrentLocationData(data);
-            setModalVisible(true);
+        try {
+            const data = await getCurrentPlace();
+            if (data) {
+                setCurrentLocationData(data);
+                setModalVisible(true);
+            } else {
+                // Handle case where location couldn't be obtained
+                Alert.alert('Location Error', 'Unable to get current location');
+            }
+        } catch (error) {
+            console.error('Error getting location:', error);
+            Alert.alert('Error', 'Failed to fetch location');
         }
     };
-
     return (
         <View className="flex-1 bg-background">
             {/* Map filling the screen */}

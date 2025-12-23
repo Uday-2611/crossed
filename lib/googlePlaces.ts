@@ -22,7 +22,7 @@ export interface PlaceResult {
 export const fetchNearbyPlaces = async (
     lat: number,
     lng: number,
-    radius: number = 50 
+    radius: number = 50
 ): Promise<PlaceResult[]> => {
     if (!API_KEY) return [];
 
@@ -30,10 +30,16 @@ export const fetchNearbyPlaces = async (
         const url = `${PLACES_BASE_URL}/nearbysearch/json?location=${lat},${lng}&radius=${radius}&key=${API_KEY}`;
 
         const response = await fetch(url);
+
+        if (!response.ok) {
+            console.warn(`Google Places API HTTP error: ${response.status} ${response.statusText}`);
+            return [];
+        }
+
         const data = await response.json();
 
         if (data.status === "OK") {
-            return data.results as PlaceResult[];
+            return (data.results || []) as PlaceResult[];
         } else {
             console.warn("Google Places API Error:", data.status, data.error_message);
             return [];
