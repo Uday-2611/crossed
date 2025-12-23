@@ -21,7 +21,7 @@ const Matches = () => {
       <SafeAreaView className='flex-1' edges={['top']}>
         {/* Header */}
         <View className='px-6 pt-6 pb-4'>
-          <Text className='font-bold text-5xl text-text-primary tracking-tighter'>Standouts</Text>
+          <Text className='font-bold text-5xl text-text-primary tracking-tighter'>Discovery</Text>
         </View>
 
         {/* Carousel */}

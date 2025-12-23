@@ -11,9 +11,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 const Settings = () => {
     const { signOut } = useClerk();
     const { user } = useUser();
-    const router = useRouter(); // Explicit navigation
+    const router = useRouter();
     const deleteAccountMutation = useMutation(api.profiles.deleteMyAccount);
-    const [isDeleting, setIsDeleting] = useState(false); // Loading state
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const profile = useQuery(api.profiles.getMyProfile);
     const upsertProfile = useMutation(api.profiles.upsertMyProfile);
@@ -46,8 +46,6 @@ const Settings = () => {
     const handleSavePreferences = async (updates: DatingPreferences = {}) => {
         if (!profile) return;
 
-        // Merge current state with new updates to ensure we save the latest data
-        // (State might be stale inside this closure if we didn't pass updates)
         const finalPreferences = {
             interestedIn: updates.interestedIn ?? interestedIn,
             ageRange: updates.ageRange ?? ageRange,
@@ -56,14 +54,13 @@ const Settings = () => {
         };
 
         try {
-            // We don't show a loader for auto-save to keep it snappy
+            setIsSavingPrefs(true);
             await upsertProfile({
                 name: profile.name,
                 age: profile.age,
                 bio: profile.bio,
                 photos: profile.photos,
                 activities: profile.activities,
-                // activitiesUpdatedAt is managed by backend
                 sexuality: profile.sexuality,
                 occupation: profile.occupation,
                 university: profile.university,
@@ -75,16 +72,14 @@ const Settings = () => {
                 datingIntentions: profile.datingIntentions,
                 datingPreferences: finalPreferences
             });
-            // Optional: Haptic feedback here would be nice
         } catch (error) {
             console.error(error);
-            // Silently fail or show toast? For auto-save, distinct error alerts can be annoying. 
-            // Maybe just console log for now or show a small toast if we had one.
+        } finally {
+            setIsSavingPrefs(false);
         }
     };
 
-    const RELIGIONS = ['Hindu', 'Muslim', 'Christian', 'Sikh', 'Buddhist', 'Spiritual', 'Not religious', 'Prefer not to say'];
-    const ETHNICITIES = ['Prefer not to say', 'No preference', 'Asian', 'Black', 'Hispanic/Latino', 'Indian', 'Middle Eastern', 'White'];
+    const RELIGIONS = ['Hindu', 'Muslim', 'Christian', 'Sikh', 'Buddhist', 'Not religious'];
 
     return (
         <View className='flex-1 bg-background pb-24'>
@@ -162,10 +157,6 @@ const Settings = () => {
                                                         console.error("Delete account failed:", error as any);
                                                         Alert.alert("Error", "Failed to delete account. Please try again.");
                                                         setIsDeleting(false);
-                                                    } finally {
-                                                        // If successful, we navigated away. 
-                                                        // If failed, we stopped loading.
-                                                        // No need to set false if unmounted, but safe to do so in catch/finally if component lives.
                                                     }
                                                 }
                                             }
@@ -193,7 +184,10 @@ const Settings = () => {
 
                     {/* Section 1.5: Dating Preferences */}
                     <View className='px-6 mb-8'>
-                        <Text className='text-lg font-bold text-black mb-4 tracking-tight'>Dating Preferences</Text>
+                        <View className="flex-row items-center justify-between mb-4">
+                            <Text className='text-lg font-bold text-black tracking-tight'>Dating Preferences</Text>
+                            {isSavingPrefs && <ActivityIndicator size="small" color="#000" />}
+                        </View>
                         <View className='bg-gray-50 rounded-2xl p-4 gap-6'>
 
                             {/* Age Range Slider */}
@@ -267,14 +261,13 @@ const Settings = () => {
                                 <Text className='text-base font-medium text-black mb-3'>Interested in</Text>
                                 <View className='flex-row rounded-lg overflow-hidden border border-gray-200'>
                                     {['Men', 'Women', 'Everyone'].map((option, idx) => {
-                                        const isSelected = interestedIn.includes(option);
                                         return (
                                             <TouchableOpacity
                                                 key={option}
                                                 onPress={() => {
                                                     setInterestedIn(option);
                                                     handleSavePreferences({ interestedIn: option });
-                                                }} // Single select for gender usually
+                                                }}
                                                 className={`flex-1 py-3 items-center ${interestedIn === option ? 'bg-black' : 'bg-white'} ${idx !== 2 ? 'border-r border-gray-200' : ''} `}
                                             >
                                                 <Text className={`font-medium ${interestedIn === option ? 'text-white' : 'text-black'} `}>{option}</Text>

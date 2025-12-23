@@ -26,7 +26,6 @@ export default function WeeklyActivitiesScreen() {
 
     useEffect(() => {
         if (profile && !hasInitialized) {
-            // Fill existing activities or keep empty slots
             const currentActivities = profile.activities || [];
             const newActivities = ['', '', ''];
             for (let i = 0; i < 3; i++) {
@@ -36,13 +35,15 @@ export default function WeeklyActivitiesScreen() {
             setHasInitialized(true);
         }
 
-        // Check lock status
         if (profile?.activitiesUpdatedAt) {
             const now = Date.now();
             const sevenDays = 7 * 24 * 60 * 60 * 1000;
             const timeDiff = now - profile.activitiesUpdatedAt;
 
-            if (timeDiff < sevenDays) {
+            const savedActivitiesCount = (profile.activities || []).length;
+            const isProfileIncomplete = savedActivitiesCount < 3;
+
+            if (timeDiff < sevenDays && !isProfileIncomplete) {
                 setIsLocked(true);
                 setDaysLeft(Math.ceil((sevenDays - timeDiff) / (24 * 60 * 60 * 1000)));
             } else {
@@ -55,7 +56,6 @@ export default function WeeklyActivitiesScreen() {
         try {
             setIsSaving(true);
 
-            // Filter out empty strings for storage
             const cleanActivities = activities.filter(a => a.trim().length > 0);
 
             await upsertProfile({
@@ -72,7 +72,6 @@ export default function WeeklyActivitiesScreen() {
                 religion: profile?.religion || '',
                 politicalLeaning: profile?.politicalLeaning,
                 datingIntentions: profile?.datingIntentions,
-                // The key update:
                 activities: cleanActivities,
             });
 
@@ -81,7 +80,6 @@ export default function WeeklyActivitiesScreen() {
             ]);
         } catch (error: any) {
             console.error("Failed to save activities:", error);
-            // Show backend error (e.g. 7-day rule violation)
             Alert.alert("Cannot Update", error.message || "Something went wrong.");
         } finally {
             setIsSaving(false);
