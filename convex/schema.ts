@@ -33,19 +33,59 @@ export default defineSchema({
     })),
     isOnboardingComplete: v.optional(v.boolean()),
     updatedAt: v.number(),
-  }).index("by_clerkId", ["clerkId"]),
+  })
+    .index("by_clerkId", ["clerkId"])
+    .index("by_gender", ["gender"]),
 
 
   locations: defineTable({
     userId: v.string(),
     name: v.string(),
-    lat: v.number(), 
+    lat: v.number(),
     lng: v.number(),
     geohash: v.string(),
     category: v.optional(v.string()),
-    address: v.optional(v.string()), 
+    address: v.optional(v.string()),
     savedAt: v.number(),
   })
     .index("by_userId", ["userId"])
     .index("by_geohash", ["geohash"]),
+
+  // Matches (Likes/Connections)
+  matches: defineTable({
+    userId1: v.string(), // The actor (person who swiped right)
+    userId2: v.string(), // The target
+    status: v.string(),  // "pending" (one-way), "accepted" (match), "rejected" (explicit unmatch after match)
+    updatedAt: v.number(),
+    createdAt: v.number(),
+  })
+    .index("by_userId1", ["userId1"])
+    .index("by_userId2", ["userId2"])
+    .index("by_users", ["userId1", "userId2"]),
+
+  // Rejections (Swipe Left / Pass)
+  rejections: defineTable({
+    userId: v.string(),        // The actor
+    rejectedUserId: v.string(), // The target
+    createdAt: v.number(),
+  }).index("by_userId", ["userId"]),
+
+  // Blocks
+  blocks: defineTable({
+    blockerId: v.string(),
+    blockedId: v.string(),
+    createdAt: v.number(),
+  })
+    .index("by_blockerId", ["blockerId"])
+    .index("by_blockedId", ["blockedId"])
+    .index("by_block_pair", ["blockerId", "blockedId"]),
+  // Reports
+  reports: defineTable({
+    reporterId: v.string(),
+    reportedId: v.string(),
+    reason: v.string(),
+    createdAt: v.number(),
+  })
+    .index("by_reporterId", ["reporterId"])
+    .index("by_reportedId", ["reportedId"]),
 });

@@ -150,3 +150,25 @@ export const deleteMyAccount = mutation({
         // TODO: Delete Matches, Chats, etc. when those tables are active
     },
 });
+
+export const get = query({
+    args: { id: v.string() },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) {
+            throw new Error("Not authenticated");
+        }
+
+        const profile = await ctx.db.get(args.id as any);
+        if (!profile) {
+            return null;
+        }
+
+        // TODO: Add authorization logic:
+        // - Check if profiles have mutually blocked each other
+        // - Verify user has permission to view this profile (matching, etc.)
+        // - Apply privacy settings
+
+        return profile;
+    },
+});
