@@ -34,4 +34,18 @@ export default defineSchema({
     isOnboardingComplete: v.optional(v.boolean()),
     updatedAt: v.number(),
   }).index("by_clerkId", ["clerkId"]),
+
+
+  locations: defineTable({
+    userId: v.string(),
+    name: v.string(),
+    lat: v.number(), 
+    lng: v.number(),
+    geohash: v.string(),
+    category: v.optional(v.string()),
+    address: v.optional(v.string()), 
+    savedAt: v.number(),
+  })
+    .index("by_userId", ["userId"])
+    .index("by_geohash", ["geohash"]),
 });

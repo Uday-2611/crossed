@@ -7,9 +7,11 @@
     "icon": "./assets/images/icon.png",
     "scheme": "crossed",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Crossed uses your location to help you find people who share the same places you do. Your location is only saved when you choose to."
+      }
     },
     "android": {
       "adaptiveIcon": {

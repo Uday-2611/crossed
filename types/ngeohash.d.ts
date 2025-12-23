@@ -1,0 +1,8 @@
+declare module 'ngeohash' {
+    export function encode(lat: number, lon: number, precision?: number): string;
+    export function decode(geohash: string): { latitude: number; longitude: number; error?: string };
+    export function decode_bbox(geohash: string): [number, number, number, number];
+    export function bboxes(minlat: number, minlon: number, maxlat: number, maxlon: number, precision?: number): string[];
+    export function neighbor(geohash: string, direction: [number, number]): string;
+    export function neighbors(geohash: string): string[];
+}
