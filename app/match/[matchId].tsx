@@ -1,11 +1,12 @@
 import { SafetyMenu } from '@/components/SafetyMenu';
 import { api } from '@/convex/_generated/api';
+import { Id } from '@/convex/_generated/dataModel';
 import { Ionicons } from '@expo/vector-icons';
 import { useMutation, useQuery } from 'convex/react';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Dimensions, Pressable, ScrollView, StatusBar, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import { Alert, Dimensions, Image, Pressable, ScrollView, StatusBar, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import Animated, {
   runOnJS,
   useAnimatedStyle,
@@ -22,7 +23,11 @@ const MatchProfile = () => {
   const { matchId } = useLocalSearchParams();
   const [menuVisible, setMenuVisible] = useState(false);
 
-  const profile = useQuery(api.matches.getProfileWithDetails, { profileId: matchId as any });
+  // Cast matchId to Id<"profiles"> (Safe because we control navigation)
+  const profileId = matchId as Id<"profiles">;
+
+  // Query with proper ID
+  const profile = useQuery(api.matches.getProfileWithDetails, { profileId });
   const likeMutation = useMutation(api.matches.likeProfile);
   const passMutation = useMutation(api.matches.passProfile);
 
@@ -44,7 +49,7 @@ const MatchProfile = () => {
   const finishAction = async (type: 'like' | 'pass') => {
     try {
       if (type === 'like') {
-        const result = await likeMutation({ targetId: matchId as string });
+        const result = await likeMutation({ targetId: profileId });
         if (result.status === 'matched') {
           // Match Alert
           Alert.alert("It's a Match! 🎉", "You and " + profile?.name + " liked each other!", [
@@ -54,7 +59,7 @@ const MatchProfile = () => {
           router.back();
         }
       } else {
-        await passMutation({ targetId: matchId as string });
+        await passMutation({ targetId: profileId });
         router.back();
       }
     } catch (error) {
@@ -100,7 +105,8 @@ const MatchProfile = () => {
   ].filter(d => d.value !== 'N/A');
 
   const photos = profile.photos || [];
-  const sharedLocations = (profile as any).sharedLocations || [];
+  // Type Safe Access (no 'as any')
+  const sharedLocations = profile.sharedLocations || [];
 
   const handleUnmatch = () => {
     setMenuVisible(false);
@@ -179,9 +185,11 @@ const MatchProfile = () => {
                     style={{ width: width * 0.9, height: 450 }}
                     className='bg-gray-200 rounded-3xl relative overflow-hidden shadow-sm border border-gray-100'
                   >
-                    <View className='absolute inset-0 items-center justify-center'>
-                      <Ionicons name="image-outline" size={64} color="#9CA3AF" />
-                    </View>
+                    <Image
+                      source={{ uri: photo }}
+                      style={{ width: '100%', height: '100%' }}
+                      resizeMode="cover"
+                    />
                   </View>
                 )) : (
                   <View
@@ -257,6 +265,8 @@ const MatchProfile = () => {
               <Pressable
                 onPress={() => handlePass()}
                 className='h-16 w-16 bg-white rounded-full items-center justify-center shadow-md border border-gray-100 active:scale-95'
+                accessibilityLabel="Pass on this profile"
+                accessibilityRole="button"
               >
                 <Ionicons name="close" size={32} color="#EF4444" />
               </Pressable>
@@ -265,6 +275,8 @@ const MatchProfile = () => {
                 onPress={() => handleLike()}
                 className='h-16 w-16 bg-brand rounded-full items-center justify-center shadow-md active:scale-95'
                 style={{ backgroundColor: '#22C55E' }}
+                accessibilityLabel="Like this profile"
+                accessibilityRole="button"
               >
                 <Ionicons name="heart" size={30} color="white" />
               </Pressable>

@@ -10,6 +10,15 @@ const Matches = () => {
   const router = useRouter();
   const candidates = useQuery(api.matches.getPotentialMatches);
 
+  // Error State
+  if (candidates === null) {
+    return (
+      <View className='flex-1 justify-center items-center bg-background'>
+        <Text className='text-red-500 font-semibold text-lg'>Sign in to view matches.</Text>
+      </View>
+    );
+  }
+
   return (
     <View className='flex-1 bg-background'>
       <StatusBar barStyle="dark-content" />
@@ -43,8 +52,7 @@ const Matches = () => {
               <View style={{ width: width }} className='items-center justify-start pt-2 px-4'>
                 <TouchableOpacity
                   activeOpacity={0.9}
-                  onPress={() => router.push(`/match/${item._id}` as any)}
-                  className='w-full h-[72vh] bg-surface-muted rounded-[32px] overflow-hidden relative shadow-sm border border-border/50'
+                  onPress={() => router.push(`/match/${item._id}` as `/match/${string}`)} className='w-full h-[72vh] bg-surface-muted rounded-[32px] overflow-hidden relative shadow-sm border border-border/50'
                 >
                   {/* Photo Placeholder Area */}
                   <View className='flex-1 bg-brand/5 w-full' />

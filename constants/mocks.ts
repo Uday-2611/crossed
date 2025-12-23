@@ -6,8 +6,8 @@ export const TEST_PROFILE = {
     photos: [], // Empty array triggers placeholder icons
     details: [
         { label: 'Height', value: "5'6\"" },
-        { label: 'Job', value: 'Marketing' },
-        { label: 'Location', value: 'San Francisco' },
+        { label: 'Job', value: 'Marketing Manager' },
+        { label: 'Location', value: 'San Francisco, CA' },
         { label: 'Education', value: 'UCLA' },
         { label: 'Gender', value: 'Woman' },
         { label: 'Religion', value: 'Agnostic' },

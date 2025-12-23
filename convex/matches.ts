@@ -60,8 +60,19 @@ export const getPotentialMatches = query({
         ]);
 
         // 3. Fetch Candidates
-        // Optimization: filtering by gender could be done here if we had an index
-        const candidates = await ctx.db.query("profiles").collect();
+        let candidates;
+        const preference = currentUser.datingPreferences?.interestedIn;
+
+        if (preference && preference !== "Everyone") {
+            candidates = await ctx.db
+                .query("profiles")
+                .withIndex("by_gender", (q) => q.eq("gender", preference))
+                .collect();
+        } else {
+            candidates = await ctx.db
+                .query("profiles")
+                .collect();
+        }
 
         // 4. Score and Sort
         const scoredCandidates = await Promise.all(
@@ -107,7 +118,7 @@ export const getPotentialMatches = query({
 /* -------------------------------------------------------------------------- */
 
 export const likeProfile = mutation({
-    args: { targetId: v.string() },
+    args: { targetId: v.id("profiles") },
     handler: async (ctx, args) => {
         const identity = await ctx.auth.getUserIdentity();
         if (!identity) throw new Error("Not authenticated");
@@ -118,9 +129,12 @@ export const likeProfile = mutation({
             .unique();
         if (!currentUser) throw new Error("Profile not found");
 
-        const userId1 = currentUser._id;
-        const userId2 = args.targetId as any; // Cast for now if needed, or rely on string
+        // Validate target exists
+        const targetProfile = await ctx.db.get(args.targetId);
+        if (!targetProfile) throw new Error("Target profile not found");
 
+        const userId1 = currentUser._id;
+        const userId2 = args.targetId;
         // 1. Check if they already liked me (Reverse Pending)
         const reverseMatch = await ctx.db
             .query("matches")
@@ -139,6 +153,7 @@ export const likeProfile = mutation({
                 userId2,
                 status: "accepted",
                 updatedAt: Date.now(),
+                createdAt: Date.now(),
             });
             return { status: "matched" };
         } else {
@@ -155,6 +170,7 @@ export const likeProfile = mutation({
                     userId2,
                     status: "pending", // Waiting for them to like back
                     updatedAt: Date.now(),
+                    createdAt: Date.now(),
                 });
             }
             return { status: "pending" };
@@ -163,7 +179,7 @@ export const likeProfile = mutation({
 });
 
 export const passProfile = mutation({
-    args: { targetId: v.string() },
+    args: { targetId: v.id("profiles") },
     handler: async (ctx, args) => {
         const identity = await ctx.auth.getUserIdentity();
         if (!identity) throw new Error("Not authenticated");
@@ -174,19 +190,27 @@ export const passProfile = mutation({
             .unique();
         if (!currentUser) throw new Error("Profile not found");
 
-        // Record Rejection
-        await ctx.db.insert("rejections", {
-            userId: currentUser._id,
-            rejectedUserId: args.targetId as any,
-            createdAt: Date.now(),
-        });
+        // Record Rejection (idempotent)
+        const existingRejection = await ctx.db
+            .query("rejections")
+            .withIndex("by_userId", (q) => q.eq("userId", currentUser._id))
+            .filter((q) => q.eq(q.field("rejectedUserId"), args.targetId))
+            .unique();
+
+        if (!existingRejection) {
+            await ctx.db.insert("rejections", {
+                userId: currentUser._id,
+                rejectedUserId: args.targetId,
+                createdAt: Date.now(),
+            });
+        }
 
         // Check if they had liked me (status: pending). If so, we can mark it rejected or just leave it.
         // User requested: "if a user crosses a profile from liked you it should be removed from liked you"
         // So we should find their pending like and reject it so it drops from the list.
         const reverseMatch = await ctx.db
             .query("matches")
-            .withIndex("by_users", (q) => q.eq("userId1", args.targetId as any).eq("userId2", currentUser._id))
+            .withIndex("by_users", (q) => q.eq("userId1", args.targetId).eq("userId2", currentUser._id))
             .filter((q) => q.eq(q.field("status"), "pending"))
             .unique();
 

@@ -154,7 +154,21 @@ export const deleteMyAccount = mutation({
 export const get = query({
     args: { id: v.string() },
     handler: async (ctx, args) => {
-        // Optional: Block logic check here (don't return if blocked)
-        return await ctx.db.get(args.id as any);
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) {
+            throw new Error("Not authenticated");
+        }
+
+        const profile = await ctx.db.get(args.id as any);
+        if (!profile) {
+            return null;
+        }
+
+        // TODO: Add authorization logic:
+        // - Check if profiles have mutually blocked each other
+        // - Verify user has permission to view this profile (matching, etc.)
+        // - Apply privacy settings
+
+        return profile;
     },
 });

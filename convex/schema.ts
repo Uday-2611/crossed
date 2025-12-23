@@ -33,7 +33,9 @@ export default defineSchema({
     })),
     isOnboardingComplete: v.optional(v.boolean()),
     updatedAt: v.number(),
-  }).index("by_clerkId", ["clerkId"]),
+  })
+    .index("by_clerkId", ["clerkId"])
+    .index("by_gender", ["gender"]),
 
 
   locations: defineTable({
@@ -55,6 +57,7 @@ export default defineSchema({
     userId2: v.string(), // The target
     status: v.string(),  // "pending" (one-way), "accepted" (match), "rejected" (explicit unmatch after match)
     updatedAt: v.number(),
+    createdAt: v.number(),
   })
     .index("by_userId1", ["userId1"])
     .index("by_userId2", ["userId2"])
@@ -72,13 +75,17 @@ export default defineSchema({
     blockerId: v.string(),
     blockedId: v.string(),
     createdAt: v.number(),
-  }).index("by_blockerId", ["blockerId"]),
-
+  })
+    .index("by_blockerId", ["blockerId"])
+    .index("by_blockedId", ["blockedId"])
+    .index("by_block_pair", ["blockerId", "blockedId"]),
   // Reports
   reports: defineTable({
     reporterId: v.string(),
     reportedId: v.string(),
     reason: v.string(),
     createdAt: v.number(),
-  }),
+  })
+    .index("by_reporterId", ["reporterId"])
+    .index("by_reportedId", ["reportedId"]),
 });
