@@ -1,10 +1,13 @@
 import { v } from "convex/values";
-import { Id } from "./_generated/dataModel";
+import { Doc, Id } from "./_generated/dataModel";
 import { mutation, query } from "./_generated/server";
+
+// Define the return type explicitly
+type ConversationWithPeer = Doc<"conversations"> & { peer: Doc<"profiles"> };
 
 export const getConversations = query({
     args: {},
-    handler: async (ctx) => {
+    handler: async (ctx): Promise<ConversationWithPeer[]> => {
         const identity = await ctx.auth.getUserIdentity();
         if (!identity) return [];
 
@@ -28,27 +31,27 @@ export const getConversations = query({
 
         const allConversations = [...conversations1, ...conversations2];
 
-        const results = await Promise.all(
-            allConversations.map(async (conv) => {
-                const peerId = (conv.user1 === currentUser._id ? conv.user2 : conv.user1) as Id<"profiles">;
-                const peerProfile = await ctx.db.get(peerId);
+        const results: ConversationWithPeer[] = [];
+        
+        for (const conv of allConversations) {
+            const peerId = (conv.user1 === currentUser._id ? conv.user2 : conv.user1) as Id<"profiles">;
+            const peerProfile = await ctx.db.get(peerId);
 
-                if (!peerProfile) return null;
-
-                return {
+            if (peerProfile) {
+                results.push({
                     ...conv,
                     peer: peerProfile,
-                };
-            })
-        );
+                });
+            }
+        }
 
-        return results.filter((c) => c !== null).sort((a, b) => b.lastMessageAt - a.lastMessageAt);
+        return results.sort((a, b) => b.lastMessageAt - a.lastMessageAt);
     },
 });
 
 export const getConversation = query({
     args: { conversationId: v.id("conversations") },
-    handler: async (ctx, args) => {
+    handler: async (ctx, args): Promise<ConversationWithPeer | null> => {
         const identity = await ctx.auth.getUserIdentity();
         if (!identity) return null;
 
@@ -67,6 +70,8 @@ export const getConversation = query({
 
         const peerId = (conv.user1 === currentUser._id ? conv.user2 : conv.user1) as Id<"profiles">;
         const peerProfile = await ctx.db.get(peerId);
+
+        if (!peerProfile) return null;
 
         return {
             ...conv,

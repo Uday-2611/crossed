@@ -65,15 +65,13 @@ export default defineSchema({
 
   // Conversations (Chat Rooms)
   conversations: defineTable({
-    matchId: v.string(),
-    user1: v.string(), // Matches userId1 in matches table usually, or just sorted
+    matchId: v.id("matches"), user1: v.string(), // Matches userId1 in matches table usually, or just sorted
     user2: v.string(),
     lastMessage: v.optional(v.object({
       content: v.string(),
       sender: v.string(),
-      type: v.string(),
-    })),
-    lastMessageAt: v.number(),
+      type: v.union(v.literal("text"), v.literal("image")),
+    })), lastMessageAt: v.number(),
   })
     .index("by_matchId", ["matchId"])
     .index("by_user1", ["user1"])

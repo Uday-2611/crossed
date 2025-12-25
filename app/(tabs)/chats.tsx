@@ -20,12 +20,19 @@ const Chats = () => {
   const passProfile = useMutation(api.matches.passProfile);
 
   const handleLike = async (id: Id<"profiles">) => {
-    await likeProfile({ targetId: id });
-    // Optimistic update handled by Convex
+    try {
+      await likeProfile({ targetId: id });
+    } catch (error) {
+      console.error('Failed to like profile:', error);
+    }
   };
 
   const handlePass = async (id: Id<"profiles">) => {
-    await passProfile({ targetId: id });
+    try {
+      await passProfile({ targetId: id });
+    } catch (error) {
+      console.error('Failed to pass profile:', error);
+    }
   };
 
   const formatTime = (timestamp: number) => {
@@ -145,10 +152,16 @@ const Chats = () => {
                   >
                     {/* Avatar */}
                     <View className="relative">
-                      <Image
-                        source={{ uri: conv.peer?.photos?.[0] }}
-                        className="h-14 w-14 rounded-full bg-gray-200"
-                      />
+                      {conv.peer?.photos?.[0] ? (
+                        <Image
+                          source={{ uri: conv.peer.photos[0] }}
+                          className="h-14 w-14 rounded-full bg-gray-200"
+                        />
+                      ) : (
+                        <View className="h-14 w-14 rounded-full bg-gray-200 items-center justify-center">
+                          <Ionicons name="person" size={24} color="#9CA3AF" />
+                        </View>
+                      )}
                       {/** Online Indicator Placeholder - Assuming we might add real online status later */}
                       {/* <View className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 border-2 border-white" /> */}
                     </View>

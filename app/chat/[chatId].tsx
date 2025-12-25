@@ -27,11 +27,22 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 const ChatScreen = () => {
   const router = useRouter();
   const { chatId } = useLocalSearchParams();
-  const conversationId = chatId as Id<"conversations">;
+  const conversationId = (typeof chatId === 'string' ? chatId : undefined) as Id<"conversations"> | undefined;
 
   // Convex
-  const conversation = useQuery(api.chat.getConversation, { conversationId });
-  const messages = useQuery(api.chat.getMessages, { conversationId });
+  const conversation = useQuery(api.chat.getConversation, conversationId ? { conversationId } : "skip");
+  const messages = useQuery(api.chat.getMessages, conversationId ? { conversationId } : "skip");
+
+  if (!conversationId) {
+    return (
+      <View className="flex-1 items-center justify-center bg-white">
+        <Text className="text-gray-500">Invalid conversation</Text>
+        <TouchableOpacity onPress={() => router.back()} className="mt-4 p-2">
+          <Text className="text-brand-primary">Go Back</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   const sendMessage = useMutation(api.chat.sendMessage);
   const unmatchMutation = useMutation(api.matches.unmatch);
@@ -70,9 +81,10 @@ const ChatScreen = () => {
       if (!perm.granted) return Alert.alert("Permission Needed", "Camera access is required");
       result = await ImagePicker.launchCameraAsync({ allowsEditing: true, quality: 0.8 });
     } else {
+      const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!perm.granted) return Alert.alert("Permission Needed", "Photo library access is required");
       result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images, quality: 0.8 });
     }
-
     if (!result.canceled && result.assets[0].uri) {
       setIsSending(true);
       try {
@@ -188,7 +200,6 @@ const ChatScreen = () => {
               />
             )}
             <View>
-              <Text className='font-bold text-lg text-gray-900'>{conversation.peer?.name || 'User'}</Text>
               <Text className="text-[10px] text-green-600 font-medium">Online</Text>
             </View>
           </TouchableOpacity>
@@ -207,20 +218,14 @@ const ChatScreen = () => {
           contentContainerStyle={{ paddingVertical: 20 }}
           ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
           renderItem={({ item }) => {
-            const isMe = item.senderId === conversation.user1 || (conversation.user1 === conversation.peer?._id ? (item.senderId !== conversation.user1) : (item.senderId !== conversation.peer?._id));
-            // Better check: isMe = item.senderId !== conversation.peer._id
-            // Wait, we don't have direct 'me' ID here easily without auth query.
-            // Assumption: Since we fetched conversation with `getConversation`, match.peer is the OTHER person.
-            const isPeer = item.senderId === conversation.peer?._id;
-            const isSelf = !isPeer;
-
+            // peer is the other user in this conversation
+            const isSelf = item.senderId !== conversation.peer?._id;
             return (
               <View className={`w-full flex-row ${isSelf ? 'justify-end' : 'justify-start'}`}>
                 <View
                   className={`max-w-[80%] rounded-2xl p-3 ${item.type === 'image' ? 'p-1 bg-transparent' :
-                    isSelf ? 'bg-brand-primary rounded-tr-sm bg-green-500' : 'bg-gray-100 rounded-tl-sm'
-                    }`}
-                >
+                    isSelf ? 'bg-brand-primary rounded-tr-sm' : 'bg-gray-100 rounded-tl-sm'
+                    }`}                >
                   {item.type === 'image' ? (
                     <TouchableOpacity onPress={() => {/* Fullscreen view logic */ }}>
                       <Image

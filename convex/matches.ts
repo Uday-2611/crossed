@@ -365,11 +365,34 @@ export const unmatch = mutation({
             throw new Error("Unauthorized");
         }
 
+        // 4. Delete the Match records
+        // Matches are stored as TWO records (User1->User2 AND User2->User1) if accepted?
+        // Wait, my `likeProfile` logic inserts a SECOND record when accepted.
+        // So "reverseMatch" is the other one.
+        // We need to find BOTH and delete BOTH.
+
+        const otherUserId = match.userId1 === currentUser._id ? match.userId2 : match.userId1;
+
+        // Find the OTHER match record
+        const otherMatch = await ctx.db
+            .query("matches")
+            .withIndex("by_users", (q) => q.eq("userId1", otherUserId).eq("userId2", currentUser._id))
+            .unique();
+
         // 2. Find associated conversation
-        const conversation = await ctx.db
+        // Try match._id first
+        let conversation = await ctx.db
             .query("conversations")
             .withIndex("by_matchId", (q) => q.eq("matchId", match._id))
             .unique();
+
+        // If not found, try otherMatch._id
+        if (!conversation && otherMatch) {
+            conversation = await ctx.db
+                .query("conversations")
+                .withIndex("by_matchId", (q) => q.eq("matchId", otherMatch._id))
+                .unique();
+        }
 
         // 3. Delete Conversation & Messages (if exists)
         if (conversation) {
@@ -384,20 +407,6 @@ export const unmatch = mutation({
             }
             await ctx.db.delete(conversation._id);
         }
-
-        // 4. Delete the Match records
-        // Matches are stored as TWO records (User1->User2 AND User2->User1) if accepted?
-        // Wait, my `likeProfile` logic inserts a SECOND record when accepted.
-        // So "reverseMatch" is the other one.
-        // We need to find BOTH and delete BOTH.
-
-        const otherUserId = match.userId1 === currentUser._id ? match.userId2 : match.userId1;
-
-        // Find the OTHER match record
-        const otherMatch = await ctx.db
-            .query("matches")
-            .withIndex("by_users", (q) => q.eq("userId1", otherUserId).eq("userId2", currentUser._id))
-            .unique();
 
         if (otherMatch) await ctx.db.delete(otherMatch._id);
         await ctx.db.delete(match._id);
@@ -416,29 +425,47 @@ export const block = mutation({
             .unique();
         if (!currentUser) throw new Error("Profile not found");
 
-        // 1. Add to Blocks table
+        // 1. Check for existing block (idempotency)
+        const existingBlock = await ctx.db
+            .query("blocks")
+            .withIndex("by_block_pair", (q) => q.eq("blockerId", currentUser._id).eq("blockedId", args.targetId))
+            .unique();
+
+        if (existingBlock) {
+            return; // Already blocked, assume success
+        }
+
+        // 2. Add to Blocks table
         await ctx.db.insert("blocks", {
             blockerId: currentUser._id,
             blockedId: args.targetId,
             createdAt: Date.now(),
         });
 
-        // 2. Perform Unmatch logic (delete matches/conversations)
+        // 3. Perform Unmatch logic (delete matches/conversations)
         // Find existing matches
         const match1 = await ctx.db.query("matches").withIndex("by_users", q => q.eq("userId1", currentUser._id).eq("userId2", args.targetId)).unique();
         const match2 = await ctx.db.query("matches").withIndex("by_users", q => q.eq("userId1", args.targetId).eq("userId2", currentUser._id)).unique();
 
-        const matchId = match1?._id || match2?._id;
+        const matchIds = [];
+        if (match1) matchIds.push(match1._id);
+        if (match2) matchIds.push(match2._id);
 
-        if (matchId) {
-            // Find conversation
-            const conversation = await ctx.db.query("conversations").withIndex("by_matchId", q => q.eq("matchId", matchId)).unique();
-            if (conversation) {
-                // Delete messages
-                const messages = await ctx.db.query("messages").withIndex("by_conversationId", q => q.eq("conversationId", conversation._id)).collect();
-                for (const msg of messages) await ctx.db.delete(msg._id);
-                await ctx.db.delete(conversation._id);
+        // Find conversation using ANY of the match IDs
+        let conversation = null;
+        for (const mId of matchIds) {
+            const c = await ctx.db.query("conversations").withIndex("by_matchId", q => q.eq("matchId", mId)).unique();
+            if (c) {
+                conversation = c;
+                break;
             }
+        }
+
+        if (conversation) {
+            // Delete messages
+            const messages = await ctx.db.query("messages").withIndex("by_conversationId", q => q.eq("conversationId", conversation._id)).collect();
+            for (const msg of messages) await ctx.db.delete(msg._id);
+            await ctx.db.delete(conversation._id);
         }
 
         if (match1) await ctx.db.delete(match1._id);
