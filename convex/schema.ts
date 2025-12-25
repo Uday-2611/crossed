@@ -63,6 +63,31 @@ export default defineSchema({
     .index("by_userId2", ["userId2"])
     .index("by_users", ["userId1", "userId2"]),
 
+  // Conversations (Chat Rooms)
+  conversations: defineTable({
+    matchId: v.string(),
+    user1: v.string(), // Matches userId1 in matches table usually, or just sorted
+    user2: v.string(),
+    lastMessage: v.optional(v.object({
+      content: v.string(),
+      sender: v.string(),
+      type: v.string(),
+    })),
+    lastMessageAt: v.number(),
+  })
+    .index("by_matchId", ["matchId"])
+    .index("by_user1", ["user1"])
+    .index("by_user2", ["user2"]),
+
+  // Messages
+  messages: defineTable({
+    conversationId: v.id("conversations"),
+    senderId: v.string(),
+    content: v.string(),
+    type: v.union(v.literal("text"), v.literal("image")),
+    createdAt: v.number(),
+  }).index("by_conversationId", ["conversationId"]),
+
   // Rejections (Swipe Left / Pass)
   rejections: defineTable({
     userId: v.string(),        // The actor
@@ -84,6 +109,7 @@ export default defineSchema({
     reporterId: v.string(),
     reportedId: v.string(),
     reason: v.string(),
+    description: v.optional(v.string()),
     createdAt: v.number(),
   })
     .index("by_reporterId", ["reporterId"])

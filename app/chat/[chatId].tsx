@@ -1,10 +1,17 @@
 import { SafetyMenu } from '@/components/SafetyMenu';
+import { api } from '@/convex/_generated/api';
+import { Id } from '@/convex/_generated/dataModel';
+import { uploadToCloudinary } from '@/lib/cloudinary';
 import { Ionicons } from '@expo/vector-icons';
+import { useMutation, useQuery } from 'convex/react';
+import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
+  ActivityIndicator,
   Alert,
   FlatList,
+  Image,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -17,23 +24,71 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-
-// Mock Messages
-const MOCK_MESSAGES = [
-  { id: '1', text: "Hey! How's your week going?", sender: 'them', time: '10:02 AM' },
-  { id: '2', text: "It's been good, just busy with work. How about yours?", sender: 'me', time: '10:05 AM' },
-  { id: '3', text: "Pretty chill actually. Finally checked out that book shop you mentioned.", sender: 'them', time: '10:10 AM' },
-  { id: '4', text: "No way! Did you find anything good?", sender: 'me', time: '10:12 AM' },
-  { id: '5', text: "Yeah got a couple of classics. We should go together sometime.", sender: 'them', time: '10:15 AM' },
-];
-
 const ChatScreen = () => {
   const router = useRouter();
   const { chatId } = useLocalSearchParams();
-  const [messages, setMessages] = useState(MOCK_MESSAGES);
+  const conversationId = chatId as Id<"conversations">;
+
+  // Convex
+  const conversation = useQuery(api.chat.getConversation, { conversationId });
+  const messages = useQuery(api.chat.getMessages, { conversationId });
+
+  const sendMessage = useMutation(api.chat.sendMessage);
+  const unmatchMutation = useMutation(api.matches.unmatch);
+  const blockMutation = useMutation(api.matches.block);
+
+  // State
   const [inputText, setInputText] = useState('');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isSafetyMenuOpen, setIsSafetyMenuOpen] = useState(false); // New state for safety menu
+  const [isSafetyMenuOpen, setIsSafetyMenuOpen] = useState(false);
+  const [isSending, setIsSending] = useState(false);
+
+  // Actions
+  const handleSend = async () => {
+    if (!inputText.trim()) return;
+    const content = inputText.trim();
+    setInputText(''); // Optimistic clear
+
+    try {
+      await sendMessage({
+        conversationId,
+        content,
+        type: 'text',
+      });
+    } catch (err) {
+      Alert.alert("Error", "Failed to send message");
+      setInputText(content); // Revert
+    }
+  };
+
+  const handlePickImage = async (camera: boolean = false) => {
+    setIsMenuOpen(false);
+
+    let result;
+    if (camera) {
+      const perm = await ImagePicker.requestCameraPermissionsAsync();
+      if (!perm.granted) return Alert.alert("Permission Needed", "Camera access is required");
+      result = await ImagePicker.launchCameraAsync({ allowsEditing: true, quality: 0.8 });
+    } else {
+      result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images, quality: 0.8 });
+    }
+
+    if (!result.canceled && result.assets[0].uri) {
+      setIsSending(true);
+      try {
+        const imageUrl = await uploadToCloudinary(result.assets[0].uri);
+        await sendMessage({
+          conversationId,
+          content: imageUrl,
+          type: 'image',
+        });
+      } catch (err) {
+        Alert.alert("Upload Failed", "Could not send image");
+      } finally {
+        setIsSending(false);
+      }
+    }
+  };
 
   const handleUnmatch = () => {
     setIsSafetyMenuOpen(false);
@@ -42,7 +97,19 @@ const ChatScreen = () => {
       "This will remove this match and you won’t be able to chat anymore.",
       [
         { text: "Cancel", style: "cancel" },
-        { text: "Unmatch", style: "destructive", onPress: () => router.replace('/(tabs)/chats') }
+        {
+          text: "Unmatch",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              if (!conversation?.matchId) return;
+              await unmatchMutation({ matchId: conversation.matchId as Id<"matches"> });
+              router.replace('/(tabs)/chats');
+            } catch (e) {
+              Alert.alert("Error", "Failed to unmatch");
+            }
+          }
+        }
       ]
     );
   };
@@ -54,111 +121,151 @@ const ChatScreen = () => {
       "They won't be able to see your profile or message you.",
       [
         { text: "Cancel", style: "cancel" },
-        { text: "Block", style: "destructive", onPress: () => router.replace('/(tabs)/chats') }
+        {
+          text: "Block",
+          style: "destructive",
+          onPress: async () => {
+            if (!conversation?.peer?._id) return;
+            try {
+              await blockMutation({ targetId: conversation.peer._id as Id<"profiles"> });
+              router.replace('/(tabs)/chats');
+            } catch (e) {
+              Alert.alert("Error", "Failed to block");
+            }
+          }
+        }
       ]
     );
   };
 
   const handleReport = () => {
     setIsSafetyMenuOpen(false);
-    router.push(`/report/${chatId}` as any);
+    if (!conversation?.peer?._id) return;
+    router.push(`/report/${conversation.peer._id}`);
   };
 
   const goToProfile = () => {
-    // In real app, chatId might be same as matchId or mapped
-    router.push(`/match/${chatId}`);
+    if (conversation?.peer?._id) {
+      router.push(`/match/${conversation.peer._id}`);
+    }
   };
 
-  // Send Message Handler
-  const handleSend = () => {
-    if (!inputText.trim()) return;
-    const newMessage = {
-      id: Date.now().toString(),
-      text: inputText.trim(),
-      sender: 'me',
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-    };
-    setMessages((prev) => [...prev, newMessage]);
-    setInputText('');
-  };
+  if (conversation === undefined) {
+    return (
+      <View className="flex-1 items-center justify-center bg-white">
+        <ActivityIndicator size="large" color="#10B981" />
+      </View>
+    );
+  }
 
-  // Menu Options
-  const MENU_OPTIONS = [
-    { id: 'photo', label: 'Photo', icon: 'image-outline' },
-    { id: 'location', label: 'Share Location', icon: 'location-outline' },
-    { id: 'activity', label: 'Activity Invite', icon: 'calendar-outline' },
-    { id: 'voice', label: 'Voice Note', icon: 'mic-outline' },
-  ] as const;
+  if (conversation === null) {
+    return (
+      <View className="flex-1 items-center justify-center bg-white">
+        <Text className="text-gray-500">Conversation not found</Text>
+        <TouchableOpacity onPress={() => router.back()} className="mt-4 p-2">
+          <Text className="text-brand-primary">Go Back</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   return (
-    <View className='flex-1 bg-background'>
+    <View className='flex-1 bg-white'>
       <StatusBar barStyle="dark-content" />
-      <SafeAreaView className='flex-1'>
+      <SafeAreaView className='flex-1' edges={['top']}>
 
         {/* Header */}
-        <View className='px-4 py-3 flex-row items-center justify-between border-b border-gray-100 bg-background z-10'>
-          <TouchableOpacity onPress={() => router.back()} className='p-2'>
-            <Ionicons name="arrow-back" size={24} color="black" />
+        <View className='px-4 py-3 flex-row items-center justify-between border-b border-gray-100 bg-white z-10'>
+          <TouchableOpacity onPress={() => router.back()} className='p-2 -ml-2'>
+            <Ionicons name="chevron-back" size={28} color="#111827" />
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={goToProfile}>
-            <Text className='font-semibold text-lg text-text-primary'>Sophie</Text>
+          <TouchableOpacity onPress={goToProfile} className="flex-row items-center">
+            {conversation.peer?.photos?.[0] && (
+              <Image
+                source={{ uri: conversation.peer.photos[0] }}
+                className="w-8 h-8 rounded-full mr-2 bg-gray-200"
+              />
+            )}
+            <View>
+              <Text className='font-bold text-lg text-gray-900'>{conversation.peer?.name || 'User'}</Text>
+              <Text className="text-[10px] text-green-600 font-medium">Online</Text>
+            </View>
           </TouchableOpacity>
 
-          <TouchableOpacity className='p-2' onPress={() => setIsSafetyMenuOpen(true)}>
-            <Ionicons name="ellipsis-horizontal" size={24} color="black" />
+          <TouchableOpacity className='p-2 -mr-2' onPress={() => setIsSafetyMenuOpen(true)}>
+            <Ionicons name="ellipsis-horizontal" size={24} color="#111827" />
           </TouchableOpacity>
         </View>
 
         {/* Message List */}
         <FlatList
           data={messages}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item) => item._id}
           className='flex-1 px-4'
+          inverted
           contentContainerStyle={{ paddingVertical: 20 }}
-          ItemSeparatorComponent={() => <View style={{ height: 16 }} />}
+          ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
           renderItem={({ item }) => {
-            const isMe = item.sender === 'me';
+            const isMe = item.senderId === conversation.user1 || (conversation.user1 === conversation.peer?._id ? (item.senderId !== conversation.user1) : (item.senderId !== conversation.peer?._id));
+            // Better check: isMe = item.senderId !== conversation.peer._id
+            // Wait, we don't have direct 'me' ID here easily without auth query.
+            // Assumption: Since we fetched conversation with `getConversation`, match.peer is the OTHER person.
+            const isPeer = item.senderId === conversation.peer?._id;
+            const isSelf = !isPeer;
+
             return (
-              <View className={`w-full flex-row ${isMe ? 'justify-end' : 'justify-start'}`}>
+              <View className={`w-full flex-row ${isSelf ? 'justify-end' : 'justify-start'}`}>
                 <View
-                  className={`max-w-[80%] px-4 py-3 rounded-2xl ${isMe
-                    ? 'bg-brand rounded-tr-none'
-                    : 'bg-gray-100 rounded-tl-none'
+                  className={`max-w-[80%] rounded-2xl p-3 ${item.type === 'image' ? 'p-1 bg-transparent' :
+                    isSelf ? 'bg-brand-primary rounded-tr-sm bg-green-500' : 'bg-gray-100 rounded-tl-sm'
                     }`}
                 >
-                  <Text className={`text-base leading-6 ${isMe ? 'text-white' : 'text-text-primary'}`}>
-                    {item.text}
-                  </Text>
-                  <Text className={`text-[10px] mt-1 ${isMe ? 'text-gray-200' : 'text-gray-500'} text-right`}>
-                    {item.time}
-                  </Text>
+                  {item.type === 'image' ? (
+                    <TouchableOpacity onPress={() => {/* Fullscreen view logic */ }}>
+                      <Image
+                        source={{ uri: item.content }}
+                        className="w-48 h-64 rounded-xl bg-gray-200"
+                        resizeMode="cover"
+                      />
+                    </TouchableOpacity>
+                  ) : (
+                    <Text className={`text-base leading-5 ${isSelf ? 'text-white' : 'text-gray-900'}`}>
+                      {item.content}
+                    </Text>
+                  )}
+
+                  {item.type !== 'image' && (
+                    <Text className={`text-[10px] mt-1 ${isSelf ? 'text-green-100' : 'text-gray-400'} text-right`}>
+                      {new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </Text>
+                  )}
                 </View>
               </View>
             );
           }}
           showsVerticalScrollIndicator={false}
+          ListFooterComponent={isSending ? <ActivityIndicator size="small" className="py-2" /> : null}
         />
+
         {/* Input Area */}
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           keyboardVerticalOffset={Platform.OS === 'ios' ? 10 : 0}
-          className='border-t border-gray-100 bg-background p-2'
+          className='border-t border-gray-100 bg-white pb-6 pt-2'
         >
-          <View className='flex-row items-end gap-2 px-2 py-2'>
-            {/* Plus Menu Button */}
+          <View className='flex-row items-end gap-2 px-3'>
             <TouchableOpacity
               onPress={() => setIsMenuOpen(true)}
-              className='h-10 w-10 items-center justify-center bg-gray-100 rounded-full mb-1'
+              className='h-10 w-10 items-center justify-center bg-gray-50 rounded-full mb-0.5'
             >
-              <Ionicons name="add" size={24} color="black" />
+              <Ionicons name="add" size={24} color="#6B7280" />
             </TouchableOpacity>
 
-            {/* Text Input */}
-            <View className='flex-1 bg-background rounded-2xl px-4 py-2 min-h-[44px] justify-center'>
+            <View className='flex-1 bg-gray-50 rounded-2xl px-4 py-2 min-h-[44px] justify-center border border-gray-100'>
               <TextInput
-                className='text-base text-text-primary max-h-24'
-                placeholder="Type a message..."
+                className='text-base text-gray-900 max-h-24 leading-5'
+                placeholder="Message..."
                 placeholderTextColor="#9CA3AF"
                 multiline
                 value={inputText}
@@ -166,11 +273,10 @@ const ChatScreen = () => {
               />
             </View>
 
-            {/* Send Button */}
             <TouchableOpacity
               onPress={handleSend}
               disabled={!inputText.trim()}
-              className={`h-10 w-10 items-center justify-center rounded-full mb-1 ${inputText.trim() ? 'bg-brand' : 'bg-gray-100'
+              className={`h-10 w-10 items-center justify-center rounded-full mb-0.5 ${inputText.trim() ? 'bg-green-500' : 'bg-gray-100'
                 }`}
             >
               <Ionicons name="arrow-up" size={20} color={inputText.trim() ? 'white' : '#9CA3AF'} />
@@ -178,7 +284,7 @@ const ChatScreen = () => {
           </View>
         </KeyboardAvoidingView>
 
-        {/* Bottom Sheet Modal */}
+        {/* Media Sheet Modal */}
         <Modal
           visible={isMenuOpen}
           transparent
@@ -188,23 +294,22 @@ const ChatScreen = () => {
           <TouchableWithoutFeedback onPress={() => setIsMenuOpen(false)}>
             <View className='flex-1 bg-black/40 justify-end'>
               <TouchableWithoutFeedback>
-                <View className='bg-background rounded-t-3xl p-6 pb-10 shadow-xl'>
-                  {/* Handle Indicator */}
-                  <View className='w-12 h-1 bg-background rounded-full mx-auto mb-6' />
+                <View className='bg-white rounded-t-3xl p-6 pb-12 shadow-xl'>
+                  <View className='w-12 h-1 bg-gray-300 rounded-full mx-auto mb-8' />
+                  <View className='flex-row justify-around'>
+                    <TouchableOpacity onPress={() => handlePickImage(false)} className='items-center'>
+                      <View className="h-14 w-14 bg-green-100 items-center justify-center rounded-2xl mb-2">
+                        <Ionicons name="images" size={24} color="#10B981" />
+                      </View>
+                      <Text className="font-medium text-gray-700">Gallery</Text>
+                    </TouchableOpacity>
 
-                  <View className='gap-4'>
-                    {MENU_OPTIONS.map((option) => (
-                      <TouchableOpacity
-                        key={option.id}
-                        className='flex-row items-center gap-4 p-4 bg-background rounded-2xl active:bg-gray-100'
-                        onPress={() => setIsMenuOpen(false)}
-                      >
-                        <View className='h-10 w-10 bg-background rounded-full items-center justify-center border border-gray-100'>
-                          <Ionicons name={option.icon as any} size={20} color="black" />
-                        </View>
-                        <Text className='text-base font-medium text-text-primary'>{option.label}</Text>
-                      </TouchableOpacity>
-                    ))}
+                    <TouchableOpacity onPress={() => handlePickImage(true)} className='items-center'>
+                      <View className="h-14 w-14 bg-blue-100 items-center justify-center rounded-2xl mb-2">
+                        <Ionicons name="camera" size={24} color="#3B82F6" />
+                      </View>
+                      <Text className="font-medium text-gray-700">Camera</Text>
+                    </TouchableOpacity>
                   </View>
                 </View>
               </TouchableWithoutFeedback>
