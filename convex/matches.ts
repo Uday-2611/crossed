@@ -155,6 +155,15 @@ export const likeProfile = mutation({
                 updatedAt: Date.now(),
                 createdAt: Date.now(),
             });
+
+            // Create Conversation
+            await ctx.db.insert("conversations", {
+                matchId: reverseMatch._id,
+                user1: userId1,
+                user2: userId2,
+                lastMessageAt: Date.now(),
+            });
+
             return { status: "matched" };
         } else {
             // Just a like (Pending)
@@ -248,10 +257,11 @@ export const getMutualMatches = query({
         const results = await Promise.all(
             matches.map(async (m) => {
                 const profile = await ctx.db.get(m.userId2 as any);
+                if (!profile) return null;
                 return { ...profile, matchId: m._id };
             })
         );
-        return results.filter(p => !!p);
+        return results.filter((p) => p !== null);
     },
 });
 
@@ -278,10 +288,11 @@ export const getPendingLikers = query({
         const results = await Promise.all(
             pending.map(async (m) => {
                 const profile = await ctx.db.get(m.userId1 as any);
+                if (!profile) return null;
                 return { ...profile, matchId: m._id };
             })
         );
-        return results.filter(p => !!p);
+        return results.filter((p) => p !== null);
     },
 });
 
@@ -328,3 +339,196 @@ export const getProfileWithDetails = query({
 });
 
 // End of matches.ts
+
+/* -------------------------------------------------------------------------- */
+/*                              SAFETY MUTATIONS                              */
+/* -------------------------------------------------------------------------- */
+
+export const unmatch = mutation({
+    args: { matchId: v.id("matches") }, // matchId comes from the conversation or match object
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) throw new Error("Not authenticated");
+
+        const currentUser = await ctx.db
+            .query("profiles")
+            .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
+            .unique();
+        if (!currentUser) throw new Error("Profile not found");
+
+        // 1. Find the match (could be under userId1 or userId2)
+        // We expect the frontend to pass the matchId, but we must verify ownership
+        const match = await ctx.db.get(args.matchId);
+        if (!match) throw new Error("Match not found");
+
+        if (match.userId1 !== currentUser._id && match.userId2 !== currentUser._id) {
+            throw new Error("Unauthorized");
+        }
+
+        // 4. Delete the Match records
+        // Matches are stored as TWO records (User1->User2 AND User2->User1) if accepted?
+        // Wait, my `likeProfile` logic inserts a SECOND record when accepted.
+        // So "reverseMatch" is the other one.
+        // We need to find BOTH and delete BOTH.
+
+        const otherUserId = match.userId1 === currentUser._id ? match.userId2 : match.userId1;
+
+        // Find the OTHER match record
+        const otherMatch = await ctx.db
+            .query("matches")
+            .withIndex("by_users", (q) => q.eq("userId1", otherUserId).eq("userId2", currentUser._id))
+            .unique();
+
+        // 2. Find associated conversation
+        // Try match._id first
+        let conversation = await ctx.db
+            .query("conversations")
+            .withIndex("by_matchId", (q) => q.eq("matchId", match._id))
+            .unique();
+
+        // If not found, try otherMatch._id
+        if (!conversation && otherMatch) {
+            conversation = await ctx.db
+                .query("conversations")
+                .withIndex("by_matchId", (q) => q.eq("matchId", otherMatch._id))
+                .unique();
+        }
+
+        // 3. Delete Conversation & Messages (if exists)
+        if (conversation) {
+            // Delete all messages (optimize this with scheduler later if too many)
+            const messages = await ctx.db
+                .query("messages")
+                .withIndex("by_conversationId", (q) => q.eq("conversationId", conversation._id))
+                .collect();
+
+            for (const msg of messages) {
+                await ctx.db.delete(msg._id);
+            }
+            await ctx.db.delete(conversation._id);
+        }
+
+        if (otherMatch) await ctx.db.delete(otherMatch._id);
+        await ctx.db.delete(match._id);
+    },
+});
+
+export const block = mutation({
+    args: { targetId: v.id("profiles") },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) throw new Error("Not authenticated");
+
+        const currentUser = await ctx.db
+            .query("profiles")
+            .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
+            .unique();
+        if (!currentUser) throw new Error("Profile not found");
+
+        // 1. Check for existing block (idempotency)
+        const existingBlock = await ctx.db
+            .query("blocks")
+            .withIndex("by_block_pair", (q) => q.eq("blockerId", currentUser._id).eq("blockedId", args.targetId))
+            .unique();
+
+        if (existingBlock) {
+            return; // Already blocked, assume success
+        }
+
+        // 2. Add to Blocks table
+        await ctx.db.insert("blocks", {
+            blockerId: currentUser._id,
+            blockedId: args.targetId,
+            createdAt: Date.now(),
+        });
+
+        // 3. Perform Unmatch logic (delete matches/conversations)
+        // Find existing matches
+        const match1 = await ctx.db.query("matches").withIndex("by_users", q => q.eq("userId1", currentUser._id).eq("userId2", args.targetId)).unique();
+        const match2 = await ctx.db.query("matches").withIndex("by_users", q => q.eq("userId1", args.targetId).eq("userId2", currentUser._id)).unique();
+
+        const matchIds = [];
+        if (match1) matchIds.push(match1._id);
+        if (match2) matchIds.push(match2._id);
+
+        // Find conversation using ANY of the match IDs
+        let conversation = null;
+        for (const mId of matchIds) {
+            const c = await ctx.db.query("conversations").withIndex("by_matchId", q => q.eq("matchId", mId)).unique();
+            if (c) {
+                conversation = c;
+                break;
+            }
+        }
+
+        if (conversation) {
+            // Delete messages
+            const messages = await ctx.db.query("messages").withIndex("by_conversationId", q => q.eq("conversationId", conversation._id)).collect();
+            for (const msg of messages) await ctx.db.delete(msg._id);
+            await ctx.db.delete(conversation._id);
+        }
+
+        if (match1) await ctx.db.delete(match1._id);
+        if (match2) await ctx.db.delete(match2._id);
+    },
+});
+
+export const report = mutation({
+    args: {
+        targetId: v.id("profiles"),
+        reason: v.string(),
+        description: v.optional(v.string())
+    },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) throw new Error("Not authenticated");
+
+        const currentUser = await ctx.db
+            .query("profiles")
+            .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
+            .unique();
+        if (!currentUser) throw new Error("Profile not found");
+
+        await ctx.db.insert("reports", {
+            reporterId: currentUser._id,
+            reportedId: args.targetId,
+            reason: args.reason,
+            description: args.description,
+            createdAt: Date.now(),
+        });
+
+        // Auto-block usually follows a report, but let's keep them separate steps or call block logic?
+        // User requirement: "Blocked automatically after report for safety."
+        // We will call the block logic here implicitly by inserting the block.
+
+        const alreadyBlocked = await ctx.db
+            .query("blocks")
+            .withIndex("by_block_pair", q => q.eq("blockerId", currentUser._id).eq("blockedId", args.targetId))
+            .unique();
+
+        if (!alreadyBlocked) {
+            // Reuse block logic or just insert? Reusing is harder within same mutation without extraction. 
+            // I'll just copy the block core logic (insert block + delete matches)
+            await ctx.db.insert("blocks", {
+                blockerId: currentUser._id,
+                blockedId: args.targetId,
+                createdAt: Date.now(),
+            });
+
+            // Delete matches/conversations (Unmatch)
+            const match1 = await ctx.db.query("matches").withIndex("by_users", q => q.eq("userId1", currentUser._id).eq("userId2", args.targetId)).unique();
+            const match2 = await ctx.db.query("matches").withIndex("by_users", q => q.eq("userId1", args.targetId).eq("userId2", currentUser._id)).unique();
+            const matchId = match1?._id || match2?._id;
+            if (matchId) {
+                const conversation = await ctx.db.query("conversations").withIndex("by_matchId", q => q.eq("matchId", matchId)).unique();
+                if (conversation) {
+                    const messages = await ctx.db.query("messages").withIndex("by_conversationId", q => q.eq("conversationId", conversation._id)).collect();
+                    for (const msg of messages) await ctx.db.delete(msg._id);
+                    await ctx.db.delete(conversation._id);
+                }
+            }
+            if (match1) await ctx.db.delete(match1._id);
+            if (match2) await ctx.db.delete(match2._id);
+        }
+    }
+});
