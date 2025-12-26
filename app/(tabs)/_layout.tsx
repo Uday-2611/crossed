@@ -10,6 +10,7 @@ export default function TabLayout() {
       <Tabs.Screen name="matches" />
       <Tabs.Screen name="chats" />
       <Tabs.Screen name="profile" />
+      <Tabs.Screen name="settings" />
     </Tabs>
   );
 }

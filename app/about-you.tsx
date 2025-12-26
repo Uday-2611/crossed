@@ -57,7 +57,6 @@ export default function AboutYouScreen() {
     const handleSave = async () => {
         try {
             setIsSaving(true);
-            // Construct the payload. If profile is null (first time), use defaults.
             await upsertProfile({
                 name: profile?.name || 'User',
                 age: profile?.age || 18,
@@ -119,9 +118,9 @@ export default function AboutYouScreen() {
                         <Text className="text-lg font-bold mb-4">Work & Education</Text>
                         <View className="bg-surface rounded-2xl border border-border/20 overflow-hidden p-4 space-y-4">
                             <View>
-                                <Text className="text-secondary text-sm mb-1 font-medium">Occupation</Text>
+                                <Text className="text-secondary text-base mb-1 font-medium">Occupation</Text>
                                 <TextInput
-                                    className="text-base text-primary py-2 border-b border-border/10"
+                                    className="text-lg text-primary py-2 border-b border-border/10 placeholder:text-gray-600"
                                     placeholder="What do you do?"
                                     value={formData.occupation}
                                     onChangeText={(t) => updateField('occupation', t)}
@@ -129,7 +128,7 @@ export default function AboutYouScreen() {
                             </View>
 
                             <View className="flex-row items-center justify-between py-2">
-                                <Text className="text-base font-medium">I'm a student</Text>
+                                <Text className="text-lg font-medium">I'm a student</Text>
                                 <Switch
                                     value={formData.isStudent}
                                     onValueChange={(val) => updateField('isStudent', val)}
@@ -139,9 +138,9 @@ export default function AboutYouScreen() {
 
                             {formData.isStudent && (
                                 <View>
-                                    <Text className="text-secondary text-sm mb-1 font-medium">University</Text>
+                                    <Text className="text-secondary text-base mb-1 font-medium">University</Text>
                                     <TextInput
-                                        className="text-base text-primary py-2 border-b border-border/10"
+                                        className="text-lg text-primary py-2 border-b border-border/10"
                                         placeholder="Name of university"
                                         value={formData.university}
                                         onChangeText={(t) => updateField('university', t)}
@@ -162,7 +161,7 @@ export default function AboutYouScreen() {
                             <View className="flex-row items-center justify-between">
                                 <Text className="text-base font-medium">Height (cm)</Text>
                                 <TextInput
-                                    className="text-right text-lg font-semibold min-w-[60px]"
+                                    className="text-right text-lg font-semibold min-w-[60px] p-0 pb-3"
                                     value={formData.height}
                                     onChangeText={(t) => updateField('height', t)}
                                     keyboardType="numeric"
@@ -178,7 +177,7 @@ export default function AboutYouScreen() {
                         <Text className="text-lg font-bold mb-4">Hometown</Text>
                         <View className="bg-surface rounded-2xl border border-border/20 p-4">
                             <TextInput
-                                className="text-base text-primary"
+                                className="text-lg text-primary p-0 pb-3"
                                 placeholder="City or town"
                                 value={formData.location}
                                 onChangeText={(t) => updateField('location', t)}
@@ -194,7 +193,7 @@ export default function AboutYouScreen() {
                                 <TouchableOpacity
                                     key={option}
                                     onPress={() => updateField('gender', formData.gender === option ? '' : option)}
-                                    className={`px-4 py-2 rounded-full border ${formData.gender === option ? 'bg-black border-black' : 'bg-transparent border-gray-300'}`}
+                                    className={`px-6 py-4 rounded-xl border ${formData.gender === option ? 'bg-black border-black' : 'bg-transparent border-gray-300'}`}
                                 >
                                     <Text className={`font-medium ${formData.gender === option ? 'text-white' : 'text-primary'}`}>{option}</Text>
                                 </TouchableOpacity>
@@ -210,7 +209,7 @@ export default function AboutYouScreen() {
                                 <TouchableOpacity
                                     key={option}
                                     onPress={() => updateField('sexuality', formData.sexuality === option ? '' : option)}
-                                    className={`px-4 py-2 rounded-full border ${formData.sexuality === option ? 'bg-black border-black' : 'bg-transparent border-gray-300'}`}
+                                    className={`px-6 py-4 rounded-xl border ${formData.sexuality === option ? 'bg-black border-black' : 'bg-transparent border-gray-300'}`}
                                 >
                                     <Text className={`font-medium ${formData.sexuality === option ? 'text-white' : 'text-primary'}`}>{option}</Text>
                                 </TouchableOpacity>

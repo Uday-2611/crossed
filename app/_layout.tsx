@@ -3,10 +3,19 @@ import { ConvexReactClient, useConvexAuth, useQuery } from "convex/react";
 import { ConvexProviderWithClerk } from "convex/react-clerk";
 import { Stack, useRouter, useSegments } from "expo-router";
 import * as SecureStore from 'expo-secure-store';
+import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from "react";
 import { ActivityIndicator, Alert, View } from "react-native";
 import { api } from "../convex/_generated/api";
 import './global.css';
+
+// Prevent the splash screen from auto-hiding before asset loading is complete.
+SplashScreen.preventAutoHideAsync();
+
+SplashScreen.setOptions({
+  duration: 400,
+  fade: true
+})
 
 const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!, {
   unsavedChangesWarning: false,
@@ -68,6 +77,12 @@ const useHelper = () => {
 const RootLayoutNav = () => {
   const { isLoading } = useConvexAuth();
   useHelper();
+
+  useEffect(() => {
+    if (!isLoading) {
+      SplashScreen.hideAsync();
+    }
+  }, [isLoading]);
 
   return (
     <View className="flex-1">

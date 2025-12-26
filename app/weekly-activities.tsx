@@ -145,7 +145,7 @@ export default function WeeklyActivitiesScreen() {
 
                     <View className="space-y-6">
                         {[0, 1, 2].map((index) => (
-                            <View key={index} className="bg-surface rounded-2xl border border-border/20 p-4 min-h-[120px]">
+                            <View key={index} className="bg-surface rounded-2xl border border-border/20 p-4 min-h-[120px] mb-2">
                                 <TextInput
                                     className="text-lg text-text-primary leading-7"
                                     placeholder={placeholders[index]}

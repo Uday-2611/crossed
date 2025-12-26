@@ -259,7 +259,7 @@ const Settings = () => {
                             {/* Interested In */}
                             <View>
                                 <Text className='text-base font-medium text-black mb-3'>Interested in</Text>
-                                <View className='flex-row rounded-lg overflow-hidden border border-gray-200'>
+                                <View className='flex-row rounded-xl overflow-hidden border border-gray-200'>
                                     {['Men', 'Women', 'Everyone'].map((option, idx) => {
                                         return (
                                             <TouchableOpacity
@@ -268,7 +268,7 @@ const Settings = () => {
                                                     setInterestedIn(option);
                                                     handleSavePreferences({ interestedIn: option });
                                                 }}
-                                                className={`flex-1 py-3 items-center ${interestedIn === option ? 'bg-black' : 'bg-white'} ${idx !== 2 ? 'border-r border-gray-200' : ''} `}
+                                                className={`flex-1 py-4 items-center ${interestedIn === option ? 'bg-black' : 'bg-white'} ${idx !== 2 ? 'border-r border-gray-200' : ''} `}
                                             >
                                                 <Text className={`font-medium ${interestedIn === option ? 'text-white' : 'text-black'} `}>{option}</Text>
                                             </TouchableOpacity>
@@ -296,7 +296,7 @@ const Settings = () => {
                                                     setSelectedReligions(newVal);
                                                     handleSavePreferences({ religion: newVal });
                                                 }}
-                                                className={`px-4 py-2 rounded-full border ${isSelected ? 'bg-black border-black' : 'bg-white border-gray-200'} `}
+                                                className={`px-6 py-4 rounded-xl border ${isSelected ? 'bg-black border-black' : 'bg-white border-gray-200'} `}
                                             >
                                                 <Text className={`font-medium ${isSelected ? 'text-white' : 'text-gray-700'} `}>{item}</Text>
                                             </TouchableOpacity>

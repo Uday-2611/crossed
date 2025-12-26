@@ -4,30 +4,25 @@
     "slug": "crossed",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/icons/icon-light.png",
     "scheme": "crossed",
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true,
-      "infoPlist": {}
-    },
-    "android": {
-      "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+      "infoPlist": {
+        "NSCameraUsageDescription": "Crossed needs access to your camera to let you take profile pictures and send photos in chat.",
+        "NSPhotoLibraryUsageDescription": "Crossed needs access to your photo library to let you upload profile pictures and share photos."
       },
-      "permissions": [
-        "ACCESS_Background_LOCATION"
-      ],
-      "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "icon": {
+        "dark": "./assets/icons/icon-dark.png",
+        "light": "./assets/icons/icon-light.png",
+        "tinted": "./assets/icons/icon-tinted.png"
+      }
     },
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/icons/icon-light.png"
     },
     "plugins": [
       "expo-router",
@@ -36,18 +31,18 @@
         {
           "locationInUsePermission": "Crossed uses your location to help you find people who share the same places you do. Your location is only saved when you choose to.",
           "locationAlwaysAndWhenInUsePermission": "Crossed uses background location to notify you when you enter places worth saving, like cafes or gyms. This is strictly opt-in and does not track your history.",
-          "isIosBackgroundLocationEnabled": true,
-          "isAndroidBackgroundLocationEnabled": true
+          "isIosBackgroundLocationEnabled": true
         }
       ],
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/icons/icon-splash-light.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff",
+          "backgroundColor": "#195C4D",
           "dark": {
+            "image": "./assets/icons/icon-splash-dark.png",
             "backgroundColor": "#000000"
           }
         }
