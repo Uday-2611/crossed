@@ -6,7 +6,6 @@ export const uploadToCloudinary = async (imageUri: string) => {
         throw new Error("Missing Cloudinary env variables");
     }
 
-    // Extract file extension from URI, handling query params and fragments
     const urlPath = imageUri.split('?')[0].split('#')[0];
     const fileType = urlPath.split('.').pop()?.toLowerCase() || 'jpeg';
 
@@ -32,9 +31,8 @@ export const uploadToCloudinary = async (imageUri: string) => {
     formData.append("upload_preset", uploadPreset);
     formData.append("cloud_name", cloudName);
 
-    // Add timeout using AbortController
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
 
     try {
         const response = await fetch(

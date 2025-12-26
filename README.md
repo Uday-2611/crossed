@@ -1,50 +1,39 @@
-# Welcome to your Expo app 👋
+# Crossed
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+## Overview
 
-## Get started
+Crossed is a mobile dating application designed to foster organic connections through shared real-world locations. Unlike traditional digital dating platforms that rely primarily on superficial swiping mechanics, Crossed grounds its matching algorithm in physical reality, connecting individuals who have crossed paths or frequent the same environments.
 
-1. Install dependencies
+## Purpose
 
-   ```bash
-   npm install
-   ```
+The primary objective of this application is to restore intentionality to modern dating. By leveraging location history and shared spaces as the foundation for connection, Crossed aims to bridge the gap between digital discovery and physical presence. The platform validates compatibility through shared lifestyle patterns and real-world proximity, facilitating introductions that feel more natural and less stochastic than standard algorithmic matching.
 
-2. Start the app
+## Differentiation
 
-   ```bash
-   npx expo start
-   ```
+Crossed distinguishes itself from competitors through its core architectural philosophy:
 
-In the output, you'll find options to open the app in a
+*   **Contextual Matching:** Connections are derived from shared physical contexts—cafes, parks, workspaces, and neighborhoods. This ensures that users already share a common ground before the first conversation begins.
+*   **Privacy-First Geofencing:** Rather than continuous, invasive tracking, the application utilizes sophisticated geofencing around specific points of interest. This approach respects user privacy while accurately identifying meaningful overlaps in daily routines.
+*   **Organic Discovery:** The application mimics the serendipity of meeting someone in the real world. Matches are presented not just based on visual appeal, but on the probability of compatible lifestyles as evidenced by location data.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Technology Stack
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+The technical architecture of Crossed was selected to prioritize performance, scalability, and developer velocity.
 
-## Get a fresh project
+### Frontend: React Native (Expo)
+We utilize React Native (Expo) to deliver a high-performance, cross-platform mobile experience. This allows for a unified codebase that deploys natively to both iOS and Android while maintaining the fluidity and responsiveness expected of modern mobile applications.
 
-When you're ready, run:
+### Styling: NativeWind
+The user interface is constructed using NativeWind, bringing the utility-first methodology of Tailwind CSS to the React Native environment. This ensures a consistent design system, rapid UI iteration, and highly maintainable style definitions.
 
-```bash
-npm run reset-project
-```
+### Backend: Convex
+Convex serves as the comprehensive backend-as-a-service (BaaS) infrastructure. It was chosen for its:
+*   **Real-time Capabilities:** Enabling instant messaging and live updates without the overhead of managing WebSocket servers.
+*   **End-to-End Type Safety:** Deep integration with TypeScript ensures data consistency from the database schema directly to the frontend components.
+*   **Serverless Architecture:** Eliminating the need for traditional server maintenance and scaling operations.
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### Authentication: Clerk
+Clerk is integrated to manage secure user authentication and session handling, providing a robust and compliant identity layer for the platform.
 
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+### Maps & Geolocation: React Native Maps
+The application leverages `react-native-maps` for rendering interactive map interfaces, essential for the location-based discovery features that define the user experience.

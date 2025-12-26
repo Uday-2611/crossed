@@ -2,7 +2,6 @@ import ngeohash from "ngeohash";
 
 export const PRIVACY_RULES = {
     ROUNDING_PRECISION: 3,
-    // Info for UI
     EXPLANATION: "Locations are rounded to ~100m for privacy.",
 };
 

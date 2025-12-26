@@ -4,7 +4,6 @@ import { fetchNearbyPlaces } from './googlePlaces';
 
 export const setupGeofencing = async () => {
     try {
-        // 1. Get current location (Foreground check)
         const { status } = await Location.getForegroundPermissionsAsync();
         if (status !== 'granted') {
             console.error('Location permissions not granted');
@@ -20,7 +19,6 @@ export const setupGeofencing = async () => {
 
         console.log("Setting up geofences around:", latitude, longitude);
 
-        // 2. Fetch Top Places - Google Places API: Get spots within 2km
         const places = await fetchNearbyPlaces(latitude, longitude, 2000);
 
         if (!places || !Array.isArray(places)) {
@@ -28,14 +26,12 @@ export const setupGeofencing = async () => {
             return;
         }
 
-        // 3. Filter/Select Top 20 - iOS Limit: 20 regions per app. We leave room for 1-2 "Refresh" regions if needed. For now, let's take top 15 to be safe.
         const topPlaces = places.slice(0, 15);
         if (topPlaces.length === 0) {
             console.log("No places found to geofence.");
             return;
         }
 
-        // 4. Create Regions
         const regions = topPlaces
             .filter(place => place?.geometry?.location?.lat && place?.geometry?.location?.lng)
             .map((place, index) => ({
@@ -51,8 +47,6 @@ export const setupGeofencing = async () => {
             console.log("No valid regions created after filtering.");
             return;
         }
-        // 5. Start Geofencing
-        // This replaces any existing regions for this task.
         await Location.startGeofencingAsync(LOCATION_GEOFENCE_TASK, regions);
         console.log(`Started watching ${regions.length} places.`);
 

@@ -4,7 +4,6 @@ import * as TaskManager from 'expo-task-manager';
 
 export const LOCATION_GEOFENCE_TASK = 'LOCATION_GEOFENCE_TASK';
 
-// Define the shape of the data manually since it's not exported
 type GeofencingTaskData = {
     eventType: Location.GeofencingEventType;
     region?: Location.LocationRegion;
@@ -41,7 +40,7 @@ TaskManager.defineTask(LOCATION_GEOFENCE_TASK, async ({ data, error }: { data: G
                 body: `You are near ${placeName}. Tap to save this memory!`,
                 data: { placeName: placeName },
             },
-            trigger: null, // Immediate
+            trigger: null,
         });
     }
 });

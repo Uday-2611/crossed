@@ -8,7 +8,7 @@ export default defineSchema({
   }).index("by_clerkId", ["clerkId"]),
 
   profiles: defineTable({
-    clerkId: v.string(), // Clerk userId
+    clerkId: v.string(), 
     name: v.string(),
     age: v.number(),
     bio: v.string(),
@@ -37,7 +37,6 @@ export default defineSchema({
     .index("by_clerkId", ["clerkId"])
     .index("by_gender", ["gender"]),
 
-
   locations: defineTable({
     userId: v.string(),
     name: v.string(),
@@ -51,7 +50,7 @@ export default defineSchema({
     .index("by_userId", ["userId"])
     .index("by_geohash", ["geohash"]),
 
-  // Matches (Likes/Connections)
+  // Matches
   matches: defineTable({
     userId1: v.string(), // The actor (person who swiped right)
     userId2: v.string(), // The target
@@ -65,7 +64,7 @@ export default defineSchema({
 
   // Conversations (Chat Rooms)
   conversations: defineTable({
-    matchId: v.id("matches"), user1: v.string(), // Matches userId1 in matches table usually, or just sorted
+    matchId: v.id("matches"), user1: v.string(),
     user2: v.string(),
     lastMessage: v.optional(v.object({
       content: v.string(),
@@ -102,6 +101,7 @@ export default defineSchema({
     .index("by_blockerId", ["blockerId"])
     .index("by_blockedId", ["blockedId"])
     .index("by_block_pair", ["blockerId", "blockedId"]),
+    
   // Reports
   reports: defineTable({
     reporterId: v.string(),

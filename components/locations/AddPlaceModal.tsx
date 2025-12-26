@@ -1,6 +1,6 @@
 import { useMutation } from 'convex/react';
 import React, { useState } from 'react';
-import { ActivityIndicator, Modal, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Modal, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { api } from '../../convex/_generated/api';
 import { LocationData } from '../../hooks/useLocationManager';
@@ -48,8 +48,7 @@ export default function AddPlaceModal({ visible, onClose, locationData }: AddPla
             });
             onClose();
         } catch (error) {
-            console.error("Failed to save location", error);
-            // In a real app, show toast
+            Alert.alert("Error", "Failed to save location. Please try again.");
         } finally {
             setIsSaving(false);
         }
@@ -60,7 +59,6 @@ export default function AddPlaceModal({ visible, onClose, locationData }: AddPla
     return (
         <Modal visible={visible} animationType="slide" presentationStyle="pageSheet">
             <View className="flex-1 bg-background">
-                {/* Header */}
                 <View className="flex-row justify-between items-center p-4 border-b border-border/10">
                     <TouchableOpacity onPress={onClose}>
                         <Text className="text-secondary text-lg">Cancel</Text>
@@ -71,7 +69,6 @@ export default function AddPlaceModal({ visible, onClose, locationData }: AddPla
                     </TouchableOpacity>
                 </View>
 
-                {/* Map Preview */}
                 <View className="h-48 w-full">
                     <MapView
                         style={{ flex: 1 }}
@@ -88,7 +85,6 @@ export default function AddPlaceModal({ visible, onClose, locationData }: AddPla
                     </MapView>
                 </View>
 
-                {/* Form */}
                 <View className="p-6 space-y-6">
                     <View>
                         <Text className="text-secondary mb-2 text-sm uppercase font-semibold tracking-wider">Place Name</Text>
@@ -103,7 +99,6 @@ export default function AddPlaceModal({ visible, onClose, locationData }: AddPla
                     <View>
                         <Text className="text-secondary mb-2 text-sm uppercase font-semibold tracking-wider">Category</Text>
                         <View className="flex-row flex-wrap gap-2">
-                            {/* Quick Category Chips */}
                             {['Cafe', 'Gym', 'Work', 'Home', 'Park', 'Bar'].map((cat) => (
                                 <TouchableOpacity
                                     key={cat}

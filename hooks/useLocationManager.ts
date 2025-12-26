@@ -1,9 +1,7 @@
-import * as Location from 'expo-location';
-import { useRef, useState } from 'react';
 import { Alert } from 'react-native';
+import { useRef, useState } from 'react';
+import * as Location from 'expo-location';
 import { fetchNearbyPlaces, PlaceResult } from '../lib/googlePlaces';
-
-// This file handles the permissions for IOS. 
 
 export interface LocationData {
     coords: {
@@ -32,7 +30,6 @@ export const useLocationManager = () => {
     };
 
     const getCurrentPlace = async (): Promise<LocationData | null> => {
-        // Return existing promise if call is already in flight
         if (inFlightRequest.current) {
             return inFlightRequest.current;
         }
@@ -85,9 +82,6 @@ export const useLocationManager = () => {
     };
 
     return {
-        requestPermissions,
-        getCurrentPlace,
-        isLoading,
-        permissionStatus
+        requestPermissions, getCurrentPlace, isLoading, permissionStatus
     };
 };

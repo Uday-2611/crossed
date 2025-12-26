@@ -1,7 +1,6 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 
-// Get current user's profile and return null if no profile exists ->
 export const getMyProfile = query({
     args: {},
     handler: async (ctx) => {
@@ -18,7 +17,6 @@ export const getMyProfile = query({
     },
 });
 
-// Create or update the current user's profile ->
 export const upsertMyProfile = mutation({
     args: {
         name: v.optional(v.string()),
@@ -61,7 +59,6 @@ export const upsertMyProfile = mutation({
             let activitiesUpdatedAt = existingProfile.activitiesUpdatedAt;
 
             // Check if activities changed
-            // Only check if args.activities is provided
             if (args.activities) {
                 const activitiesChanged = JSON.stringify(existingProfile.activities) !== JSON.stringify(args.activities);
 
@@ -74,7 +71,6 @@ export const upsertMyProfile = mutation({
                         throw new Error(`Activities can only be updated once every 7 days. You can update again in ${daysLeft} days.`);
                     }
 
-                    // Update timestamp since we are successfully updating activities
                     activitiesUpdatedAt = now;
                 }
             }
@@ -127,27 +123,57 @@ export const deleteMyAccount = mutation({
 
         const clerkId = identity.subject;
 
-        // 1. Delete User Record (if exists)
+        // 1. Get Profile to have the _id
+        const profile = await ctx.db
+            .query("profiles")
+            .withIndex("by_clerkId", (q) => q.eq("clerkId", clerkId))
+            .unique();
+
+        if (profile) {
+            const userId = profile._id;
+
+            // A. Cleanup Matches (Both sides)
+            const matches1 = await ctx.db.query("matches").withIndex("by_userId1", q => q.eq("userId1", userId)).collect();
+            const matches2 = await ctx.db.query("matches").withIndex("by_userId2", q => q.eq("userId2", userId)).collect();
+            for (const m of [...matches1, ...matches2]) await ctx.db.delete(m._id);
+
+            // B. Cleanup Conversations & Messages
+            const convs1 = await ctx.db.query("conversations").withIndex("by_user1", q => q.eq("user1", userId)).collect();
+            const convs2 = await ctx.db.query("conversations").withIndex("by_user2", q => q.eq("user2", userId)).collect();
+            const allConvs = [...convs1, ...convs2];
+
+            for (const conv of allConvs) {
+                const messages = await ctx.db.query("messages").withIndex("by_conversationId", q => q.eq("conversationId", conv._id)).collect();
+                for (const msg of messages) await ctx.db.delete(msg._id);
+                await ctx.db.delete(conv._id);
+            }
+
+            // C. Cleanup Blocks (By me and Of me)
+            const blocksBy = await ctx.db.query("blocks").withIndex("by_blockerId", q => q.eq("blockerId", userId)).collect();
+            const blocksOf = await ctx.db.query("blocks").withIndex("by_blockedId", q => q.eq("blockedId", userId)).collect();
+            for (const b of [...blocksBy, ...blocksOf]) await ctx.db.delete(b._id);
+
+            // D. Cleanup Rejections (By me)
+            const rejections = await ctx.db.query("rejections").withIndex("by_userId", q => q.eq("userId", userId)).collect();
+            for (const r of rejections) await ctx.db.delete(r._id);
+
+            // E. Cleanup Locations
+            const locations = await ctx.db.query("locations").withIndex("by_userId", q => q.eq("userId", userId)).collect();
+            for (const l of locations) await ctx.db.delete(l._id);
+
+            // F. Delete Profile
+            await ctx.db.delete(profile._id);
+        }
+
+        // 2. Delete User Record
         const user = await ctx.db
             .query("users")
             .withIndex("by_clerkId", (q) => q.eq("clerkId", clerkId))
-            .first();
+            .unique();
 
         if (user) {
             await ctx.db.delete(user._id);
         }
-
-        // 2. Delete Profile Record
-        const profile = await ctx.db
-            .query("profiles")
-            .withIndex("by_clerkId", (q) => q.eq("clerkId", clerkId))
-            .first();
-
-        if (profile) {
-            await ctx.db.delete(profile._id);
-        }
-
-        // TODO: Delete Matches, Chats, etc. when those tables are active
     },
 });
 
@@ -159,16 +185,28 @@ export const get = query({
             throw new Error("Not authenticated");
         }
 
-        const profile = await ctx.db.get(args.id as any);
-        if (!profile) {
+        const currentUser = await ctx.db.query("profiles").withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject)).unique();
+
+        if (!currentUser) {
             return null;
         }
 
-        // TODO: Add authorization logic:
-        // - Check if profiles have mutually blocked each other
-        // - Verify user has permission to view this profile (matching, etc.)
-        // - Apply privacy settings
+        const targetId = args.id as any;
 
-        return profile;
+        // 1. Self Check
+        if (currentUser._id === targetId) {
+            return await ctx.db.get(targetId);
+        }
+
+        // 2. Block Check
+        const blockedBy = await ctx.db.query("blocks").withIndex("by_block_pair", q => q.eq("blockerId", targetId).eq("blockedId", currentUser._id)).first();
+        const blocked = await ctx.db.query("blocks").withIndex("by_block_pair", q => q.eq("blockerId", currentUser._id).eq("blockedId", targetId)).first();
+
+        if (blockedBy || blocked) {
+            return null;
+        }
+
+        // 3. Return Profile
+        return await ctx.db.get(targetId);
     },
 });

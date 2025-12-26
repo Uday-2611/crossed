@@ -1,8 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useMutation } from 'convex/react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useState } from 'react';
-import { ScrollView, StatusBar, Text, TouchableOpacity, View } from 'react-native';
+import { useState } from 'react';
+import { ActivityIndicator, Alert, ScrollView, StatusBar, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { api } from '../../convex/_generated/api';
+import { Id } from '../../convex/_generated/dataModel';
 
 const REASONS = [
     'Spam or fake profile',
@@ -16,29 +19,34 @@ const ReportScreen = () => {
     const router = useRouter();
     const { id } = useLocalSearchParams<{ id: string }>();
     const [selectedReason, setSelectedReason] = useState<string | null>(null);
-    const handleSubmit = () => {
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const reportMutation = useMutation(api.matches.report);
+
+    const handleSubmit = async () => {
         if (!selectedReason || !id) return;
 
-        // TODO: Add loading state and error handling
-        // Example structure:
-        fetch('/api/reports', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                reportedUserId: id,
+        setIsSubmitting(true);
+        try {
+            await reportMutation({
+                targetId: id as Id<"profiles">,
                 reason: selectedReason,
-                timestamp: new Date().toISOString()
-            })
-        })
-            .then(() => {
-                router.back();
-                // Show success feedback
-            })
-            .catch((error) => {
-                // Handle error
-                console.error('Failed to submit report:', error);
+                // description: "Optional description if we had a text input" 
             });
+
+            Alert.alert(
+                "Report Submitted",
+                "Thank you for keeping our community safe. We will review this report shortly.",
+                [{ text: "OK", onPress: () => router.back() }]
+            );
+        } catch (error) {
+            console.error('Failed to submit report:', error);
+            Alert.alert("Error", "Failed to submit report. Please try again.");
+        } finally {
+            setIsSubmitting(false);
+        }
     };
+
     return (
         <View className='flex-1 bg-white'>
             <StatusBar barStyle="dark-content" />
@@ -80,19 +88,24 @@ const ReportScreen = () => {
                 <View className='p-6 border-t border-gray-100 bg-white'>
                     <TouchableOpacity
                         onPress={handleSubmit}
-                        disabled={!selectedReason}
-                        className={`w-full py-4 rounded-full items-center ${selectedReason ? 'bg-red-500' : 'bg-gray-100'
+                        disabled={!selectedReason || isSubmitting}
+                        className={`w-full py-4 rounded-full items-center flex-row justify-center gap-2 ${selectedReason ? 'bg-red-500' : 'bg-gray-100'
                             }`}
                     >
-                        <Text className={`text-base font-bold ${selectedReason ? 'text-white' : 'text-gray-400'
-                            }`}>
-                            Submit Report
-                        </Text>
+                        {isSubmitting ? (
+                            <ActivityIndicator color={selectedReason ? "white" : "gray"} />
+                        ) : (
+                            <Text className={`text-base font-bold ${selectedReason ? 'text-white' : 'text-gray-400'
+                                }`}>
+                                Submit Report
+                            </Text>
+                        )}
                     </TouchableOpacity>
 
                     <TouchableOpacity
                         onPress={() => router.back()}
                         className='mt-4 py-2 items-center'
+                        disabled={isSubmitting}
                     >
                         <Text className='text-base font-medium text-black'>Cancel</Text>
                     </TouchableOpacity>

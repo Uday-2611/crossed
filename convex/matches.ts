@@ -13,7 +13,6 @@ export const getPotentialMatches = query({
             .query("profiles")
             .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
             .unique();
-
         if (!currentUser) {
             throw new Error("Profile not found");
         }
@@ -27,29 +26,16 @@ export const getPotentialMatches = query({
         const myLocationNames = new Set(myLocations.map((l) => l.name));
 
         // 2. Get Exclusions (People already engaged with)
-        // - Matches (I am userId1)
-        const myMatches = await ctx.db
-            .query("matches")
-            .withIndex("by_userId1", (q) => q.eq("userId1", currentUser._id))
-            .collect();
+        const myMatches = await ctx.db.query("matches").withIndex("by_userId1", (q) => q.eq("userId1", currentUser._id)).collect();
 
-        // - Rejections (I am userId)
-        const myRejections = await ctx.db
-            .query("rejections")
-            .withIndex("by_userId", (q) => q.eq("userId", currentUser._id))
-            .collect();
+        // - Rejections
+        const myRejections = await ctx.db.query("rejections").withIndex("by_userId", (q) => q.eq("userId", currentUser._id)).collect();
 
-        // - Blocks (I am blocker)
-        const myBlocks = await ctx.db
-            .query("blocks")
-            .withIndex("by_blockerId", (q) => q.eq("blockerId", currentUser._id))
-            .collect();
+        // - Blocks 
+        const myBlocks = await ctx.db.query("blocks").withIndex("by_blockerId", (q) => q.eq("blockerId", currentUser._id)).collect();
 
         // - Reports
-        const myReports = await ctx.db
-            .query("reports")
-            .filter((q) => q.eq(q.field("reporterId"), currentUser._id))
-            .collect();
+        const myReports = await ctx.db.query("reports").filter((q) => q.eq(q.field("reporterId"), currentUser._id)).collect();
 
         const excludedIds = new Set([
             currentUser._id, // Exclude self
@@ -64,14 +50,9 @@ export const getPotentialMatches = query({
         const preference = currentUser.datingPreferences?.interestedIn;
 
         if (preference && preference !== "Everyone") {
-            candidates = await ctx.db
-                .query("profiles")
-                .withIndex("by_gender", (q) => q.eq("gender", preference))
-                .collect();
+            candidates = await ctx.db.query("profiles").withIndex("by_gender", (q) => q.eq("gender", preference)).collect();
         } else {
-            candidates = await ctx.db
-                .query("profiles")
-                .collect();
+            candidates = await ctx.db.query("profiles").collect();
         }
 
         // 4. Score and Sort
@@ -80,29 +61,20 @@ export const getPotentialMatches = query({
                 .filter((user) => !excludedIds.has(user._id)) // Filter exclusions
                 .map(async (user) => {
                     // fetch candidate locations
-                    const userLocations = await ctx.db
-                        .query("locations")
-                        .withIndex("by_userId", (q) => q.eq("userId", user._id))
-                        .collect();
+                    const userLocations = await ctx.db.query("locations").withIndex("by_userId", (q) => q.eq("userId", user._id)).collect();
 
                     // Calculate Overlap
-                    const sharedLocations = userLocations
-                        .filter((l) => myLocationNames.has(l.name))
-                        .map((l) => l.name);
+                    const sharedLocations = userLocations.filter((l) => myLocationNames.has(l.name)).map((l) => l.name);
 
                     // Determine Tier
-                    let tier = 3; // Bronze
+                    let tier = 3;
                     if (sharedLocations.length >= 3) {
-                        tier = 1; // Gold
+                        tier = 1;
                     } else if (sharedLocations.length >= 1) {
-                        tier = 2; // Silver
+                        tier = 2;
                     }
 
-                    return {
-                        ...user,
-                        sharedLocations,
-                        tier,
-                    };
+                    return { ...user, sharedLocations, tier, };
                 })
         );
 
@@ -113,20 +85,14 @@ export const getPotentialMatches = query({
     },
 });
 
-/* -------------------------------------------------------------------------- */
-/*                                 MUTATIONS                                  */
-/* -------------------------------------------------------------------------- */
-
+// MUTATIONS
 export const likeProfile = mutation({
     args: { targetId: v.id("profiles") },
     handler: async (ctx, args) => {
         const identity = await ctx.auth.getUserIdentity();
         if (!identity) throw new Error("Not authenticated");
 
-        const currentUser = await ctx.db
-            .query("profiles")
-            .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
-            .unique();
+        const currentUser = await ctx.db.query("profiles").withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject)).unique();
         if (!currentUser) throw new Error("Profile not found");
 
         // Validate target exists
@@ -136,18 +102,13 @@ export const likeProfile = mutation({
         const userId1 = currentUser._id;
         const userId2 = args.targetId;
         // 1. Check if they already liked me (Reverse Pending)
-        const reverseMatch = await ctx.db
-            .query("matches")
-            .withIndex("by_users", (q) => q.eq("userId1", userId2).eq("userId2", userId1))
-            .filter((q) => q.eq(q.field("status"), "pending"))
-            .unique();
+        const reverseMatch = await ctx.db.query("matches").withIndex("by_users", (q) => q.eq("userId1", userId2).eq("userId2", userId1)).filter((q) => q.eq(q.field("status"), "pending")).unique();
 
         if (reverseMatch) {
-            // IT'S A MATCH!
-            // Update their record to accepted
+            // It's a Match Update their record to accepted ->
             await ctx.db.patch(reverseMatch._id, { status: "accepted", updatedAt: Date.now() });
 
-            // Create my record as accepted
+            // Create my record as accepted ->
             await ctx.db.insert("matches", {
                 userId1,
                 userId2,
@@ -166,18 +127,14 @@ export const likeProfile = mutation({
 
             return { status: "matched" };
         } else {
-            // Just a like (Pending)
-            // Check if I already liked them to prevent dupes (idempotency)
-            const existing = await ctx.db
-                .query("matches")
-                .withIndex("by_users", (q) => q.eq("userId1", userId1).eq("userId2", userId2))
-                .unique();
+            // Just a like (Pending) - Check if I already liked them to prevent duplicates
+            const existing = await ctx.db.query("matches").withIndex("by_users", (q) => q.eq("userId1", userId1).eq("userId2", userId2)).unique();
 
             if (!existing) {
                 await ctx.db.insert("matches", {
                     userId1,
                     userId2,
-                    status: "pending", // Waiting for them to like back
+                    status: "pending", 
                     updatedAt: Date.now(),
                     createdAt: Date.now(),
                 });
@@ -199,12 +156,8 @@ export const passProfile = mutation({
             .unique();
         if (!currentUser) throw new Error("Profile not found");
 
-        // Record Rejection (idempotent)
-        const existingRejection = await ctx.db
-            .query("rejections")
-            .withIndex("by_userId", (q) => q.eq("userId", currentUser._id))
-            .filter((q) => q.eq(q.field("rejectedUserId"), args.targetId))
-            .unique();
+        // Record Rejection
+        const existingRejection = await ctx.db.query("rejections").withIndex("by_userId", (q) => q.eq("userId", currentUser._id)).filter((q) => q.eq(q.field("rejectedUserId"), args.targetId)).unique();
 
         if (!existingRejection) {
             await ctx.db.insert("rejections", {
@@ -214,9 +167,6 @@ export const passProfile = mutation({
             });
         }
 
-        // Check if they had liked me (status: pending). If so, we can mark it rejected or just leave it.
-        // User requested: "if a user crosses a profile from liked you it should be removed from liked you"
-        // So we should find their pending like and reject it so it drops from the list.
         const reverseMatch = await ctx.db
             .query("matches")
             .withIndex("by_users", (q) => q.eq("userId1", args.targetId).eq("userId2", currentUser._id))
@@ -229,10 +179,7 @@ export const passProfile = mutation({
     },
 });
 
-/* -------------------------------------------------------------------------- */
-/*                               QUERIES (Chats)                              */
-/* -------------------------------------------------------------------------- */
-
+// QUERIES (Chats)
 // 1. Get confirmed matches (for the "Matches" list)
 export const getMutualMatches = query({
     args: {},
@@ -240,18 +187,11 @@ export const getMutualMatches = query({
         const identity = await ctx.auth.getUserIdentity();
         if (!identity) return [];
 
-        const currentUser = await ctx.db
-            .query("profiles")
-            .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
-            .unique();
+        const currentUser = await ctx.db.query("profiles").withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject)).unique();
         if (!currentUser) return [];
 
         // Find all 'accepted' matches where I am userId1
-        const matches = await ctx.db
-            .query("matches")
-            .withIndex("by_userId1", (q) => q.eq("userId1", currentUser._id))
-            .filter((q) => q.eq(q.field("status"), "accepted"))
-            .collect();
+        const matches = await ctx.db.query("matches").withIndex("by_userId1", (q) => q.eq("userId1", currentUser._id)).filter((q) => q.eq(q.field("status"), "accepted")).collect();
 
         // Fetch the profiles of the matched users
         const results = await Promise.all(
@@ -338,14 +278,9 @@ export const getProfileWithDetails = query({
     },
 });
 
-// End of matches.ts
-
-/* -------------------------------------------------------------------------- */
-/*                              SAFETY MUTATIONS                              */
-/* -------------------------------------------------------------------------- */
-
+//SAFETY MUTATIONS
 export const unmatch = mutation({
-    args: { matchId: v.id("matches") }, // matchId comes from the conversation or match object
+    args: { matchId: v.id("matches") }, 
     handler: async (ctx, args) => {
         const identity = await ctx.auth.getUserIdentity();
         if (!identity) throw new Error("Not authenticated");
@@ -356,8 +291,7 @@ export const unmatch = mutation({
             .unique();
         if (!currentUser) throw new Error("Profile not found");
 
-        // 1. Find the match (could be under userId1 or userId2)
-        // We expect the frontend to pass the matchId, but we must verify ownership
+        // Find the match 
         const match = await ctx.db.get(args.matchId);
         if (!match) throw new Error("Match not found");
 
@@ -365,22 +299,16 @@ export const unmatch = mutation({
             throw new Error("Unauthorized");
         }
 
-        // 4. Delete the Match records
-        // Matches are stored as TWO records (User1->User2 AND User2->User1) if accepted?
-        // Wait, my `likeProfile` logic inserts a SECOND record when accepted.
-        // So "reverseMatch" is the other one.
-        // We need to find BOTH and delete BOTH.
-
+        // Delete the Match records
         const otherUserId = match.userId1 === currentUser._id ? match.userId2 : match.userId1;
 
-        // Find the OTHER match record
+        // Find the other match record
         const otherMatch = await ctx.db
             .query("matches")
             .withIndex("by_users", (q) => q.eq("userId1", otherUserId).eq("userId2", currentUser._id))
             .unique();
 
-        // 2. Find associated conversation
-        // Try match._id first
+        // Find associated conversation
         let conversation = await ctx.db
             .query("conversations")
             .withIndex("by_matchId", (q) => q.eq("matchId", match._id))
@@ -394,9 +322,8 @@ export const unmatch = mutation({
                 .unique();
         }
 
-        // 3. Delete Conversation & Messages (if exists)
+        // 3. Delete Conversation & Messages
         if (conversation) {
-            // Delete all messages (optimize this with scheduler later if too many)
             const messages = await ctx.db
                 .query("messages")
                 .withIndex("by_conversationId", (q) => q.eq("conversationId", conversation._id))
@@ -425,25 +352,24 @@ export const block = mutation({
             .unique();
         if (!currentUser) throw new Error("Profile not found");
 
-        // 1. Check for existing block (idempotency)
+        // Check for existing block 
         const existingBlock = await ctx.db
             .query("blocks")
             .withIndex("by_block_pair", (q) => q.eq("blockerId", currentUser._id).eq("blockedId", args.targetId))
             .unique();
 
         if (existingBlock) {
-            return; // Already blocked, assume success
+            return;
         }
 
-        // 2. Add to Blocks table
+        // Add to Blocks table
         await ctx.db.insert("blocks", {
             blockerId: currentUser._id,
             blockedId: args.targetId,
             createdAt: Date.now(),
         });
 
-        // 3. Perform Unmatch logic (delete matches/conversations)
-        // Find existing matches
+        // Perform Unmatch logic
         const match1 = await ctx.db.query("matches").withIndex("by_users", q => q.eq("userId1", currentUser._id).eq("userId2", args.targetId)).unique();
         const match2 = await ctx.db.query("matches").withIndex("by_users", q => q.eq("userId1", args.targetId).eq("userId2", currentUser._id)).unique();
 
@@ -462,7 +388,6 @@ export const block = mutation({
         }
 
         if (conversation) {
-            // Delete messages
             const messages = await ctx.db.query("messages").withIndex("by_conversationId", q => q.eq("conversationId", conversation._id)).collect();
             for (const msg of messages) await ctx.db.delete(msg._id);
             await ctx.db.delete(conversation._id);
@@ -497,18 +422,12 @@ export const report = mutation({
             createdAt: Date.now(),
         });
 
-        // Auto-block usually follows a report, but let's keep them separate steps or call block logic?
-        // User requirement: "Blocked automatically after report for safety."
-        // We will call the block logic here implicitly by inserting the block.
-
         const alreadyBlocked = await ctx.db
             .query("blocks")
             .withIndex("by_block_pair", q => q.eq("blockerId", currentUser._id).eq("blockedId", args.targetId))
             .unique();
 
         if (!alreadyBlocked) {
-            // Reuse block logic or just insert? Reusing is harder within same mutation without extraction. 
-            // I'll just copy the block core logic (insert block + delete matches)
             await ctx.db.insert("blocks", {
                 blockerId: currentUser._id,
                 blockedId: args.targetId,

@@ -4,7 +4,7 @@ import { ConvexProviderWithClerk } from "convex/react-clerk";
 import { Stack, useRouter, useSegments } from "expo-router";
 import * as SecureStore from 'expo-secure-store';
 import { useEffect } from "react";
-import { ActivityIndicator, View } from "react-native";
+import { ActivityIndicator, Alert, View } from "react-native";
 import { api } from "../convex/_generated/api";
 import './global.css';
 
@@ -15,15 +15,9 @@ const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!, {
 const tokenCache = {
   async getToken(key: string) {
     try {
-      const item = await SecureStore.getItemAsync(key);
-      if (item) {
-        console.log(`${key} was used 🔐 \n`);
-      } else {
-        console.log('No values stored under key: ' + key);
-      }
-      return item;
+      return await SecureStore.getItemAsync(key);
     } catch (error) {
-      console.error('SecureStore get item error: ', error);
+      Alert.alert("Authentication Error", "Could not retrieve session. You have been signed out.");
       await SecureStore.deleteItemAsync(key);
       return null;
     }
@@ -47,28 +41,22 @@ const useHelper = () => {
     if (isLoading) return;
 
     const inAuthGroup = segments[0] === '(auth)';
-    const inTabsGroup = segments[0] === '(tabs)';
     const inOnboardingGroup = segments[0] === '(onboarding)';
 
     if (!isAuthenticated) {
-      // If not logged in and not in auth group, go to sign in
       if (!inAuthGroup) {
         router.replace('/(auth)/sign-in');
       }
     } else {
-      // Logged in
       if (profile === undefined) return;
 
       const isOnboardingComplete = profile?.isOnboardingComplete ?? false;
 
       if (!isOnboardingComplete) {
-        // Should be in onboarding
         if (!inOnboardingGroup) {
           router.replace('/(onboarding)');
         }
       } else {
-        // Onboarding complete
-        // If in auth or onboarding, go to tabs
         if (inAuthGroup || inOnboardingGroup) {
           router.replace('/(tabs)/matches');
         }
@@ -76,8 +64,9 @@ const useHelper = () => {
     }
   }, [isAuthenticated, isLoading, profile, segments, router]);
 }
+
 const RootLayoutNav = () => {
-  const { isAuthenticated, isLoading } = useConvexAuth();
+  const { isLoading } = useConvexAuth();
   useHelper();
 
   return (
