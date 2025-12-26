@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from 'convex/react';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { ActivityIndicator, Alert, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Pressable, Text, View } from 'react-native';
 import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps'; // PROVIDER_DEFAULT uses Apple Maps on iOS
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AddPlaceModal from '../components/locations/AddPlaceModal';
@@ -67,9 +67,9 @@ export default function PlacesScreen() {
             {/* Overlay Header with Back Button */}
             <SafeAreaView className="absolute top-0 left-0 right-0 p-4" pointerEvents="box-none">
                 <View className="bg-surface/90 backdrop-blur-md p-4 rounded-2xl shadow-sm border border-border/50 flex-row items-center pointer-events-auto">
-                    <TouchableOpacity onPress={() => router.back()} className="mr-4 p-2 bg-surface-muted rounded-full">
+                    <Pressable onPress={() => router.back()} className="mr-4 p-2 bg-surface-muted rounded-full active:opacity-70">
                         <Ionicons name="arrow-back" size={24} color="#000" />
-                    </TouchableOpacity>
+                    </Pressable>
                     <View>
                         <Text className="text-xl font-bold text-text-primary">Your Places</Text>
                         <Text className="text-secondary text-sm">
@@ -80,17 +80,17 @@ export default function PlacesScreen() {
             </SafeAreaView>
 
             {/* Floating Add Button */}
-            <TouchableOpacity
+            <Pressable
                 onPress={handleAddPlace}
                 disabled={isLocating}
-                className="absolute bottom-10 right-6 bg-primary w-16 h-16 rounded-full items-center justify-center shadow-lg"
+                className="absolute bottom-10 right-6 bg-primary w-16 h-16 rounded-full items-center justify-center shadow-lg active:scale-95"
             >
                 {isLocating ? (
                     <ActivityIndicator color="white" />
                 ) : (
                     <Ionicons name="add" size={32} color="white" />
                 )}
-            </TouchableOpacity>
+            </Pressable>
 
             {/* Modal */}
             <AddPlaceModal

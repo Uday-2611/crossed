@@ -7,9 +7,9 @@ import {
     ActivityIndicator,
     Alert,
     Image,
+    Pressable,
     ScrollView,
     Text,
-    TouchableOpacity,
     View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -116,9 +116,9 @@ export default function Step3Screen() {
     return (
         <SafeAreaView className="flex-1 bg-background px-6 py-4">
             <View className="flex-row items-center justify-between mb-4">
-                <TouchableOpacity onPress={() => router.back()}>
+                <Pressable onPress={() => router.back()} className="active:opacity-50">
                     <Text className="text-secondary text-lg">Back</Text>
-                </TouchableOpacity>
+                </Pressable>
                 <Text className="text-secondary font-medium uppercase tracking-widest text-xs">Step 3 of 5</Text>
                 <View className="w-10" />
             </View>
@@ -131,24 +131,24 @@ export default function Step3Screen() {
                     {PHOTO_SLOTS.map((slotIndex) => {
                         const photoUrl = photos[slotIndex];
                         return (
-                            <TouchableOpacity
+                            <Pressable
                                 key={slotIndex}
                                 onPress={() => pickImage(slotIndex)}
-                                className="w-[48%] aspect-[3/4] mb-4 bg-surface rounded-2xl border border-dashed border-border/50 overflow-hidden items-center justify-center relative"
+                                className="w-[48%] aspect-[3/4] mb-4 bg-surface rounded-2xl border border-dashed border-border/50 overflow-hidden items-center justify-center relative active:opacity-90"
                                 disabled={isUploading}
                             >
                                 {photoUrl ? (
                                     <>
                                         <Image source={{ uri: photoUrl }} className="w-full h-full" resizeMode="cover" />
-                                        <TouchableOpacity
-                                            className="absolute top-2 right-2 bg-black/50 p-1 rounded-full"
+                                        <Pressable
+                                            className="absolute top-2 right-2 bg-black/50 p-1 rounded-full active:opacity-70"
                                             onPress={(e) => {
                                                 e.stopPropagation();
                                                 removePhoto(slotIndex);
                                             }}
                                         >
                                             <Ionicons name="close" size={16} color="white" />
-                                        </TouchableOpacity>
+                                        </Pressable>
                                     </>
                                 ) : (
                                     <View className="items-center justify-center">
@@ -159,20 +159,20 @@ export default function Step3Screen() {
                                         )}
                                     </View>
                                 )}
-                            </TouchableOpacity>
+                            </Pressable>
                         );
                     })}
                 </View>
             </ScrollView>
 
-            <TouchableOpacity
+            <Pressable
                 onPress={handleNext}
-                className={`w-full py-4 rounded-full items-center shadow-md mb-4 ${photos.length > 0 ? 'bg-primary' : 'bg-gray-300'
+                className={`w-full py-4 rounded-full items-center shadow-md mb-4 active:opacity-80 ${photos.length > 0 ? 'bg-primary' : 'bg-gray-300'
                     }`}
                 disabled={photos.length === 0}
             >
                 <Text className="text-white text-lg font-bold">Next</Text>
-            </TouchableOpacity>
+            </Pressable>
         </SafeAreaView>
     );
 }

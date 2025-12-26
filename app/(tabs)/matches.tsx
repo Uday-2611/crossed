@@ -1,7 +1,7 @@
 import { api } from '@/convex/_generated/api';
 import { useQuery } from 'convex/react';
 import { useRouter } from 'expo-router';
-import { Dimensions, FlatList, StatusBar, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, FlatList, Pressable, StatusBar, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
@@ -50,9 +50,8 @@ const Matches = () => {
             bounces={false}
             renderItem={({ item }) => (
               <View style={{ width: width }} className='items-center justify-start pt-2 px-4'>
-                <TouchableOpacity
-                  activeOpacity={0.9}
-                  onPress={() => router.push(`/match/${item._id}` as `/match/${string}`)} className='w-full h-[72vh] bg-surface-muted rounded-[32px] overflow-hidden relative shadow-sm border border-border/50'
+                <Pressable
+                  onPress={() => router.push(`/match/${item._id}` as `/match/${string}`)} className='w-full h-[72vh] bg-surface-muted rounded-[32px] overflow-hidden relative shadow-sm border border-border/50 active:opacity-90'
                 >
                   {/* Photo Placeholder Area */}
                   <View className='flex-1 bg-brand/5 w-full' />
@@ -75,7 +74,7 @@ const Matches = () => {
                       <Text className='text-text-secondary text-lg mt-1 opacity-80'>{item.bio}</Text>
                     </View>
                   </View>
-                </TouchableOpacity>
+                </Pressable>
               </View>
             )}
           />

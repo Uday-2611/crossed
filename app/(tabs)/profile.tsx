@@ -4,7 +4,7 @@ import { useMutation, useQuery } from 'convex/react';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Dimensions, Image, ScrollView, StatusBar, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Dimensions, Image, Pressable, ScrollView, StatusBar, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { api } from '../../convex/_generated/api';
 import { uploadToCloudinary } from '../../lib/cloudinary';
@@ -158,13 +158,13 @@ const Profile = () => {
                     placeholder="Your Name"
                   />
                 </View>
-                <TouchableOpacity onPress={handleSave} disabled={isSaving}>
+                <Pressable onPress={handleSave} disabled={isSaving} className="active:opacity-50">
                   {isSaving ? (
                     <ActivityIndicator size="small" color="#1F6F5C" />
                   ) : (
                     <Text className='text-brand font-bold text-lg'>Save</Text>
                   )}
-                </TouchableOpacity>
+                </Pressable>
               </View>
             </View>
           </View>
@@ -194,9 +194,9 @@ const Profile = () => {
                   ) : (
                     <>
                       {index === formData.photos.length ? (
-                        <TouchableOpacity
+                        <Pressable
                           onPress={pickImage}
-                          className='w-full h-full items-center justify-center'
+                          className='w-full h-full items-center justify-center active:opacity-70'
                         >
                           <Ionicons
                             name='add'
@@ -212,7 +212,7 @@ const Profile = () => {
                               color='#5F6F6B'
                             />
                           </View>
-                        </TouchableOpacity>
+                        </Pressable>
                       ) : (
                         <Ionicons
                           name='add'
@@ -243,9 +243,9 @@ const Profile = () => {
               />
             </View>
 
-            <TouchableOpacity
+            <Pressable
               onPress={() => router.push('/about-you' as any)}
-              className="mt-4 flex-row items-center justify-between bg-surface p-4 rounded-2xl border border-border/20"
+              className="mt-4 flex-row items-center justify-between bg-surface p-4 rounded-2xl border border-border/20 active:bg-gray-50/50"
             >
               <View className="flex-row items-center gap-3">
                 <View className="bg-sky-100 p-2 rounded-full">
@@ -257,7 +257,7 @@ const Profile = () => {
                 </View>
               </View>
               <Ionicons name="chevron-forward" size={20} color="#CCC" />
-            </TouchableOpacity>
+            </Pressable>
           </View>
 
           {/* SECTION 3: Personal Details */}
@@ -326,13 +326,13 @@ const Profile = () => {
                   <Text className='text-text-primary font-medium'>{activity}</Text>
                 </View>
               ))}
-              <TouchableOpacity
+              <Pressable
                 onPress={() => router.push('/weekly-activities' as any)}
                 className='bg-transparent px-4 py-2.5 rounded-full border border-brand border-dashed flex-row items-center gap-1 active:bg-brand/5'
               >
                 <Ionicons name="pencil" size={16} color="#1F6F5C" />
                 <Text className='text-brand font-medium'>Update activities</Text>
-              </TouchableOpacity>
+              </Pressable>
             </View>
             <Text className='text-text-muted text-sm mt-3 ml-1'>Activities can be changed once a week</Text>
           </View>
@@ -345,10 +345,9 @@ const Profile = () => {
           {/* SECTION 6: Pinned Locations */}
           <View className='px-6 mb-32'>
             <Text className='text-lg font-bold text-text-primary mb-4'>Pinned locations</Text>
-            <TouchableOpacity
-              activeOpacity={0.9}
+            <Pressable
               onPress={() => router.push('/your-places' as any)}
-              className='h-48 w-full bg-surface-muted rounded-3xl border border-border overflow-hidden relative'
+              className='h-48 w-full bg-surface-muted rounded-3xl border border-border overflow-hidden relative active:opacity-95'
             >
               {/* Map Placeholder Art */}
               <View className='absolute inset-0 opacity-20'>
@@ -365,7 +364,7 @@ const Profile = () => {
                 </View>
                 <Text className='text-text-secondary font-medium mt-2'>{formData.location || 'No location set'}</Text>
               </View>
-            </TouchableOpacity>
+            </Pressable>
           </View>
 
         </ScrollView>

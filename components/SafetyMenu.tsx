@@ -1,4 +1,4 @@
-import { Modal, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import { Modal, Pressable, Text, TouchableWithoutFeedback, View } from 'react-native';
 
 interface SafetyMenuProps {
     visible: boolean;
@@ -24,46 +24,46 @@ export const SafetyMenu = ({ visible, onClose, onUnmatch, onBlock, onReport }: S
                             <View className='w-12 h-1 bg-gray-300 rounded-full mx-auto mb-8' />
 
                             <View className='gap-2'>
-                                <TouchableOpacity
+                                <Pressable
                                     onPress={onUnmatch}
-                                    className='p-4 bg-gray-50 rounded-2xl active:bg-gray-100 items-center'
+                                    className='p-4 bg-gray-50 rounded-2xl active:bg-gray-200 items-center'
                                     accessibilityRole="button"
                                     accessibilityLabel="Unmatch user"
                                     accessibilityHint="Removes this match from your list"
                                 >
                                     <Text className='text-base font-semibold text-black'>Unmatch</Text>
-                                </TouchableOpacity>
+                                </Pressable>
 
-                                <TouchableOpacity
+                                <Pressable
                                     onPress={onBlock}
-                                    className='p-4 bg-gray-50 rounded-2xl active:bg-gray-100 items-center'
+                                    className='p-4 bg-gray-50 rounded-2xl active:bg-gray-200 items-center'
                                     accessibilityRole="button"
                                     accessibilityLabel="Block user"
                                     accessibilityHint="Prevents this user from contacting you"
                                 >
                                     <Text className='text-base font-semibold text-red-500'>Block</Text>
-                                </TouchableOpacity>
+                                </Pressable>
 
-                                <TouchableOpacity
+                                <Pressable
                                     onPress={onReport}
-                                    className='p-4 bg-gray-50 rounded-2xl active:bg-gray-100 items-center'
+                                    className='p-4 bg-gray-50 rounded-2xl active:bg-gray-200 items-center'
                                     accessibilityRole="button"
                                     accessibilityLabel="Report user"
                                     accessibilityHint="Reports this user for inappropriate behavior"
                                 >
                                     <Text className='text-base font-semibold text-red-500'>Report</Text>
-                                </TouchableOpacity>
+                                </Pressable>
                             </View>
 
-                            <TouchableOpacity
+                            <Pressable
                                 onPress={onClose}
-                                className='mt-4 p-4 items-center'
+                                className='mt-4 p-4 items-center active:opacity-50'
                                 accessibilityRole="button"
                                 accessibilityLabel="Cancel"
                                 accessibilityHint="Close this menu without taking action"
                             >
                                 <Text className='text-base font-medium text-gray-500'>Cancel</Text>
-                            </TouchableOpacity>
+                            </Pressable>
                         </View>
                     </TouchableWithoutFeedback>
                 </View>

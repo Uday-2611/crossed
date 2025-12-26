@@ -6,7 +6,7 @@ import { useMutation, useQuery } from 'convex/react';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Dimensions, Image, Pressable, ScrollView, StatusBar, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import { Alert, Dimensions, Image, Pressable, ScrollView, StatusBar, Text, useWindowDimensions, View } from 'react-native';
 import Animated, {
   runOnJS,
   useAnimatedStyle,
@@ -159,13 +159,13 @@ const MatchProfile = () => {
         <SafeAreaView className='flex-1' edges={['top']}>
           {/* Header */}
           <View className='px-6 pt-2 pb-4 flex-row justify-between items-center'>
-            <TouchableOpacity onPress={() => router.back()} className='flex-row items-center gap-2'>
+            <Pressable onPress={() => router.back()} className='flex-row items-center gap-2 active:opacity-50'>
               <Ionicons name="arrow-back" size={24} color="black" />
-            </TouchableOpacity>
+            </Pressable>
             <Text className='font-bold text-xl text-black'>{profile.name}, {profile.age}</Text>
-            <TouchableOpacity onPress={() => setMenuVisible(true)}>
+            <Pressable onPress={() => setMenuVisible(true)} className="active:opacity-50">
               <Ionicons name="ellipsis-horizontal" size={24} color="black" />
-            </TouchableOpacity>
+            </Pressable>
           </View>
 
           <ScrollView className='flex-1' showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>

@@ -3,7 +3,7 @@ import { Id } from '@/convex/_generated/dataModel';
 import { Ionicons } from '@expo/vector-icons';
 import { useMutation, useQuery } from 'convex/react';
 import { useRouter } from 'expo-router';
-import { Dimensions, Image, ScrollView, StatusBar, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Image, Pressable, ScrollView, StatusBar, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
@@ -110,18 +110,18 @@ const Chats = () => {
 
                     {/* Action Buttons */}
                     <View className="absolute -bottom-4 w-full flex-row justify-center gap-4">
-                      <TouchableOpacity
+                      <Pressable
                         onPress={() => handlePass(profile._id as Id<"profiles">)}
-                        className="h-10 w-10 rounded-full bg-white shadow-md items-center justify-center border border-gray-100"
+                        className="h-10 w-10 rounded-full bg-white shadow-md items-center justify-center border border-gray-100 active:opacity-70"
                       >
                         <Ionicons name="close" size={20} color="#EF4444" />
-                      </TouchableOpacity>
-                      <TouchableOpacity
+                      </Pressable>
+                      <Pressable
                         onPress={() => handleLike(profile._id as Id<"profiles">)}
-                        className="h-10 w-10 rounded-full bg-white shadow-md items-center justify-center border border-gray-100"
+                        className="h-10 w-10 rounded-full bg-white shadow-md items-center justify-center border border-gray-100 active:opacity-70"
                       >
                         <Ionicons name="heart" size={20} color="#10B981" />
-                      </TouchableOpacity>
+                      </Pressable>
                     </View>
                     <View className="h-4" /> {/* Spacer for buttons */}
                   </View>
@@ -144,11 +144,10 @@ const Chats = () => {
             ) : (
               <View className='gap-4'>
                 {conversations.map((conv) => (
-                  <TouchableOpacity
+                  <Pressable
                     key={conv._id}
                     onPress={() => router.push(`/chat/${conv._id}`)}
-                    className="flex-row items-center bg-white"
-                    activeOpacity={0.7}
+                    className="flex-row items-center bg-white active:bg-gray-50/50"
                   >
                     {/* Avatar */}
                     <View className="relative">
@@ -182,7 +181,7 @@ const Chats = () => {
                         {conv.lastMessage?.content || "Say hi 👋"}
                       </Text>
                     </View>
-                  </TouchableOpacity>
+                  </Pressable>
                 ))}
               </View>
             )}
