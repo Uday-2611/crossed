@@ -101,7 +101,10 @@ export default function Step5Screen() {
     return (
         <SafeAreaView className="flex-1 bg-background px-6 py-4">
             <View className="flex-row items-center justify-between mb-4">
-                <Pressable onPress={() => router.back()} className="active:opacity-50">
+                <Pressable
+                    onPress={() => router.back()}
+                    style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
+                >
                     <Text className="text-secondary text-lg">Back</Text>
                 </Pressable>
                 <Text className="text-secondary font-medium uppercase tracking-widest text-xs">
@@ -135,11 +138,17 @@ export default function Step5Screen() {
                             <Text className="text-primary font-bold">{distance} km</Text>
                         </View>
                         <View className="flex-row justify-between items-center bg-surface p-4 rounded-xl border border-border/50">
-                            <Pressable onPress={() => setDistance(Math.max(1, distance - 5))} className="active:opacity-50">
+                            <Pressable
+                                onPress={() => setDistance(Math.max(1, distance - 5))}
+                                style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
+                            >
                                 <Text className="text-2xl text-primary">-</Text>
                             </Pressable>
                             <Text className="text-xl font-medium">{distance}</Text>
-                            <Pressable onPress={() => setDistance(Math.min(100, distance + 5))} className="active:opacity-50">
+                            <Pressable
+                                onPress={() => setDistance(Math.min(100, distance + 5))}
+                                style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
+                            >
                                 <Text className="text-2xl text-primary">+</Text>
                             </Pressable>
                         </View>
@@ -156,11 +165,17 @@ export default function Step5Screen() {
                                     Min Age
                                 </Text>
                                 <View className="bg-surface p-4 rounded-xl border border-border/50 flex-row justify-between items-center">
-                                    <Pressable onPress={() => setMinAge(Math.max(18, minAge - 1))} className="active:opacity-50">
+                                    <Pressable
+                                        onPress={() => setMinAge(Math.max(18, minAge - 1))}
+                                        style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
+                                    >
                                         <Text className="text-lg text-primary">-</Text>
                                     </Pressable>
                                     <Text className="text-lg font-bold">{minAge}</Text>
-                                    <Pressable onPress={() => setMinAge(Math.min(maxAge, minAge + 1))} className="active:opacity-50">
+                                    <Pressable
+                                        onPress={() => setMinAge(Math.min(maxAge, minAge + 1))}
+                                        style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
+                                    >
                                         <Text className="text-lg text-primary">+</Text>
                                     </Pressable>
                                 </View>
@@ -170,11 +185,17 @@ export default function Step5Screen() {
                                     Max Age
                                 </Text>
                                 <View className="bg-surface p-4 rounded-xl border border-border/50 flex-row justify-between items-center">
-                                    <Pressable onPress={() => setMaxAge(Math.max(minAge, maxAge - 1))} className="active:opacity-50">
+                                    <Pressable
+                                        onPress={() => setMaxAge(Math.max(minAge, maxAge - 1))}
+                                        style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
+                                    >
                                         <Text className="text-lg text-primary">-</Text>
                                     </Pressable>
                                     <Text className="text-lg font-bold">{maxAge}</Text>
-                                    <Pressable onPress={() => setMaxAge(Math.min(60, maxAge + 1))} className="active:opacity-50">
+                                    <Pressable
+                                        onPress={() => setMaxAge(Math.min(60, maxAge + 1))}
+                                        style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
+                                    >
                                         <Text className="text-lg text-primary">+</Text>
                                     </Pressable>
                                 </View>
@@ -187,7 +208,8 @@ export default function Step5Screen() {
             <Pressable
                 onPress={handleFinish}
                 disabled={isSaving}
-                className="bg-primary py-4 rounded-full items-center shadow-md mb-4 mt-4 active:opacity-80"
+                className="bg-primary py-4 rounded-full items-center shadow-md mb-4 mt-4"
+                style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
             >
                 {isSaving ? (
                     <ActivityIndicator color="white" />

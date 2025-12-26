@@ -96,7 +96,10 @@ const Settings = () => {
                     <View className='px-6 mb-8'>
                         <Text className='text-lg font-bold text-black mb-4 tracking-tight'>Account</Text>
                         <View className='bg-gray-50 rounded-2xl p-2'>
-                            <Pressable className='p-4 border-b border-gray-200 active:bg-gray-100/50'>
+                            <Pressable
+                                className='p-4 border-b border-gray-200 active:bg-gray-100/50'
+                                onPress={() => router.push('/(tabs)/profile')}
+                            >
                                 <Text className='text-base font-medium text-black'>Edit Profile</Text>
                             </Pressable>
 

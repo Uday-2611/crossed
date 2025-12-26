@@ -105,10 +105,14 @@ export default function WeeklyActivitiesScreen() {
             <SafeAreaView className="flex-1" edges={['top']}>
                 {/* Header */}
                 <View className="flex-row items-center justify-between px-6 py-4">
-                    <Pressable onPress={() => router.back()} className="p-2 -ml-2 active:opacity-50">
+                    <Pressable
+                        onPress={() => router.back()}
+                        className="p-2 -ml-2 active:opacity-50"
+                        accessibilityRole="button"
+                        accessibilityLabel="Go back"
+                    >
                         <Ionicons name="close" size={28} color="#000" />
-                    </Pressable>
-                    {!isLocked && (
+                    </Pressable>                    {!isLocked && (
                         <Pressable onPress={handleSave} disabled={isSaving} className="active:opacity-50">
                             {isSaving ? (
                                 <ActivityIndicator size="small" color="#1F6F5C" />

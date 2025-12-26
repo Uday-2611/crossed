@@ -142,8 +142,7 @@ export default function Step3Screen() {
                                         <Image source={{ uri: photoUrl }} className="w-full h-full" resizeMode="cover" />
                                         <Pressable
                                             className="absolute top-2 right-2 bg-black/50 p-1 rounded-full active:opacity-70"
-                                            onPress={(e) => {
-                                                e.stopPropagation();
+                                            onPress={() => {
                                                 removePhoto(slotIndex);
                                             }}
                                         >

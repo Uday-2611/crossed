@@ -113,16 +113,19 @@ const Chats = () => {
                       <Pressable
                         onPress={() => handlePass(profile._id as Id<"profiles">)}
                         className="h-10 w-10 rounded-full bg-white shadow-md items-center justify-center border border-gray-100 active:opacity-70"
+                        accessibilityRole="button"
+                        accessibilityLabel="Pass on this profile"
                       >
                         <Ionicons name="close" size={20} color="#EF4444" />
                       </Pressable>
                       <Pressable
                         onPress={() => handleLike(profile._id as Id<"profiles">)}
                         className="h-10 w-10 rounded-full bg-white shadow-md items-center justify-center border border-gray-100 active:opacity-70"
+                        accessibilityRole="button"
+                        accessibilityLabel="Like this profile"
                       >
                         <Ionicons name="heart" size={20} color="#10B981" />
-                      </Pressable>
-                    </View>
+                      </Pressable>                    </View>
                     <View className="h-4" /> {/* Spacer for buttons */}
                   </View>
                 ))}

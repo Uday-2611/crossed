@@ -53,6 +53,7 @@ const ChatScreen = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSafetyMenuOpen, setIsSafetyMenuOpen] = useState(false);
   const [isSending, setIsSending] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   // Actions
   const handleSend = async () => {
@@ -227,7 +228,7 @@ const ChatScreen = () => {
                     isSelf ? 'bg-brand-primary rounded-tr-sm' : 'bg-gray-100 rounded-tl-sm'
                     }`}                >
                   {item.type === 'image' ? (
-                    <Pressable onPress={() => {/* Fullscreen view logic */ }}>
+                    <Pressable onPress={() => setSelectedImage(item.content)}>
                       <Image
                         source={{ uri: item.content }}
                         className="w-48 h-64 rounded-xl bg-gray-200"
@@ -329,6 +330,30 @@ const ChatScreen = () => {
           onBlock={handleBlock}
           onReport={handleReport}
         />
+
+        {/* Fullscreen Image Viewer */}
+        <Modal
+          visible={!!selectedImage}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setSelectedImage(null)}
+        >
+          <View className="flex-1 bg-black justify-center items-center">
+            <Pressable
+              onPress={() => setSelectedImage(null)}
+              className="absolute top-12 right-6 z-50 p-2 bg-black/50 rounded-full"
+            >
+              <Ionicons name="close" size={30} color="white" />
+            </Pressable>
+            {selectedImage && (
+              <Image
+                source={{ uri: selectedImage }}
+                style={{ width: '100%', height: '100%' }}
+                resizeMode="contain"
+              />
+            )}
+          </View>
+        </Modal>
 
       </SafeAreaView>
     </View>
