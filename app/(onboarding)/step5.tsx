@@ -4,9 +4,9 @@ import { useEffect, useState } from 'react';
 import {
     ActivityIndicator,
     Alert,
+    Pressable,
     ScrollView,
     Text,
-    TouchableOpacity,
     View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -66,14 +66,13 @@ export default function Step5Screen() {
             setIsSaving(false);
         }
     };
-    // Render interested in options as separate components
     const renderInterestedInOption = (option: string) => {
         const isSelected = interestedIn === option;
         return (
-            <TouchableOpacity
+            <Pressable
                 key={option}
                 onPress={() => setInterestedIn(option)}
-                style={{
+                style={({ pressed }) => ({
                     flex: 1,
                     paddingVertical: 12,
                     borderRadius: 8,
@@ -83,7 +82,8 @@ export default function Step5Screen() {
                     shadowOpacity: isSelected ? 0.05 : 0,
                     shadowRadius: isSelected ? 2 : 0,
                     elevation: isSelected ? 1 : 0,
-                }}
+                    opacity: pressed ? 0.7 : 1
+                })}
             >
                 <Text
                     style={{
@@ -94,16 +94,19 @@ export default function Step5Screen() {
                 >
                     {option}
                 </Text>
-            </TouchableOpacity>
+            </Pressable>
         );
     };
 
     return (
         <SafeAreaView className="flex-1 bg-background px-6 py-4">
             <View className="flex-row items-center justify-between mb-4">
-                <TouchableOpacity onPress={() => router.back()}>
+                <Pressable
+                    onPress={() => router.back()}
+                    style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
+                >
                     <Text className="text-secondary text-lg">Back</Text>
-                </TouchableOpacity>
+                </Pressable>
                 <Text className="text-secondary font-medium uppercase tracking-widest text-xs">
                     Step 5 of 5
                 </Text>
@@ -135,13 +138,19 @@ export default function Step5Screen() {
                             <Text className="text-primary font-bold">{distance} km</Text>
                         </View>
                         <View className="flex-row justify-between items-center bg-surface p-4 rounded-xl border border-border/50">
-                            <TouchableOpacity onPress={() => setDistance(Math.max(1, distance - 5))}>
+                            <Pressable
+                                onPress={() => setDistance(Math.max(1, distance - 5))}
+                                style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
+                            >
                                 <Text className="text-2xl text-primary">-</Text>
-                            </TouchableOpacity>
+                            </Pressable>
                             <Text className="text-xl font-medium">{distance}</Text>
-                            <TouchableOpacity onPress={() => setDistance(Math.min(100, distance + 5))}>
+                            <Pressable
+                                onPress={() => setDistance(Math.min(100, distance + 5))}
+                                style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
+                            >
                                 <Text className="text-2xl text-primary">+</Text>
-                            </TouchableOpacity>
+                            </Pressable>
                         </View>
                     </View>
 
@@ -156,13 +165,19 @@ export default function Step5Screen() {
                                     Min Age
                                 </Text>
                                 <View className="bg-surface p-4 rounded-xl border border-border/50 flex-row justify-between items-center">
-                                    <TouchableOpacity onPress={() => setMinAge(Math.max(18, minAge - 1))}>
+                                    <Pressable
+                                        onPress={() => setMinAge(Math.max(18, minAge - 1))}
+                                        style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
+                                    >
                                         <Text className="text-lg text-primary">-</Text>
-                                    </TouchableOpacity>
+                                    </Pressable>
                                     <Text className="text-lg font-bold">{minAge}</Text>
-                                    <TouchableOpacity onPress={() => setMinAge(Math.min(maxAge, minAge + 1))}>
+                                    <Pressable
+                                        onPress={() => setMinAge(Math.min(maxAge, minAge + 1))}
+                                        style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
+                                    >
                                         <Text className="text-lg text-primary">+</Text>
-                                    </TouchableOpacity>
+                                    </Pressable>
                                 </View>
                             </View>
                             <View className="flex-1">
@@ -170,13 +185,19 @@ export default function Step5Screen() {
                                     Max Age
                                 </Text>
                                 <View className="bg-surface p-4 rounded-xl border border-border/50 flex-row justify-between items-center">
-                                    <TouchableOpacity onPress={() => setMaxAge(Math.max(minAge, maxAge - 1))}>
+                                    <Pressable
+                                        onPress={() => setMaxAge(Math.max(minAge, maxAge - 1))}
+                                        style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
+                                    >
                                         <Text className="text-lg text-primary">-</Text>
-                                    </TouchableOpacity>
+                                    </Pressable>
                                     <Text className="text-lg font-bold">{maxAge}</Text>
-                                    <TouchableOpacity onPress={() => setMaxAge(Math.min(60, maxAge + 1))}>
+                                    <Pressable
+                                        onPress={() => setMaxAge(Math.min(60, maxAge + 1))}
+                                        style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
+                                    >
                                         <Text className="text-lg text-primary">+</Text>
-                                    </TouchableOpacity>
+                                    </Pressable>
                                 </View>
                             </View>
                         </View>
@@ -184,17 +205,18 @@ export default function Step5Screen() {
                 </View>
             </ScrollView>
 
-            <TouchableOpacity
+            <Pressable
                 onPress={handleFinish}
                 disabled={isSaving}
                 className="bg-primary py-4 rounded-full items-center shadow-md mb-4 mt-4"
+                style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
             >
                 {isSaving ? (
                     <ActivityIndicator color="white" />
                 ) : (
                     <Text className="text-white text-lg font-bold">Finish Setup</Text>
                 )}
-            </TouchableOpacity>
+            </Pressable>
         </SafeAreaView>
     );
 }

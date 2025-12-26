@@ -5,7 +5,7 @@ import Slider from '@react-native-community/slider';
 import { useMutation, useQuery } from 'convex/react';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Modal, ScrollView, StatusBar, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Modal, Pressable, ScrollView, StatusBar, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Settings = () => {
@@ -96,9 +96,12 @@ const Settings = () => {
                     <View className='px-6 mb-8'>
                         <Text className='text-lg font-bold text-black mb-4 tracking-tight'>Account</Text>
                         <View className='bg-gray-50 rounded-2xl p-2'>
-                            <TouchableOpacity className='p-4 border-b border-gray-200 active:bg-gray-100/50'>
+                            <Pressable
+                                className='p-4 border-b border-gray-200 active:bg-gray-100/50'
+                                onPress={() => router.push('/(tabs)/profile')}
+                            >
                                 <Text className='text-base font-medium text-black'>Edit Profile</Text>
-                            </TouchableOpacity>
+                            </Pressable>
 
                             <View className='p-4 border-b border-gray-200'>
                                 <Text className='text-base font-medium text-black mb-1'>Account Information</Text>
@@ -107,7 +110,7 @@ const Settings = () => {
                                 </Text>
                             </View>
 
-                            <TouchableOpacity
+                            <Pressable
                                 className='p-4 border-b border-gray-200 active:bg-gray-100/50'
                                 onPress={async () => {
                                     try {
@@ -119,9 +122,9 @@ const Settings = () => {
                                     }
                                 }}                            >
                                 <Text className='text-base font-medium text-black'>Log Out</Text>
-                            </TouchableOpacity>
+                            </Pressable>
 
-                            <TouchableOpacity
+                            <Pressable
                                 className='p-4 active:bg-red-50/50'
                                 disabled={isDeleting}
                                 onPress={() => {
@@ -167,7 +170,7 @@ const Settings = () => {
                                 <Text className={`text-base font-medium ${isDeleting ? 'text-gray-400' : 'text-red-500'}`}>
                                     {isDeleting ? 'Deleting...' : 'Delete Account'}
                                 </Text>
-                            </TouchableOpacity>
+                            </Pressable>
                         </View>
                     </View>
 
@@ -262,16 +265,16 @@ const Settings = () => {
                                 <View className='flex-row rounded-xl overflow-hidden border border-gray-200'>
                                     {['Men', 'Women', 'Everyone'].map((option, idx) => {
                                         return (
-                                            <TouchableOpacity
+                                            <Pressable
                                                 key={option}
                                                 onPress={() => {
                                                     setInterestedIn(option);
                                                     handleSavePreferences({ interestedIn: option });
                                                 }}
-                                                className={`flex-1 py-4 items-center ${interestedIn === option ? 'bg-black' : 'bg-white'} ${idx !== 2 ? 'border-r border-gray-200' : ''} `}
+                                                className={`flex-1 py-4 items-center active:opacity-80 ${interestedIn === option ? 'bg-black' : 'bg-white'} ${idx !== 2 ? 'border-r border-gray-200' : ''} `}
                                             >
                                                 <Text className={`font-medium ${interestedIn === option ? 'text-white' : 'text-black'} `}>{option}</Text>
-                                            </TouchableOpacity>
+                                            </Pressable>
                                         );
                                     })}
                                 </View>
@@ -284,7 +287,7 @@ const Settings = () => {
                                     {RELIGIONS.map((item) => {
                                         const isSelected = selectedReligions.includes(item);
                                         return (
-                                            <TouchableOpacity
+                                            <Pressable
                                                 key={item}
                                                 onPress={() => {
                                                     let newVal: string[];
@@ -296,10 +299,10 @@ const Settings = () => {
                                                     setSelectedReligions(newVal);
                                                     handleSavePreferences({ religion: newVal });
                                                 }}
-                                                className={`px-6 py-4 rounded-xl border ${isSelected ? 'bg-black border-black' : 'bg-white border-gray-200'} `}
+                                                className={`px-6 py-4 rounded-xl border active:opacity-70 ${isSelected ? 'bg-black border-black' : 'bg-white border-gray-200'} `}
                                             >
                                                 <Text className={`font-medium ${isSelected ? 'text-white' : 'text-gray-700'} `}>{item}</Text>
-                                            </TouchableOpacity>
+                                            </Pressable>
                                         );
                                     })}
                                 </View>
@@ -312,17 +315,17 @@ const Settings = () => {
                     <View className='px-6 mb-8'>
                         <Text className='text-lg font-bold text-black mb-4 tracking-tight'>Privacy & Safety</Text>
                         <View className='bg-gray-50 rounded-2xl p-2'>
-                            <TouchableOpacity className='p-4 border-b border-gray-200 active:bg-gray-100/50'>
+                            <Pressable className='p-4 border-b border-gray-200 active:bg-gray-100/50'>
                                 <Text className='text-base font-medium text-black'>Privacy Settings</Text>
-                            </TouchableOpacity>
+                            </Pressable>
 
-                            <TouchableOpacity className='p-4 border-b border-gray-200 active:bg-gray-100/50'>
+                            <Pressable className='p-4 border-b border-gray-200 active:bg-gray-100/50'>
                                 <Text className='text-base font-medium text-black'>Blocked Users</Text>
-                            </TouchableOpacity>
+                            </Pressable>
 
-                            <TouchableOpacity className='p-4 active:bg-gray-100/50'>
+                            <Pressable className='p-4 active:bg-gray-100/50'>
                                 <Text className='text-base font-medium text-black'>Report a Problem</Text>
-                            </TouchableOpacity>
+                            </Pressable>
                         </View>
                     </View>
 
@@ -330,13 +333,13 @@ const Settings = () => {
                     <View className='px-6 mb-8'>
                         <Text className='text-lg font-bold text-black mb-4 tracking-tight'>Preferences</Text>
                         <View className='bg-gray-50 rounded-2xl p-2'>
-                            <TouchableOpacity className='p-4 border-b border-gray-200 active:bg-gray-100/50'>
+                            <Pressable className='p-4 border-b border-gray-200 active:bg-gray-100/50'>
                                 <Text className='text-base font-medium text-black'>Notifications</Text>
-                            </TouchableOpacity>
+                            </Pressable>
 
-                            <TouchableOpacity className='p-4 active:bg-gray-100/50'>
+                            <Pressable className='p-4 active:bg-gray-100/50'>
                                 <Text className='text-base font-medium text-black'>Location Usage</Text>
-                            </TouchableOpacity>
+                            </Pressable>
                         </View>
                     </View>
 
@@ -344,13 +347,13 @@ const Settings = () => {
                     <View className='px-6 mb-12'>
                         <Text className='text-lg font-bold text-black mb-4 tracking-tight'>Legal</Text>
                         <View className='bg-gray-50 rounded-2xl p-2'>
-                            <TouchableOpacity className='p-4 border-b border-gray-200 active:bg-gray-100/50'>
+                            <Pressable className='p-4 border-b border-gray-200 active:bg-gray-100/50'>
                                 <Text className='text-base font-medium text-black'>Terms of Service</Text>
-                            </TouchableOpacity>
+                            </Pressable>
 
-                            <TouchableOpacity className='p-4 border-b border-gray-200 active:bg-gray-100/50'>
+                            <Pressable className='p-4 border-b border-gray-200 active:bg-gray-100/50'>
                                 <Text className='text-base font-medium text-black'>Privacy Policy</Text>
-                            </TouchableOpacity>
+                            </Pressable>
 
                             <View className='p-4'>
                                 <Text className='text-base font-medium text-black mb-1'>About Crossed</Text>

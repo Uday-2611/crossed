@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useMutation } from 'convex/react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
-import { ActivityIndicator, Alert, ScrollView, StatusBar, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Pressable, ScrollView, StatusBar, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { api } from '../../convex/_generated/api';
 import { Id } from '../../convex/_generated/dataModel';
@@ -54,9 +54,9 @@ const ReportScreen = () => {
 
                 {/* Header */}
                 <View className='px-6 py-4 border-b border-gray-100'>
-                    <TouchableOpacity onPress={() => router.back()} className='mb-4'>
+                    <Pressable onPress={() => router.back()} className='mb-4 active:opacity-50'>
                         <Ionicons name="close" size={28} color="black" />
-                    </TouchableOpacity>
+                    </Pressable>
                     <Text className='text-3xl font-bold text-black tracking-tight'>Report user</Text>
                     <Text className='text-base text-gray-500 mt-2'>Why are you reporting this profile?</Text>
                 </View>
@@ -64,10 +64,10 @@ const ReportScreen = () => {
                 <ScrollView className='flex-1 px-6 pt-6'>
                     <View className='gap-3'>
                         {REASONS.map((reason) => (
-                            <TouchableOpacity
+                            <Pressable
                                 key={reason}
                                 onPress={() => setSelectedReason(reason)}
-                                className={`p-5 rounded-2xl border flex-row items-center justify-between ${selectedReason === reason
+                                className={`p-5 rounded-2xl border flex-row items-center justify-between active:scale-[0.98] ${selectedReason === reason
                                     ? 'bg-black border-black'
                                     : 'bg-gray-50 border-transparent'
                                     }`}
@@ -79,17 +79,17 @@ const ReportScreen = () => {
                                 {selectedReason === reason && (
                                     <Ionicons name="checkmark-circle" size={24} color="white" />
                                 )}
-                            </TouchableOpacity>
+                            </Pressable>
                         ))}
                     </View>
                 </ScrollView>
 
                 {/* Footer Actions */}
                 <View className='p-6 border-t border-gray-100 bg-white'>
-                    <TouchableOpacity
+                    <Pressable
                         onPress={handleSubmit}
                         disabled={!selectedReason || isSubmitting}
-                        className={`w-full py-4 rounded-full items-center flex-row justify-center gap-2 ${selectedReason ? 'bg-red-500' : 'bg-gray-100'
+                        className={`w-full py-4 rounded-full items-center flex-row justify-center gap-2 active:opacity-80 ${selectedReason ? 'bg-red-500' : 'bg-gray-100'
                             }`}
                     >
                         {isSubmitting ? (
@@ -100,15 +100,15 @@ const ReportScreen = () => {
                                 Submit Report
                             </Text>
                         )}
-                    </TouchableOpacity>
+                    </Pressable>
 
-                    <TouchableOpacity
+                    <Pressable
                         onPress={() => router.back()}
-                        className='mt-4 py-2 items-center'
+                        className='mt-4 py-2 items-center active:opacity-50'
                         disabled={isSubmitting}
                     >
                         <Text className='text-base font-medium text-black'>Cancel</Text>
-                    </TouchableOpacity>
+                    </Pressable>
                 </View>
 
             </SafeAreaView>

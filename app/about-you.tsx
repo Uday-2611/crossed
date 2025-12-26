@@ -3,7 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useMutation, useQuery } from 'convex/react';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, ScrollView, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Pressable, ScrollView, Switch, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const GENDER_OPTIONS = ['Male', 'Female', 'Prefer not to say'];
@@ -98,17 +98,17 @@ export default function AboutYouScreen() {
             <SafeAreaView className="flex-1" edges={['top']}>
                 {/* Header */}
                 <View className="flex-row items-center justify-between px-6 py-4 border-b border-border/10">
-                    <TouchableOpacity onPress={() => router.back()} className="p-2 -ml-2">
+                    <Pressable onPress={() => router.back()} className="p-2 -ml-2 active:opacity-50">
                         <Ionicons name="arrow-back" size={24} color="#000" />
-                    </TouchableOpacity>
+                    </Pressable>
                     <Text className="text-lg font-bold">About you</Text>
-                    <TouchableOpacity onPress={handleSave} disabled={isSaving}>
+                    <Pressable onPress={handleSave} disabled={isSaving} className="active:opacity-50">
                         {isSaving ? (
                             <ActivityIndicator size="small" color="#000" />
                         ) : (
                             <Text className="text-primary font-semibold text-lg">Save</Text>
                         )}
-                    </TouchableOpacity>
+                    </Pressable>
                 </View>
 
                 <ScrollView className="flex-1" contentContainerStyle={{ padding: 24, paddingBottom: 50 }}>
@@ -190,13 +190,13 @@ export default function AboutYouScreen() {
                         <Text className="text-lg font-bold mb-4">Gender</Text>
                         <View className="flex-row flex-wrap gap-2">
                             {GENDER_OPTIONS.map(option => (
-                                <TouchableOpacity
+                                <Pressable
                                     key={option}
                                     onPress={() => updateField('gender', formData.gender === option ? '' : option)}
-                                    className={`px-6 py-4 rounded-xl border ${formData.gender === option ? 'bg-black border-black' : 'bg-transparent border-gray-300'}`}
+                                    className={`px-6 py-4 rounded-xl border active:opacity-70 ${formData.gender === option ? 'bg-black border-black' : 'bg-transparent border-gray-300'}`}
                                 >
                                     <Text className={`font-medium ${formData.gender === option ? 'text-white' : 'text-primary'}`}>{option}</Text>
-                                </TouchableOpacity>
+                                </Pressable>
                             ))}
                         </View>
                     </View>
@@ -206,13 +206,13 @@ export default function AboutYouScreen() {
                         <Text className="text-lg font-bold mb-4">Sexuality</Text>
                         <View className="flex-row flex-wrap gap-2">
                             {SEXUALITY_OPTIONS.map(option => (
-                                <TouchableOpacity
+                                <Pressable
                                     key={option}
                                     onPress={() => updateField('sexuality', formData.sexuality === option ? '' : option)}
-                                    className={`px-6 py-4 rounded-xl border ${formData.sexuality === option ? 'bg-black border-black' : 'bg-transparent border-gray-300'}`}
+                                    className={`px-6 py-4 rounded-xl border active:opacity-70 ${formData.sexuality === option ? 'bg-black border-black' : 'bg-transparent border-gray-300'}`}
                                 >
                                     <Text className={`font-medium ${formData.sexuality === option ? 'text-white' : 'text-primary'}`}>{option}</Text>
-                                </TouchableOpacity>
+                                </Pressable>
                             ))}
                         </View>
                     </View>
@@ -222,14 +222,14 @@ export default function AboutYouScreen() {
                         <Text className="text-lg font-bold mb-4">Religion</Text>
                         <View className="bg-surface rounded-2xl border border-border/20 overflow-hidden">
                             {RELIGION_OPTIONS.map((option, index) => (
-                                <TouchableOpacity
+                                <Pressable
                                     key={option}
                                     onPress={() => updateField('religion', formData.religion === option ? '' : option)}
-                                    className={`flex-row items-center justify-between p-4 ${index !== RELIGION_OPTIONS.length - 1 ? 'border-b border-border/10' : ''}`}
+                                    className={`flex-row items-center justify-between p-4 active:bg-gray-50 active:opacity-70 ${index !== RELIGION_OPTIONS.length - 1 ? 'border-b border-border/10' : ''}`}
                                 >
                                     <Text className="text-base font-medium">{option}</Text>
                                     {formData.religion === option && <Ionicons name="checkmark" size={20} color="#000" />}
-                                </TouchableOpacity>
+                                </Pressable>
                             ))}
                         </View>
                     </View>
@@ -239,14 +239,14 @@ export default function AboutYouScreen() {
                         <Text className="text-lg font-bold mb-4">Political Leaning</Text>
                         <View className="bg-surface rounded-2xl border border-border/20 overflow-hidden">
                             {POLITICS_OPTIONS.map((option, index) => (
-                                <TouchableOpacity
+                                <Pressable
                                     key={option}
                                     onPress={() => updateField('politicalLeaning', formData.politicalLeaning === option ? '' : option)}
-                                    className={`flex-row items-center justify-between p-4 ${index !== POLITICS_OPTIONS.length - 1 ? 'border-b border-border/10' : ''}`}
+                                    className={`flex-row items-center justify-between p-4 active:bg-gray-50 active:opacity-70 ${index !== POLITICS_OPTIONS.length - 1 ? 'border-b border-border/10' : ''}`}
                                 >
                                     <Text className="text-base font-medium">{option}</Text>
                                     {formData.politicalLeaning === option && <Ionicons name="checkmark" size={20} color="#000" />}
-                                </TouchableOpacity>
+                                </Pressable>
                             ))}
                         </View>
                     </View>
@@ -256,13 +256,13 @@ export default function AboutYouScreen() {
                         <Text className="text-lg font-bold mb-4">Dating Intentions</Text>
                         <View className="flex-row flex-wrap gap-2">
                             {DATING_INTENTIONS.map(option => (
-                                <TouchableOpacity
+                                <Pressable
                                     key={option}
                                     onPress={() => updateField('datingIntentions', formData.datingIntentions === option ? '' : option)}
-                                    className={`px-4 py-3 rounded-xl border ${formData.datingIntentions === option ? 'bg-black border-black' : 'bg-transparent border-gray-300'}`}
+                                    className={`px-4 py-3 rounded-xl border active:opacity-70 ${formData.datingIntentions === option ? 'bg-black border-black' : 'bg-transparent border-gray-300'}`}
                                 >
                                     <Text className={`font-medium text-sm ${formData.datingIntentions === option ? 'text-white' : 'text-primary'}`}>{option}</Text>
-                                </TouchableOpacity>
+                                </Pressable>
                             ))}
                         </View>
                     </View>

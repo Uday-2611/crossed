@@ -15,10 +15,10 @@ import {
   KeyboardAvoidingView,
   Modal,
   Platform,
+  Pressable,
   StatusBar,
   Text,
   TextInput,
-  TouchableOpacity,
   TouchableWithoutFeedback,
   View
 } from 'react-native';
@@ -37,9 +37,9 @@ const ChatScreen = () => {
     return (
       <View className="flex-1 items-center justify-center bg-white">
         <Text className="text-gray-500">Invalid conversation</Text>
-        <TouchableOpacity onPress={() => router.back()} className="mt-4 p-2">
+        <Pressable onPress={() => router.back()} className="mt-4 p-2 active:opacity-50">
           <Text className="text-brand-primary">Go Back</Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
     );
   }
@@ -53,6 +53,7 @@ const ChatScreen = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSafetyMenuOpen, setIsSafetyMenuOpen] = useState(false);
   const [isSending, setIsSending] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   // Actions
   const handleSend = async () => {
@@ -174,9 +175,9 @@ const ChatScreen = () => {
     return (
       <View className="flex-1 items-center justify-center bg-white">
         <Text className="text-gray-500">Conversation not found</Text>
-        <TouchableOpacity onPress={() => router.back()} className="mt-4 p-2">
+        <Pressable onPress={() => router.back()} className="mt-4 p-2 active:opacity-50">
           <Text className="text-brand-primary">Go Back</Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
     );
   }
@@ -188,11 +189,11 @@ const ChatScreen = () => {
 
         {/* Header */}
         <View className='px-4 py-3 flex-row items-center justify-between border-b border-gray-100 bg-white z-10'>
-          <TouchableOpacity onPress={() => router.back()} className='p-2 -ml-2'>
+          <Pressable onPress={() => router.back()} className='p-2 -ml-2 active:opacity-50'>
             <Ionicons name="chevron-back" size={28} color="#111827" />
-          </TouchableOpacity>
+          </Pressable>
 
-          <TouchableOpacity onPress={goToProfile} className="flex-row items-center">
+          <Pressable onPress={goToProfile} className="flex-row items-center active:bg-gray-50/50 p-2 rounded-full">
             {conversation.peer?.photos?.[0] && (
               <Image
                 source={{ uri: conversation.peer.photos[0] }}
@@ -202,11 +203,11 @@ const ChatScreen = () => {
             <View>
               <Text className="text-[10px] text-green-600 font-medium">Online</Text>
             </View>
-          </TouchableOpacity>
+          </Pressable>
 
-          <TouchableOpacity className='p-2 -mr-2' onPress={() => setIsSafetyMenuOpen(true)}>
+          <Pressable className='p-2 -mr-2 active:opacity-50' onPress={() => setIsSafetyMenuOpen(true)}>
             <Ionicons name="ellipsis-horizontal" size={24} color="#111827" />
-          </TouchableOpacity>
+          </Pressable>
         </View>
 
         {/* Message List */}
@@ -227,13 +228,13 @@ const ChatScreen = () => {
                     isSelf ? 'bg-brand-primary rounded-tr-sm' : 'bg-gray-100 rounded-tl-sm'
                     }`}                >
                   {item.type === 'image' ? (
-                    <TouchableOpacity onPress={() => {/* Fullscreen view logic */ }}>
+                    <Pressable onPress={() => setSelectedImage(item.content)}>
                       <Image
                         source={{ uri: item.content }}
                         className="w-48 h-64 rounded-xl bg-gray-200"
                         resizeMode="cover"
                       />
-                    </TouchableOpacity>
+                    </Pressable>
                   ) : (
                     <Text className={`text-base leading-5 ${isSelf ? 'text-white' : 'text-gray-900'}`}>
                       {item.content}
@@ -260,12 +261,12 @@ const ChatScreen = () => {
           className='border-t border-gray-100 bg-white pb-6 pt-2'
         >
           <View className='flex-row items-end gap-2 px-3'>
-            <TouchableOpacity
+            <Pressable
               onPress={() => setIsMenuOpen(true)}
-              className='h-10 w-10 items-center justify-center bg-gray-50 rounded-full mb-0.5'
+              className='h-10 w-10 items-center justify-center bg-gray-50 rounded-full mb-0.5 active:bg-gray-200'
             >
               <Ionicons name="add" size={24} color="#6B7280" />
-            </TouchableOpacity>
+            </Pressable>
 
             <View className='flex-1 bg-gray-50 rounded-2xl px-4 py-2 min-h-[44px] justify-center border border-gray-100'>
               <TextInput
@@ -278,14 +279,14 @@ const ChatScreen = () => {
               />
             </View>
 
-            <TouchableOpacity
+            <Pressable
               onPress={handleSend}
               disabled={!inputText.trim()}
-              className={`h-10 w-10 items-center justify-center rounded-full mb-0.5 ${inputText.trim() ? 'bg-green-500' : 'bg-gray-100'
+              className={`h-10 w-10 items-center justify-center rounded-full mb-0.5 active:opacity-80 ${inputText.trim() ? 'bg-green-500' : 'bg-gray-100'
                 }`}
             >
               <Ionicons name="arrow-up" size={20} color={inputText.trim() ? 'white' : '#9CA3AF'} />
-            </TouchableOpacity>
+            </Pressable>
           </View>
         </KeyboardAvoidingView>
 
@@ -302,19 +303,19 @@ const ChatScreen = () => {
                 <View className='bg-white rounded-t-3xl p-6 pb-12 shadow-xl'>
                   <View className='w-12 h-1 bg-gray-300 rounded-full mx-auto mb-8' />
                   <View className='flex-row justify-around'>
-                    <TouchableOpacity onPress={() => handlePickImage(false)} className='items-center'>
+                    <Pressable onPress={() => handlePickImage(false)} className='items-center active:opacity-70'>
                       <View className="h-14 w-14 bg-green-100 items-center justify-center rounded-2xl mb-2">
                         <Ionicons name="images" size={24} color="#10B981" />
                       </View>
                       <Text className="font-medium text-gray-700">Gallery</Text>
-                    </TouchableOpacity>
+                    </Pressable>
 
-                    <TouchableOpacity onPress={() => handlePickImage(true)} className='items-center'>
+                    <Pressable onPress={() => handlePickImage(true)} className='items-center active:opacity-70'>
                       <View className="h-14 w-14 bg-blue-100 items-center justify-center rounded-2xl mb-2">
                         <Ionicons name="camera" size={24} color="#3B82F6" />
                       </View>
                       <Text className="font-medium text-gray-700">Camera</Text>
-                    </TouchableOpacity>
+                    </Pressable>
                   </View>
                 </View>
               </TouchableWithoutFeedback>
@@ -329,6 +330,30 @@ const ChatScreen = () => {
           onBlock={handleBlock}
           onReport={handleReport}
         />
+
+        {/* Fullscreen Image Viewer */}
+        <Modal
+          visible={!!selectedImage}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setSelectedImage(null)}
+        >
+          <View className="flex-1 bg-black justify-center items-center">
+            <Pressable
+              onPress={() => setSelectedImage(null)}
+              className="absolute top-12 right-6 z-50 p-2 bg-black/50 rounded-full"
+            >
+              <Ionicons name="close" size={30} color="white" />
+            </Pressable>
+            {selectedImage && (
+              <Image
+                source={{ uri: selectedImage }}
+                style={{ width: '100%', height: '100%' }}
+                resizeMode="contain"
+              />
+            )}
+          </View>
+        </Modal>
 
       </SafeAreaView>
     </View>

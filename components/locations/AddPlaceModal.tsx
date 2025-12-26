@@ -1,6 +1,6 @@
 import { useMutation } from 'convex/react';
 import React, { useState } from 'react';
-import { ActivityIndicator, Alert, Modal, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Modal, Pressable, Text, TextInput, View } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { api } from '../../convex/_generated/api';
 import { LocationData } from '../../hooks/useLocationManager';
@@ -60,13 +60,13 @@ export default function AddPlaceModal({ visible, onClose, locationData }: AddPla
         <Modal visible={visible} animationType="slide" presentationStyle="pageSheet">
             <View className="flex-1 bg-background">
                 <View className="flex-row justify-between items-center p-4 border-b border-border/10">
-                    <TouchableOpacity onPress={onClose}>
+                    <Pressable onPress={onClose} className="active:opacity-50">
                         <Text className="text-secondary text-lg">Cancel</Text>
-                    </TouchableOpacity>
+                    </Pressable>
                     <Text className="text-lg font-bold">Save Place</Text>
-                    <TouchableOpacity onPress={handleSave} disabled={isSaving || !name.trim()}>
+                    <Pressable onPress={handleSave} disabled={isSaving || !name.trim()} className="active:opacity-50">
                         {isSaving ? <ActivityIndicator /> : <Text className="text-primary text-lg font-bold">Save</Text>}
-                    </TouchableOpacity>
+                    </Pressable>
                 </View>
 
                 <View className="h-48 w-full">
@@ -100,13 +100,13 @@ export default function AddPlaceModal({ visible, onClose, locationData }: AddPla
                         <Text className="text-secondary mb-2 text-sm uppercase font-semibold tracking-wider">Category</Text>
                         <View className="flex-row flex-wrap gap-2">
                             {['Cafe', 'Gym', 'Work', 'Home', 'Park', 'Bar'].map((cat) => (
-                                <TouchableOpacity
+                                <Pressable
                                     key={cat}
                                     onPress={() => setCategory(cat)}
-                                    className={`px-4 py-2 rounded-full border ${category === cat ? 'bg-primary border-primary' : 'bg-surface border-border'} `}
+                                    className={`px-4 py-2 rounded-full border active:opacity-80 ${category === cat ? 'bg-primary border-primary' : 'bg-surface border-border'} `}
                                 >
                                     <Text className={category === cat ? 'text-white' : 'text-text-primary'}>{cat}</Text>
-                                </TouchableOpacity>
+                                </Pressable>
                             ))}
                         </View>
                     </View>

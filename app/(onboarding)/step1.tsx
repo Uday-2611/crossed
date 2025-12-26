@@ -4,9 +4,9 @@ import React, { useState } from 'react';
 import {
     ActivityIndicator,
     Alert,
+    Pressable,
     Text,
     TextInput,
-    TouchableOpacity,
     View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -101,10 +101,10 @@ export default function Step1Screen() {
                         <Text className="text-text-secondary text-base mb-2 font-medium">Gender</Text>
                         <View className="flex-row gap-3">
                             {GENDER_OPTIONS.map((option) => (
-                                <TouchableOpacity
+                                <Pressable
                                     key={option}
                                     onPress={() => setGender(option)}
-                                    className={`flex-1 py-3 px-2 rounded-xl border ${gender === option
+                                    className={`flex-1 py-3 px-2 rounded-xl border active:opacity-70 ${gender === option
                                         ? 'bg-primary border-primary'
                                         : 'bg-surface border-border/50'
                                         }`}
@@ -115,24 +115,24 @@ export default function Step1Screen() {
                                     >
                                         {option}
                                     </Text>
-                                </TouchableOpacity>
+                                </Pressable>
                             ))}
                         </View>
                     </View>
                 </View>
             </View>
 
-            <TouchableOpacity
+            <Pressable
                 onPress={handleNext}
                 disabled={isSaving}
-                className="bg-primary py-4 rounded-full items-center shadow-md mb-4"
+                className="bg-primary py-4 rounded-full items-center shadow-md mb-4 active:opacity-80"
             >
                 {isSaving ? (
                     <ActivityIndicator color="white" />
                 ) : (
                     <Text className="text-white text-lg font-bold">Next</Text>
                 )}
-            </TouchableOpacity>
+            </Pressable>
         </SafeAreaView>
     );
 }

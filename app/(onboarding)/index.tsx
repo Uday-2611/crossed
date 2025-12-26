@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function WelcomeScreen() {
@@ -16,12 +16,12 @@ export default function WelcomeScreen() {
         </Text>
       </View>
 
-      <TouchableOpacity
+      <Pressable
         onPress={() => router.push('/(onboarding)/step1')}
-        className="mt-12 bg-primary w-full py-4 rounded-full items-center shadow-sm active:opacity-90"
+        className="mt-12 bg-primary w-full py-4 rounded-full items-center shadow-sm active:opacity-80"
       >
         <Text className="text-white text-lg font-bold">Get Started</Text>
-      </TouchableOpacity>
+      </Pressable>
     </SafeAreaView>
   );
 }

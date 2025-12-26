@@ -3,7 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useMutation, useQuery } from 'convex/react';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function WeeklyActivitiesScreen() {
@@ -105,17 +105,21 @@ export default function WeeklyActivitiesScreen() {
             <SafeAreaView className="flex-1" edges={['top']}>
                 {/* Header */}
                 <View className="flex-row items-center justify-between px-6 py-4">
-                    <TouchableOpacity onPress={() => router.back()} className="p-2 -ml-2">
+                    <Pressable
+                        onPress={() => router.back()}
+                        className="p-2 -ml-2 active:opacity-50"
+                        accessibilityRole="button"
+                        accessibilityLabel="Go back"
+                    >
                         <Ionicons name="close" size={28} color="#000" />
-                    </TouchableOpacity>
-                    {!isLocked && (
-                        <TouchableOpacity onPress={handleSave} disabled={isSaving}>
+                    </Pressable>                    {!isLocked && (
+                        <Pressable onPress={handleSave} disabled={isSaving} className="active:opacity-50">
                             {isSaving ? (
                                 <ActivityIndicator size="small" color="#1F6F5C" />
                             ) : (
                                 <Text className="text-brand font-bold text-lg">Save</Text>
                             )}
-                        </TouchableOpacity>
+                        </Pressable>
                     )}
                 </View>
 

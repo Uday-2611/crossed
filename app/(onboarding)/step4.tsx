@@ -6,10 +6,10 @@ import {
     Alert,
     KeyboardAvoidingView,
     Platform,
+    Pressable,
     ScrollView,
     Text,
     TextInput,
-    TouchableOpacity,
     View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -73,9 +73,9 @@ export default function Step4Screen() {
     return (
         <SafeAreaView className="flex-1 bg-background px-6 py-4">
             <View className="flex-row items-center justify-between mb-4">
-                <TouchableOpacity onPress={() => router.back()}>
+                <Pressable onPress={() => router.back()} className="active:opacity-50">
                     <Text className="text-secondary text-lg">Back</Text>
-                </TouchableOpacity>
+                </Pressable>
                 <Text className="text-secondary font-medium uppercase tracking-widest text-xs">Step 4 of 5</Text>
                 <View className="w-10" />
             </View>
@@ -109,17 +109,17 @@ export default function Step4Screen() {
                 </ScrollView>
             </KeyboardAvoidingView>
 
-            <TouchableOpacity
+            <Pressable
                 onPress={handleNext}
                 disabled={isSaving}
-                className="bg-primary py-4 rounded-full items-center shadow-md mb-4 mt-4"
+                className="bg-primary py-4 rounded-full items-center shadow-md mb-4 mt-4 active:opacity-80"
             >
                 {isSaving ? (
                     <ActivityIndicator color="white" />
                 ) : (
                     <Text className="text-white text-lg font-bold">Next</Text>
                 )}
-            </TouchableOpacity>
+            </Pressable>
         </SafeAreaView>
     );
 }
