@@ -126,5 +126,6 @@ export default defineSchema({
     expiresAt: v.number(),
   })
     .index("by_conversationId", ["conversationId"])
-    .index("by_user", ["userId"]),
+    .index("by_user", ["userId"])
+    .index("by_expiresAt", ["expiresAt"]),
 });

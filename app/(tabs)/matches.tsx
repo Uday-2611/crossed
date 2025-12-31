@@ -1,6 +1,7 @@
 import { api } from '@/convex/_generated/api';
 import { useMutation, useQuery } from 'convex/react'; // Ensure useQuery is imported
 import { useRouter } from 'expo-router';
+import { Image } from 'react-native';
 import { Alert, Dimensions, FlatList, Pressable, StatusBar, Text, View } from 'react-native'; // Ensure Alert is imported
 import { SafeAreaView } from 'react-native-safe-area-context';
 

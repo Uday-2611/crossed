@@ -65,7 +65,11 @@ export const sendPushAction = internalAction({
         };
 
         try {
-            await fetch("https://exp.host/--/api/v2/push/send", {
+            // Add abort controller for timeout
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
+
+            const response = await fetch("https://exp.host/--/api/v2/push/send", {
                 method: "POST",
                 headers: {
                     Accept: "application/json",
@@ -73,7 +77,29 @@ export const sendPushAction = internalAction({
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify(message),
+                signal: controller.signal,
             });
+
+            clearTimeout(timeoutId);
+
+            if (!response.ok) {
+                // Handle HTTP errors (e.g. 4xx, 5xx)
+                console.error("Expo Push HTTP Error:", response.status, response.statusText);
+                return;
+            }
+
+            const result = await response.json();
+
+            // Check for Expo-specific errors in the response
+            // Expo API returns 'data' on success or 'errors' array on failure for batch inputs.
+            // For single input, it usually returns { data: { status: "ok" | "error", ... } }
+            if (result.data?.status === "error" || result.errors) {
+                console.error("Expo push notification error:", {
+                    message: result.data?.message || result.errors?.[0]?.message,
+                    details: result.data?.details || result.errors,
+                    to: args.to,
+                });
+            }
         } catch (error) {
             console.error("Error sending push notification:", error);
         }

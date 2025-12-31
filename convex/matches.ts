@@ -79,7 +79,7 @@ export const getPotentialMatches = query({
             const dLon = deg2rad(lon2 - lon1);
             const a =
                 Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat1)) *
+                Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
                 Math.sin(dLon / 2) * Math.sin(dLon / 2);
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
             const d = R * c; // Distance in km
@@ -594,14 +594,14 @@ export const rewindLastRejection = mutation({
         const rejections = await ctx.db
             .query("rejections")
             .withIndex("by_userId", (q) => q.eq("userId", currentUser._id))
-            .order("desc") // Assuming 'desc' creation order if index allows, or we sort manually
-            .take(1);
+            .collect();
 
         if (rejections.length === 0) {
             return null; // Nothing to rewind
         }
 
-        const lastRejection = rejections[0];
+        // Sort by createdAt descending to get the most recent
+        const lastRejection = rejections.sort((a, b) => b.createdAt - a.createdAt)[0];
 
         // Delete the rejection
         await ctx.db.delete(lastRejection._id);

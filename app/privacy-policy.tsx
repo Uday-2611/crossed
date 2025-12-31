@@ -24,25 +24,62 @@ export default function PrivacyPolicyScreen() {
 
                     <Text className="font-bold text-lg mb-2">1. Information We Collect</Text>
                     <Text className="text-gray-600 mb-4 leading-5">
-                        We collect information you provide directly to us, such as your name, photos, birthdate, and bio. We also collect location data to show you potential matches nearby.
+                        We collect information you provide directly to us, such as your name, photos, birthdate, bio, gender, and interests. We also automatically collect location data (GPS coordinates) to power our core "cross paths" matching feature, as well as devise information (IP address, device ID).
                     </Text>
 
                     <Text className="font-bold text-lg mb-2">2. How We Use Your Information</Text>
                     <Text className="text-gray-600 mb-4 leading-5">
-                        We use your information to provide, maintain, and improve our services, including matching you with other users and facilitating communication.
+                        We use your data to:
+                        {'\n'}• Provide and improve the Service (matching, chat).
+                        {'\n'}• Personalize your experience.
+                        {'\n'}• Send you notifications (matches, messages).
+                        {'\n'}• Monitor and analyze trends and usage.
+                        {'\n'}• Detect and prevent fraud or abuse.
                     </Text>
 
-                    <Text className="font-bold text-lg mb-2">3. Location Data</Text>
+                    <Text className="font-bold text-lg mb-2">3. Data Sharing & Third Parties</Text>
                     <Text className="text-gray-600 mb-4 leading-5">
-                        Your location is used to identify when you cross paths with other users. You can disable location tracking at any time in your device settings, but this will limit app functionality.
+                        We do not sell your personal data. We may share data with:
+                        {'\n'}• **Service Providers**: Hosting (Convex), Authentication (Clerk), and Analytics services that assist in operating our app.
+                        {'\n'}• **Legal Authorities**: If required by law or to protect rights and safety.
+                        {'\n'}• **Other Users**: Your public profile (photos, name, age, bio) is visible to other users.
                     </Text>
 
-                    <Text className="font-bold text-lg mb-2">4. Data Security</Text>
+                    <Text className="font-bold text-lg mb-2">4. Your Rights (GDPR & CCPA)</Text>
                     <Text className="text-gray-600 mb-4 leading-5">
-                        We take reasonable measures to help protect information about you from loss, theft, misuse and unauthorized access.
+                        Depending on your location, you have the right to:
+                        {'\n'}• **Access**: Request a copy of your data.
+                        {'\n'}• **Correction**: Update inaccurate data via "Edit Profile".
+                        {'\n'}• **Deletion**: Delete your account and data directly within the app settings.
+                        {'\n'}• **Opt-Out**: Disable location usage in device settings or turn off Push Notifications.
                     </Text>
 
-                    <Text className="font-bold text-lg mb-2">5. Contact Us</Text>
+                    <Text className="font-bold text-lg mb-2">5. Data Retention</Text>
+                    <Text className="text-gray-600 mb-4 leading-5">
+                        We retain your personal information only as long as your account is active or needed to provide the Service. If you delete your account, your profile and messages are removed from our active databases immediately, though backups may persist for a short period (up to 30 days) before permanent deletion.
+                    </Text>
+
+                    <Text className="font-bold text-lg mb-2">6. Children's Privacy</Text>
+                    <Text className="text-gray-600 mb-4 leading-5">
+                        Our Service is restricted to users who are 18 years of age or older. We do not knowingly collect personal information from anyone under the age of 18. If we become aware that a child under 18 has provided us with personal data, we will take steps to delete such information.
+                    </Text>
+
+                    <Text className="font-bold text-lg mb-2">7. International Transfers</Text>
+                    <Text className="text-gray-600 mb-4 leading-5">
+                        Your information may be transferred to and maintained on computers located outside of your state, province, country, or other governmental jurisdiction where the data protection laws may differ (primarily the United States).
+                    </Text>
+
+                    <Text className="font-bold text-lg mb-2">8. Cookies & Tracking</Text>
+                    <Text className="text-gray-600 mb-4 leading-5">
+                        We use standard tracking technologies (like local storage and secure tokens) to maintain your authenticated session and preferences. We do not use third-party advertising cookies.
+                    </Text>
+
+                    <Text className="font-bold text-lg mb-2">9. Changes to This Policy</Text>
+                    <Text className="text-gray-600 mb-4 leading-5">
+                        We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Last Updated" date.
+                    </Text>
+
+                    <Text className="font-bold text-lg mb-2">10. Contact Us</Text>
                     <Text className="text-gray-600 mb-8 leading-5">
                         If you have any questions about this Privacy Policy, please contact us at support@crossed.app.
                     </Text>

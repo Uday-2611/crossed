@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 
 interface Props {
   children: React.ReactNode;
@@ -8,16 +8,17 @@ interface Props {
 interface State {
   hasError: boolean;
   error: Error | null;
+  resetKey: number;
 }
 
 export class ErrorBoundary extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    this.state = { hasError: false, error: null };
+    this.state = { hasError: false, error: null, resetKey: 0 };
   }
 
   static getDerivedStateFromError(error: Error): State {
-    return { hasError: true, error };
+    return { hasError: true, error, resetKey: 0 };
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
@@ -35,12 +36,14 @@ export class ErrorBoundary extends React.Component<Props, State> {
             <Text className="text-sm text-muted-foreground font-mono">
               {this.state.error?.message}
             </Text>
-            <Text className="text-xs text-muted-foreground font-mono mt-2">
-              {this.state.error?.stack}
-            </Text>
+            {__DEV__ && (
+              <Text className="text-xs text-muted-foreground font-mono mt-2">
+                {this.state.error?.stack}
+              </Text>
+            )}
           </ScrollView>
           <TouchableOpacity
-            onPress={() => this.setState({ hasError: false, error: null })}
+            onPress={() => this.setState((prev) => ({ hasError: false, error: null, resetKey: prev.resetKey + 1 }))}
             className="bg-primary px-6 py-3 rounded-lg"
           >
             <Text className="text-primary-foreground font-semibold">
@@ -51,6 +54,6 @@ export class ErrorBoundary extends React.Component<Props, State> {
       );
     }
 
-    return this.props.children;
+    return <React.Fragment key={this.state.resetKey}>{this.props.children}</React.Fragment>;
   }
 }

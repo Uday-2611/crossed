@@ -6,7 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useMutation, useQuery } from 'convex/react';
 import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -187,16 +187,17 @@ const ChatScreen = () => {
   const typingStatus = useQuery(api.chat.getTypingStatus, conversationId ? { conversationId } : "skip");
 
   // Throttled typing handler
-  const lastTypingSentAt = useState(0);
+  // Throttled typing handler
+  const lastTypingSentRef = useRef(0);
   const handleTyping = (text: string) => {
     setInputText(text);
 
     if (text.length > 0 && conversationId) {
       const now = Date.now();
       // Send at most once every 2 seconds
-      if (now - lastTypingSentAt[0] > 2000) {
+      if (now - lastTypingSentRef.current > 2000) {
         sendTyping({ conversationId });
-        lastTypingSentAt[1](now); // Using state setter for simplicity, though ref is better for no-render
+        lastTypingSentRef.current = now;
       }
     }
   };
@@ -275,12 +276,11 @@ const ChatScreen = () => {
               {isSending && <ActivityIndicator size="small" />}
               {typingStatus && typingStatus.length > 0 && (
                 <Text className="text-gray-400 text-xs ml-4 italic">
-                  {conversation.peer ? `${conversation.peer.name.split(' ')[0]} is typing...` : 'Typing...'}
+                  {conversation.peer?.name ? `${conversation.peer.name.split(' ')[0]} is typing...` : 'Typing...'}
                 </Text>
               )}
             </View>
-          }
-        />
+          } />
 
         {/* Input Area */}
         <KeyboardAvoidingView

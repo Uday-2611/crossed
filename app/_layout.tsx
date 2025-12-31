@@ -133,7 +133,6 @@ const useHelper = () => {
 
     const inAuthGroup = segments[0] === '(auth)';
     const inOnboardingGroup = segments[0] === '(onboarding)';
-    const inTabsGroup = segments[0] === '(tabs)';
 
     if (!isAuthenticated) {
       if (!inAuthGroup && !hasNavigated) {
@@ -173,7 +172,6 @@ const RootLayoutNav = () => {
   const { isLoading, isAuthenticated } = useConvexAuth();
   const savePushToken = useMutation(api.notifications.savePushToken);
   const router = useRouter();
-  const [error, setError] = useState<string | null>(null);
 
   useHelper();
 
@@ -213,6 +211,7 @@ const RootLayoutNav = () => {
   // Location setup
   useEffect(() => {
     if (Platform.OS === 'web') return;
+    let isSubscribed = true;
 
     (async () => {
       try {
@@ -223,12 +222,12 @@ const RootLayoutNav = () => {
           console.log("✅ Foreground location granted");
           const { status: bgStatus } = await Location.requestBackgroundPermissionsAsync();
 
-          if (bgStatus === 'granted') {
+          if (bgStatus === 'granted' && isSubscribed) {
             console.log("✅ Background location granted");
             await Location.startLocationUpdatesAsync(LOCATION_TASK_NAME, {
               accuracy: Location.Accuracy.Balanced,
               deferredUpdatesDistance: 500,
-              showsBackgroundLocationIndicator: false,
+              showsBackgroundLocationIndicator: true,
             });
             console.log("✅ Location updates started");
           } else {
@@ -242,6 +241,11 @@ const RootLayoutNav = () => {
         // Don't crash, just log
       }
     })();
+
+    return () => {
+      isSubscribed = false;
+      Location.stopLocationUpdatesAsync(LOCATION_TASK_NAME).catch(() => { });
+    };
   }, []);
 
   // Hide splash screen
@@ -255,18 +259,7 @@ const RootLayoutNav = () => {
   }, [isLoading]);
 
   // Show error state if something went wrong
-  if (error) {
-    return (
-      <View className="flex-1 bg-background items-center justify-center p-6">
-        <Text className="text-xl font-bold text-destructive mb-4">
-          App Error
-        </Text>
-        <Text className="text-sm text-muted-foreground text-center">
-          {error}
-        </Text>
-      </View>
-    );
-  }
+
 
   return (
     <View className="flex-1">

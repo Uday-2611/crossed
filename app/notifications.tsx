@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { Platform, Pressable, Switch, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { api } from '../convex/_generated/api';
+import React from 'react';
 
 export default function NotificationSettingsScreen() {
     const router = useRouter();
@@ -27,20 +28,39 @@ export default function NotificationSettingsScreen() {
         );
     }
 
+    const [isUpdating, setIsUpdating] = React.useState(false);
+
     const toggleNewMatch = async (val: boolean) => {
-        await updateSettings({
-            newMatch: val,
-            newMessage: settings.newMessage
-        });
+        if (isUpdating) return;
+        setIsUpdating(true);
+        try {
+            await updateSettings({
+                newMatch: val,
+                newMessage: settings.newMessage
+            });
+        } catch (error) {
+            console.error('Failed to update settings:', error);
+            // Optionally show an error toast/alert to the user
+        } finally {
+            setIsUpdating(false);
+        }
     };
 
     const toggleNewMessage = async (val: boolean) => {
-        await updateSettings({
-            newMatch: settings.newMatch,
-            newMessage: val
-        });
+        if (isUpdating) return;
+        setIsUpdating(true);
+        try {
+            await updateSettings({
+                newMatch: settings.newMatch,
+                newMessage: val
+            });
+        } catch (error) {
+            console.error('Failed to update settings:', error);
+            // Optionally show an error toast/alert to the user
+        } finally {
+            setIsUpdating(false);
+        }
     };
-
     return (
         <SafeAreaView className="flex-1 bg-black" edges={['top']}>
             <View className="px-4 py-4 flex-row items-center border-b border-gray-800">

@@ -2,21 +2,45 @@ import { v } from "convex/values";
 import { Id } from "./_generated/dataModel";
 import { mutation, query } from "./_generated/server";
 
+
+// Helper to get current profile
+async function getCurrentProfile(ctx: any) {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Not authenticated");
+
+    const profile = await ctx.db
+        .query("profiles")
+        .withIndex("by_clerkId", (q: any) => q.eq("clerkId", identity.subject))
+        .unique();
+
+    if (!profile) throw new Error("Profile not found");
+    return profile;
+}
+
+// Helper to get current user settings
+async function getCurrentUser(ctx: any) {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Not authenticated");
+
+    const user = await ctx.db
+        .query("users")
+        .withIndex("by_clerkId", (q: any) => q.eq("clerkId", identity.subject))
+        .unique();
+
+    if (!user) throw new Error("User not found");
+    return user;
+}
+
 // Get list of users I have blocked
 export const getBlockedUsers = query({
     args: {},
     handler: async (ctx) => {
-        const identity = await ctx.auth.getUserIdentity();
-        if (!identity) {
-            throw new Error("Not authenticated");
+        let currentUser;
+        try {
+            currentUser = await getCurrentProfile(ctx);
+        } catch (e) {
+            return []; // Return empty if profile not found (defensive)
         }
-
-        const currentUser = await ctx.db
-            .query("profiles")
-            .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
-            .unique();
-
-        if (!currentUser) return [];
 
         const blocks = await ctx.db
             .query("blocks")
@@ -43,17 +67,7 @@ export const getBlockedUsers = query({
 export const unblockUser = mutation({
     args: { blockId: v.id("blocks") },
     handler: async (ctx, args) => {
-        const identity = await ctx.auth.getUserIdentity();
-        if (!identity) {
-            throw new Error("Not authenticated");
-        }
-
-        const currentUser = await ctx.db
-            .query("profiles")
-            .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
-            .unique();
-
-        if (!currentUser) throw new Error("Profile not found");
+        const currentUser = await getCurrentProfile(ctx);
 
         const block = await ctx.db.get(args.blockId);
         if (!block) throw new Error("Block not found");
@@ -69,15 +83,7 @@ export const unblockUser = mutation({
 export const toggleVisibility = mutation({
     args: { isVisible: v.boolean() },
     handler: async (ctx, args) => {
-        const identity = await ctx.auth.getUserIdentity();
-        if (!identity) throw new Error("Not authenticated");
-
-        const currentUser = await ctx.db
-            .query("profiles")
-            .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
-            .unique();
-
-        if (!currentUser) throw new Error("Profile not found");
+        const currentUser = await getCurrentProfile(ctx);
 
         await ctx.db.patch(currentUser._id, { isVisible: args.isVisible });
     },
@@ -86,15 +92,12 @@ export const toggleVisibility = mutation({
 export const getNotificationSettings = query({
     args: {},
     handler: async (ctx) => {
-        const identity = await ctx.auth.getUserIdentity();
-        if (!identity) throw new Error("Not authenticated");
-
-        const user = await ctx.db
-            .query("users")
-            .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
-            .unique();
-
-        if (!user) return null;
+        let user;
+        try {
+            user = await getCurrentUser(ctx);
+        } catch (e) {
+            return null;
+        }
 
         return {
             newMatch: user.notificationSettings?.newMatch ?? true,
@@ -109,15 +112,7 @@ export const updateNotificationSettings = mutation({
         newMessage: v.boolean(),
     },
     handler: async (ctx, args) => {
-        const identity = await ctx.auth.getUserIdentity();
-        if (!identity) throw new Error("Not authenticated");
-
-        const user = await ctx.db
-            .query("users")
-            .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
-            .unique();
-
-        if (!user) throw new Error("User not found");
+        const user = await getCurrentUser(ctx);
 
         await ctx.db.patch(user._id, {
             notificationSettings: {

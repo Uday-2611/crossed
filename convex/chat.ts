@@ -1,7 +1,24 @@
 import { v } from "convex/values";
 import { internal } from "./_generated/api";
 import { Doc, Id } from "./_generated/dataModel";
-import { mutation, query } from "./_generated/server";
+import { internalMutation, mutation, query } from "./_generated/server";
+
+export const cleanupTypingIndicators = internalMutation({
+    args: {},
+    handler: async (ctx) => {
+        const now = Date.now();
+        // Find all expired indicators
+        // using the index by_expiresAt for efficiency
+        const expired = await ctx.db
+            .query("typingIndicators")
+            .withIndex("by_expiresAt", (q) => q.lt("expiresAt", now))
+            .collect();
+
+        for (const ind of expired) {
+            await ctx.db.delete(ind._id);
+        }
+    },
+});
 
 // Define the return type explicitly
 type ConversationWithPeer = Doc<"conversations"> & { peer: Doc<"profiles"> };
@@ -228,6 +245,14 @@ export const getTypingStatus = query({
             .unique();
 
         if (!currentUser) return [];
+
+        // Verify user is a participant in the conversation
+        const conv = await ctx.db.get(args.conversationId);
+        if (!conv) return [];
+
+        if (conv.user1 !== currentUser._id && conv.user2 !== currentUser._id) {
+            return [];
+        }
 
         const now = Date.now();
 
