@@ -5,10 +5,15 @@ export default defineSchema({
   users: defineTable({
     clerkId: v.string(),
     createdAt: v.number(),
+    pushToken: v.optional(v.string()),
+    notificationSettings: v.optional(v.object({
+      newMatch: v.boolean(),
+      newMessage: v.boolean(),
+    })),
   }).index("by_clerkId", ["clerkId"]),
 
   profiles: defineTable({
-    clerkId: v.string(), 
+    clerkId: v.string(),
     name: v.string(),
     age: v.number(),
     bio: v.string(),
@@ -32,6 +37,7 @@ export default defineSchema({
       religion: v.optional(v.array(v.string())),
     })),
     isOnboardingComplete: v.optional(v.boolean()),
+    isVisible: v.optional(v.boolean()),
     updatedAt: v.number(),
   })
     .index("by_clerkId", ["clerkId"])
@@ -101,7 +107,7 @@ export default defineSchema({
     .index("by_blockerId", ["blockerId"])
     .index("by_blockedId", ["blockedId"])
     .index("by_block_pair", ["blockerId", "blockedId"]),
-    
+
   // Reports
   reports: defineTable({
     reporterId: v.string(),
@@ -112,4 +118,13 @@ export default defineSchema({
   })
     .index("by_reporterId", ["reporterId"])
     .index("by_reportedId", ["reportedId"]),
+
+  // Typing Indicators (Ephemeral)
+  typingIndicators: defineTable({
+    conversationId: v.id("conversations"),
+    userId: v.string(),
+    expiresAt: v.number(),
+  })
+    .index("by_conversationId", ["conversationId"])
+    .index("by_user", ["userId"]),
 });

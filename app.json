@@ -11,7 +11,9 @@
       "supportsTablet": true,
       "infoPlist": {
         "NSCameraUsageDescription": "Crossed needs access to your camera to let you take profile pictures and send photos in chat.",
-        "NSPhotoLibraryUsageDescription": "Crossed needs access to your photo library to let you upload profile pictures and share photos."
+        "NSPhotoLibraryUsageDescription": "Crossed needs access to your photo library to let you upload profile pictures and share photos.",
+        "NSLocationWhenInUseUsageDescription": "Crossed uses your location to help you find people who share the same places you do.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Crossed uses background location to notify you when you enter places worth saving, like cafes or gyms."
       },
       "icon": {
         "dark": "./assets/icons/icon-dark.png",

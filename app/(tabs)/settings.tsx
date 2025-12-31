@@ -315,11 +315,17 @@ const Settings = () => {
                     <View className='px-6 mb-8'>
                         <Text className='text-lg font-bold text-black mb-4 tracking-tight'>Privacy & Safety</Text>
                         <View className='bg-gray-50 rounded-2xl p-2'>
-                            <Pressable className='p-4 border-b border-gray-200 active:bg-gray-100/50'>
+                            <Pressable
+                                className='p-4 border-b border-gray-200 active:bg-gray-100/50'
+                                onPress={() => router.push('/privacy')}
+                            >
                                 <Text className='text-base font-medium text-black'>Privacy Settings</Text>
                             </Pressable>
 
-                            <Pressable className='p-4 border-b border-gray-200 active:bg-gray-100/50'>
+                            <Pressable
+                                className='p-4 border-b border-gray-200 active:bg-gray-100/50'
+                                onPress={() => router.push('/blocked')}
+                            >
                                 <Text className='text-base font-medium text-black'>Blocked Users</Text>
                             </Pressable>
 
@@ -333,7 +339,10 @@ const Settings = () => {
                     <View className='px-6 mb-8'>
                         <Text className='text-lg font-bold text-black mb-4 tracking-tight'>Preferences</Text>
                         <View className='bg-gray-50 rounded-2xl p-2'>
-                            <Pressable className='p-4 border-b border-gray-200 active:bg-gray-100/50'>
+                            <Pressable
+                                className='p-4 border-b border-gray-200 active:bg-gray-100/50'
+                                onPress={() => router.push('/notifications')}
+                            >
                                 <Text className='text-base font-medium text-black'>Notifications</Text>
                             </Pressable>
 
@@ -347,11 +356,17 @@ const Settings = () => {
                     <View className='px-6 mb-12'>
                         <Text className='text-lg font-bold text-black mb-4 tracking-tight'>Legal</Text>
                         <View className='bg-gray-50 rounded-2xl p-2'>
-                            <Pressable className='p-4 border-b border-gray-200 active:bg-gray-100/50'>
+                            <Pressable
+                                className='p-4 border-b border-gray-200 active:bg-gray-100/50'
+                                onPress={() => router.push('/terms')}
+                            >
                                 <Text className='text-base font-medium text-black'>Terms of Service</Text>
                             </Pressable>
 
-                            <Pressable className='p-4 border-b border-gray-200 active:bg-gray-100/50'>
+                            <Pressable
+                                className='p-4 border-b border-gray-200 active:bg-gray-100/50'
+                                onPress={() => router.push('/privacy-policy')}
+                            >
                                 <Text className='text-base font-medium text-black'>Privacy Policy</Text>
                             </Pressable>
 

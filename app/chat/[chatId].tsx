@@ -182,6 +182,25 @@ const ChatScreen = () => {
     );
   }
 
+  // Typing Indicators
+  const sendTyping = useMutation(api.chat.sendTypingIndicator);
+  const typingStatus = useQuery(api.chat.getTypingStatus, conversationId ? { conversationId } : "skip");
+
+  // Throttled typing handler
+  const lastTypingSentAt = useState(0);
+  const handleTyping = (text: string) => {
+    setInputText(text);
+
+    if (text.length > 0 && conversationId) {
+      const now = Date.now();
+      // Send at most once every 2 seconds
+      if (now - lastTypingSentAt[0] > 2000) {
+        sendTyping({ conversationId });
+        lastTypingSentAt[1](now); // Using state setter for simplicity, though ref is better for no-render
+      }
+    }
+  };
+
   return (
     <View className='flex-1 bg-white'>
       <StatusBar barStyle="dark-content" />
@@ -251,7 +270,16 @@ const ChatScreen = () => {
             );
           }}
           showsVerticalScrollIndicator={false}
-          ListFooterComponent={isSending ? <ActivityIndicator size="small" className="py-2" /> : null}
+          ListFooterComponent={
+            <View className="py-2">
+              {isSending && <ActivityIndicator size="small" />}
+              {typingStatus && typingStatus.length > 0 && (
+                <Text className="text-gray-400 text-xs ml-4 italic">
+                  {conversation.peer ? `${conversation.peer.name.split(' ')[0]} is typing...` : 'Typing...'}
+                </Text>
+              )}
+            </View>
+          }
         />
 
         {/* Input Area */}
@@ -275,7 +303,7 @@ const ChatScreen = () => {
                 placeholderTextColor="#9CA3AF"
                 multiline
                 value={inputText}
-                onChangeText={setInputText}
+                onChangeText={handleTyping}
               />
             </View>
 

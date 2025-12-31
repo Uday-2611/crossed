@@ -1,14 +1,29 @@
 import { api } from '@/convex/_generated/api';
-import { useQuery } from 'convex/react';
+import { useMutation, useQuery } from 'convex/react'; // Ensure useQuery is imported
 import { useRouter } from 'expo-router';
-import { Dimensions, FlatList, Pressable, StatusBar, Text, View } from 'react-native';
+import { Alert, Dimensions, FlatList, Pressable, StatusBar, Text, View } from 'react-native'; // Ensure Alert is imported
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 
 const Matches = () => {
   const router = useRouter();
-  const candidates = useQuery(api.matches.getPotentialMatches);
+  const candidates = useQuery(api.matches.getPotentialMatches); // Restore this
+
+  // Rewind Logic
+  const rewind = useMutation(api.matches.rewindLastRejection);
+  const handleRewind = async () => {
+    try {
+      const result = await rewind();
+      if (result) {
+        Alert.alert("Success", "Profile Rewound! The user should reappear in your stack.");
+      } else {
+        Alert.alert("Info", "Nothing to rewind.");
+      }
+    } catch (e) {
+      Alert.alert("Error", "Failed to rewind.");
+    }
+  };
 
   // Error State
   if (candidates === null) {
@@ -24,8 +39,14 @@ const Matches = () => {
       <StatusBar barStyle="dark-content" />
       <SafeAreaView className='flex-1' edges={['top']}>
         {/* Header */}
-        <View className='px-6 pt-6 pb-4'>
+        <View className='px-6 pt-6 pb-4 flex-row justify-between items-center'>
           <Text className='font-bold text-5xl text-text-primary tracking-tighter'>Discovery</Text>
+          <Pressable
+            onPress={handleRewind}
+            className="w-12 h-12 bg-gray-100 rounded-full items-center justify-center active:bg-gray-200"
+          >
+            <Text className="text-2xl">↺</Text>
+          </Pressable>
         </View>
 
         {/* Carousel */}
@@ -54,10 +75,16 @@ const Matches = () => {
                   onPress={() => router.push(`/match/${item._id}` as `/match/${string}`)} className='w-full h-[72vh] bg-surface-muted rounded-[32px] overflow-hidden relative shadow-sm border border-border/50 active:opacity-90'
                 >
                   {/* Photo Placeholder Area */}
-                  <View className='flex-1 bg-brand/5 w-full' />
+                  <View className='flex-1 bg-brand/5 w-full' >
+                    {item.photos && item.photos.length > 0 ? (
+                      <Image source={{ uri: item.photos[0] }} className="w-full h-full" resizeMode="cover" />
+                    ) : (
+                      <View className="flex-1" />
+                    )}
+                  </View>
 
                   {/* Content Overlay */}
-                  <View className='absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-black/5 to-transparent'>
+                  <View className='absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-black/80 to-transparent'>
                     <View className='flex-col'>
                       {/* Shared Locations Pill */}
                       {item.sharedLocations && item.sharedLocations.length > 0 && (
@@ -68,10 +95,10 @@ const Matches = () => {
                           </Text>
                         </View>
                       )}
-                      <Text className='text-6xl text-text-primary font-bold tracking-tight'>
+                      <Text className='text-6xl text-white font-bold tracking-tight'>
                         {item.name}, {item.age}
                       </Text>
-                      <Text className='text-text-secondary text-lg mt-1 opacity-80'>{item.bio}</Text>
+                      <Text className='text-gray-200 text-lg mt-1 opacity-90' numberOfLines={2}>{item.bio}</Text>
                     </View>
                   </View>
                 </Pressable>

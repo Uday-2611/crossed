@@ -1,4 +1,5 @@
 import { v } from "convex/values";
+import { internal } from "./_generated/api";
 import { Doc, Id } from "./_generated/dataModel";
 import { mutation, query } from "./_generated/server";
 
@@ -32,7 +33,7 @@ export const getConversations = query({
         const allConversations = [...conversations1, ...conversations2];
 
         const results: ConversationWithPeer[] = [];
-        
+
         for (const conv of allConversations) {
             const peerId = (conv.user1 === currentUser._id ? conv.user2 : conv.user1) as Id<"profiles">;
             const peerProfile = await ctx.db.get(peerId);
@@ -167,5 +168,80 @@ export const sendMessage = mutation({
             },
             lastMessageAt: Date.now(),
         });
+
+        // Notify Recipient
+        await ctx.scheduler.runAfter(0, internal.notifications.sendPushHelper, {
+            targetProfileId: peerId as Id<"profiles">,
+            title: currentUser.name,
+            body: args.type === "image" ? "Sent an image" : args.content,
+            data: { type: "message", conversationId: args.conversationId },
+        });
+    },
+});
+
+export const sendTypingIndicator = mutation({
+    args: {
+        conversationId: v.id("conversations"),
+    },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) throw new Error("Not authenticated");
+
+        const currentUser = await ctx.db
+            .query("profiles")
+            .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
+            .unique();
+
+        if (!currentUser) throw new Error("Profile not found");
+
+        // Calculate expiration (e.g., 3 seconds from now)
+        const expiresAt = Date.now() + 3000;
+
+        // Upsert logic: Check if existing indicator exists for this user/convo
+        const existing = await ctx.db
+            .query("typingIndicators")
+            .withIndex("by_user", (q) => q.eq("userId", currentUser._id))
+            .filter((q) => q.eq(q.field("conversationId"), args.conversationId))
+            .unique();
+
+        if (existing) {
+            await ctx.db.patch(existing._id, { expiresAt });
+        } else {
+            await ctx.db.insert("typingIndicators", {
+                conversationId: args.conversationId,
+                userId: currentUser._id,
+                expiresAt,
+            });
+        }
+    },
+});
+
+export const getTypingStatus = query({
+    args: { conversationId: v.id("conversations") },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) return [];
+
+        const currentUser = await ctx.db
+            .query("profiles")
+            .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
+            .unique();
+
+        if (!currentUser) return [];
+
+        const now = Date.now();
+
+        // Fetch indicators for this conversation
+        const indicators = await ctx.db
+            .query("typingIndicators")
+            .withIndex("by_conversationId", (q) => q.eq("conversationId", args.conversationId))
+            .collect();
+
+        // Filter expired and self
+        const activeTypers = indicators.filter(
+            (i) => i.userId !== currentUser._id && i.expiresAt > now
+        );
+
+        return activeTypers;
     },
 });
