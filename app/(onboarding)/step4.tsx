@@ -22,14 +22,7 @@ export default function Step4Screen() {
 
     const [activities, setActivities] = useState(['', '', '']);
     const [isSaving, setIsSaving] = useState(false);
-
-    if (profile === undefined) {
-        return (
-            <SafeAreaView className="flex-1 bg-background px-6 py-4 items-center justify-center">
-                <ActivityIndicator size="large" />
-            </SafeAreaView>
-        );
-    } const [isInitialized, setIsInitialized] = useState(false);
+    const [isInitialized, setIsInitialized] = useState(false);
 
     useEffect(() => {
         if (!isInitialized && profile && profile.activities && profile.activities.length > 0) {
@@ -40,6 +33,14 @@ export default function Step4Screen() {
             setIsInitialized(true);
         }
     }, [profile, isInitialized]);
+
+    if (profile === undefined) {
+        return (
+            <SafeAreaView className="flex-1 bg-background px-6 py-4 items-center justify-center">
+                <ActivityIndicator size="large" />
+            </SafeAreaView>
+        );
+    }
 
     const updateActivity = (index: number, text: string) => {
         const newActivities = [...activities];
@@ -62,7 +63,7 @@ export default function Step4Screen() {
                 // activitiesUpdatedAt handled by backend
             });
             router.push('/(onboarding)/step5');
-        } catch (error) {
+        } catch {
             Alert.alert('Error', 'Failed to save activities.');
         } finally {
             setIsSaving(false);

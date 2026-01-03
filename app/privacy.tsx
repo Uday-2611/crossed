@@ -1,9 +1,9 @@
-import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { api } from '../convex/_generated/api';
 import { useMutation, useQuery } from 'convex/react';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 import { Platform, Pressable, Switch, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { api } from '../convex/_generated/api';
 
 export default function PrivacySettingsScreen() {
     const router = useRouter();
@@ -34,11 +34,11 @@ export default function PrivacySettingsScreen() {
                     <View className="flex-1 mr-4">
                         <Text className="text-white text-lg font-semibold mb-1">Incognito Mode</Text>
                         <Text className="text-gray-400 text-sm">
-                            When enabled, you won't be shown to new people in the discovery feed. You can still chat with existing matches.
+                            When enabled, you won&apos;t be shown to new people in the discovery feed. You can still chat with existing matches.
                         </Text>
                     </View>
                     <Switch
-                        value={!isVisible} 
+                        value={!isVisible}
                         onValueChange={async (val) => {
                             await toggleVisibility({ isVisible: !val });
                         }}

@@ -25,7 +25,7 @@ export default function PlacesScreen() {
             } else {
                 Alert.alert('Location Error', 'Unable to get current location');
             }
-        } catch (error) {
+        } catch {
             Alert.alert('Error', 'Failed to fetch location');
         }
     };

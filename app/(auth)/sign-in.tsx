@@ -33,19 +33,17 @@ const SignIn = () => {
   const onSelectAuth = async (strategy: 'oauth_google' | 'oauth_apple') => {
     const selectedFlow = strategy === 'oauth_google' ? startGoogleFlow : startAppleFlow;
 
-    try {
-      const { createdSessionId, setActive } = await selectedFlow({
-        redirectUrl: Linking.createURL('/(tabs)/matches', { scheme: 'crossed' }),
-      });
+    const { createdSessionId, setActive } = await selectedFlow({
+      redirectUrl: Linking.createURL('/(tabs)/matches', { scheme: 'crossed' }),
+    });
 
-      if (createdSessionId) {
-        if (setActive) {
-          await setActive({ session: createdSessionId });
-          router.replace('/(tabs)/matches');
-        }
-      } 
-    } catch (err) {
+    if (createdSessionId) {
+      if (setActive) {
+        await setActive({ session: createdSessionId });
+        router.replace('/(tabs)/matches');
+      }
     }
+
   };
 
   return (

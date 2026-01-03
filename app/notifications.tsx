@@ -11,6 +11,8 @@ export default function NotificationSettingsScreen() {
     const settings = useQuery(api.settings.getNotificationSettings);
     const updateSettings = useMutation(api.settings.updateNotificationSettings);
 
+    const [isUpdating, setIsUpdating] = React.useState(false);
+
     if (settings === undefined) {
         return (
             <View className="flex-1 bg-black items-center justify-center">
@@ -27,7 +29,6 @@ export default function NotificationSettingsScreen() {
         );
     }
 
-    const [isUpdating, setIsUpdating] = React.useState(false);
 
     const toggleNewMatch = async (val: boolean) => {
         if (isUpdating) return;
@@ -37,7 +38,7 @@ export default function NotificationSettingsScreen() {
                 newMatch: val,
                 newMessage: settings.newMessage
             });
-        } catch (error) {
+        } catch {
             Alert.alert("Error", "Failed to update notification settings. Please try again.");
         } finally {
             setIsUpdating(false);
@@ -52,7 +53,7 @@ export default function NotificationSettingsScreen() {
                 newMatch: settings.newMatch,
                 newMessage: val
             });
-        } catch (error) {
+        } catch {
             Alert.alert("Error", "Failed to update notification settings. Please try again.");
         } finally {
             setIsUpdating(false);

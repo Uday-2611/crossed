@@ -58,7 +58,7 @@ export default function Step1Screen() {
                 activities: profile?.activities || [],
             });
             router.push('/(onboarding)/step2');
-        } catch (error) {
+        } catch {
             Alert.alert('Error', 'Failed to save changes.');
         } finally {
             setIsSaving(false);

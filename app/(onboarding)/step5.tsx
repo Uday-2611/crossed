@@ -12,8 +12,6 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { api } from '../../convex/_generated/api';
 
-const INTERESTED_IN_OPTIONS = ['Men', 'Women', 'Everyone'] as const;
-
 export default function Step5Screen() {
     const router = useRouter();
     const profile = useQuery(api.profiles.getMyProfile);
@@ -59,7 +57,7 @@ export default function Step5Screen() {
             });
 
             router.replace('/(tabs)/matches');
-        } catch (error) {
+        } catch {
             Alert.alert('Error', 'Failed to finish setup.');
         } finally {
             setIsSaving(false);

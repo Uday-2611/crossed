@@ -124,7 +124,7 @@ export default function WeeklyActivitiesScreen() {
 
                 <ScrollView className="flex-1 px-6 pb-20">
                     <View className="mb-8">
-                        <Text className="text-3xl font-bold text-text-primary mb-2">This week's activities</Text>
+                        <Text className="text-3xl font-bold text-text-primary mb-2">This week&apos;s activities</Text>
                         <Text className="text-base text-text-secondary leading-6">
                             Share a few things you did recently. It helps potential matches start a conversation.
                         </Text>

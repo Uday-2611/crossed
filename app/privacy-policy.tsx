@@ -1,7 +1,7 @@
-import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 import { Pressable, ScrollView, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function PrivacyPolicyScreen() {
     const router = useRouter();
@@ -23,7 +23,7 @@ export default function PrivacyPolicyScreen() {
 
                     <Text className="font-bold text-lg mb-2">1. Information We Collect</Text>
                     <Text className="text-gray-600 mb-4 leading-5">
-                        We collect information you provide directly to us, such as your name, photos, birthdate, bio, gender, and interests. We also automatically collect location data (GPS coordinates) to power our core "cross paths" matching feature, as well as devise information (IP address, device ID).
+                        We collect information you provide directly to us, such as your name, photos, birthdate, bio, gender, and interests. We also automatically collect location data (GPS coordinates) to power our core &quot;cross paths&quot; matching feature, as well as devise information (IP address, device ID).
                     </Text>
 
                     <Text className="font-bold text-lg mb-2">2. How We Use Your Information</Text>
@@ -48,7 +48,7 @@ export default function PrivacyPolicyScreen() {
                     <Text className="text-gray-600 mb-4 leading-5">
                         Depending on your location, you have the right to:
                         {'\n'}• **Access**: Request a copy of your data.
-                        {'\n'}• **Correction**: Update inaccurate data via "Edit Profile".
+                        {'\n'}• **Correction**: Update inaccurate data via &quot;Edit Profile&quot;.
                         {'\n'}• **Deletion**: Delete your account and data directly within the app settings.
                         {'\n'}• **Opt-Out**: Disable location usage in device settings or turn off Push Notifications.
                     </Text>
@@ -58,7 +58,7 @@ export default function PrivacyPolicyScreen() {
                         We retain your personal information only as long as your account is active or needed to provide the Service. If you delete your account, your profile and messages are removed from our active databases immediately, though backups may persist for a short period (up to 30 days) before permanent deletion.
                     </Text>
 
-                    <Text className="font-bold text-lg mb-2">6. Children's Privacy</Text>
+                    <Text className="font-bold text-lg mb-2">6. Children&apos;s Privacy</Text>
                     <Text className="text-gray-600 mb-4 leading-5">
                         Our Service is restricted to users who are 18 years of age or older. We do not knowingly collect personal information from anyone under the age of 18. If we become aware that a child under 18 has provided us with personal data, we will take steps to delete such information.
                     </Text>
@@ -75,7 +75,7 @@ export default function PrivacyPolicyScreen() {
 
                     <Text className="font-bold text-lg mb-2">9. Changes to This Policy</Text>
                     <Text className="text-gray-600 mb-4 leading-5">
-                        We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Last Updated" date.
+                        We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the &quot;Last Updated&quot; date.
                     </Text>
 
                     <Text className="font-bold text-lg mb-2">10. Contact Us</Text>

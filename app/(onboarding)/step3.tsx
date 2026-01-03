@@ -25,7 +25,6 @@ export default function Step3Screen() {
 
     const [photos, setPhotos] = useState<string[]>([]);
     const [isUploading, setIsUploading] = useState(false);
-    const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
         if (profile && profile.photos) {
@@ -80,7 +79,7 @@ export default function Step3Screen() {
                     });
                 }
             }
-        } catch (error) {
+        } catch {
             Alert.alert('Upload Error', 'Failed to upload photo.');
         } finally {
             setIsUploading(false);
@@ -98,7 +97,7 @@ export default function Step3Screen() {
                 photos: newPhotos,
                 activities: profile?.activities || [],
             });
-        } catch (error) {
+        } catch {
             setPhotos(previousPhotos);
             Alert.alert('Error', 'Failed to remove photo. Please try again.');
         }

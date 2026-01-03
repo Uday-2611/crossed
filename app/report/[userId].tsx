@@ -44,7 +44,7 @@ export default function ReportUserScreen() {
             Alert.alert("Report Sent", "Thank you for letting us know. We will review this report.", [
                 { text: "OK", onPress: () => router.replace('/(tabs)/chats') }
             ]);
-        } catch (error) {
+        } catch {
             Alert.alert("Error", "Failed to submit report. Please try again.");
         } finally {
             setIsSubmitting(false);

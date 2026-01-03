@@ -38,7 +38,7 @@ const ReportScreen = () => {
                 "Thank you for keeping our community safe. We will review this report shortly.",
                 [{ text: "OK", onPress: () => router.back() }]
             );
-        } catch (error) {
+        } catch {
             Alert.alert("Error", "Failed to submit report. Please try again.");
         } finally {
             setIsSubmitting(false);

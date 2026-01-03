@@ -64,7 +64,7 @@ const tokenCache = {
   async getToken(key: string) {
     try {
       return await SecureStore.getItemAsync(key);
-    } catch (error) {
+    } catch {
       await SecureStore.deleteItemAsync(key);
       return null;
     }
@@ -72,7 +72,7 @@ const tokenCache = {
   async saveToken(key: string, value: string) {
     try {
       return SecureStore.setItemAsync(key, value);
-    } catch (err) {
+    } catch {
       Alert.alert("Error", "Token save error");
       return;
     }
@@ -120,7 +120,7 @@ const useHelper = () => {
         router.replace('/(tabs)/matches');
       }
     }
-  }, [isAuthenticated, isLoading, profile, segments, hasNavigated]);
+  }, [isAuthenticated, isLoading, profile, segments, hasNavigated, router]);
 }
 
 const RootLayoutNav = () => {
@@ -143,7 +143,7 @@ const RootLayoutNav = () => {
         }
       })
       .catch(err => { });
-  }, [isAuthenticated]);
+  }, [isAuthenticated, savePushToken]);
 
   useEffect(() => {
     const subscription = Notifications.addNotificationResponseReceivedListener(response => {
@@ -155,7 +155,7 @@ const RootLayoutNav = () => {
       }
     });
     return () => subscription.remove();
-  }, []);
+  }, [router]);
 
   useEffect(() => {
     if (Platform.OS === 'web') return;
@@ -180,7 +180,7 @@ const RootLayoutNav = () => {
         } else {
           // Permission denied
         }
-      } catch (e) {
+      } catch {
         // Ignored
       }
     })();

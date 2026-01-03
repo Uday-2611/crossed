@@ -111,7 +111,7 @@ const Settings = () => {
                                     try {
                                         await signOut();
                                         router.replace("/(auth)/sign-in");
-                                    } catch (err) {
+                                    } catch {
                                         Alert.alert("Error", "Failed to log out. Please try again.");
                                     }
                                 }}                            >
@@ -150,7 +150,7 @@ const Settings = () => {
                                                         // 3. Redirect
                                                         router.replace("/(auth)/sign-in");
 
-                                                    } catch (error) {
+                                                    } catch {
                                                         Alert.alert("Error", "Failed to delete account. Please try again.");
                                                         setIsDeleting(false);
                                                     }
@@ -249,7 +249,7 @@ const Settings = () => {
                                     maximumTrackTintColor="#E5E7EB"
                                     thumbTintColor="#FFFFFF"
                                 />
-                                <Text className='text-xs text-gray-400 mt-1'>We'll show people within this distance</Text>
+                                <Text className='text-xs text-gray-400 mt-1'>We`&apos;`ll show people within this distance</Text>
                             </View>
 
                             {/* Interested In */}

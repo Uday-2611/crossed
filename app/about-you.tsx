@@ -76,7 +76,7 @@ export default function AboutYouScreen() {
             Alert.alert("Success", "Profile updated successfully!", [
                 { text: "OK", onPress: () => router.back() }
             ]);
-        } catch (error) {
+        } catch {
             Alert.alert("Error", "Failed to save changes. Please try again.");
         } finally {
             setIsSaving(false);
@@ -125,7 +125,7 @@ export default function AboutYouScreen() {
                             </View>
 
                             <View className="flex-row items-center justify-between py-2">
-                                <Text className="text-lg font-medium">I'm a student</Text>
+                                <Text className="text-lg font-medium">I`&apos;`m a student</Text>
                                 <Switch
                                     value={formData.isStudent}
                                     onValueChange={(val) => updateField('isStudent', val)}

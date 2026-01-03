@@ -47,7 +47,7 @@ export default function AddPlaceModal({ visible, onClose, locationData }: AddPla
                 address: locationData.suggestedPlace?.vicinity,
             });
             onClose();
-        } catch (error) {
+        } catch {
             Alert.alert("Error", "Failed to save location. Please try again.");
         } finally {
             setIsSaving(false);

@@ -74,7 +74,7 @@ const Blob = ({
                 true
             )
         );
-    }, []);
+    }, [delay, duration, initialX, initialY, scale, translateY, translateX]);
 
     const animatedStyle = useAnimatedStyle(() => {
         return {

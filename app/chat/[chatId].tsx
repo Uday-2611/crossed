@@ -32,6 +32,21 @@ const ChatScreen = () => {
   const conversation = useQuery(api.chat.getConversation, conversationId ? { conversationId } : "skip");
   const messages = useQuery(api.chat.getMessages, conversationId ? { conversationId } : "skip");
 
+  const sendMessage = useMutation(api.chat.sendMessage);
+  const unmatchMutation = useMutation(api.matches.unmatch);
+  const blockMutation = useMutation(api.matches.block);
+  const sendTyping = useMutation(api.chat.sendTypingIndicator);
+
+  const [inputText, setInputText] = useState('');
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSafetyMenuOpen, setIsSafetyMenuOpen] = useState(false);
+  const [isSending, setIsSending] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
+  const lastTypingSentRef = useRef(0);
+
+  const typingStatus = useQuery(api.chat.getTypingStatus, conversationId ? { conversationId } : "skip");
+
   if (!conversationId) {
     return (
       <View className="flex-1 items-center justify-center bg-white">
@@ -43,15 +58,7 @@ const ChatScreen = () => {
     );
   }
 
-  const sendMessage = useMutation(api.chat.sendMessage);
-  const unmatchMutation = useMutation(api.matches.unmatch);
-  const blockMutation = useMutation(api.matches.block);
 
-  const [inputText, setInputText] = useState('');
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isSafetyMenuOpen, setIsSafetyMenuOpen] = useState(false);
-  const [isSending, setIsSending] = useState(false);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const handleSend = async () => {
     if (!inputText.trim()) return;
@@ -64,9 +71,9 @@ const ChatScreen = () => {
         content,
         type: 'text',
       });
-    } catch (err) {
+    } catch {
       Alert.alert("Error", "Failed to send message");
-      setInputText(content); 
+      setInputText(content);
     }
   };
 
@@ -92,7 +99,7 @@ const ChatScreen = () => {
           content: imageUrl,
           type: 'image',
         });
-      } catch (err) {
+      } catch {
         Alert.alert("Upload Failed", "Could not send image");
       } finally {
         setIsSending(false);
@@ -115,7 +122,7 @@ const ChatScreen = () => {
               if (!conversation?.matchId) return;
               await unmatchMutation({ matchId: conversation.matchId as Id<"matches"> });
               router.replace('/(tabs)/chats');
-            } catch (e) {
+            } catch {
               Alert.alert("Error", "Failed to unmatch");
             }
           }
@@ -139,7 +146,7 @@ const ChatScreen = () => {
             try {
               await blockMutation({ targetId: conversation.peer._id as Id<"profiles"> });
               router.replace('/(tabs)/chats');
-            } catch (e) {
+            } catch {
               Alert.alert("Error", "Failed to block");
             }
           }
@@ -179,10 +186,7 @@ const ChatScreen = () => {
     );
   }
 
-  const sendTyping = useMutation(api.chat.sendTypingIndicator);
-  const typingStatus = useQuery(api.chat.getTypingStatus, conversationId ? { conversationId } : "skip");
 
-  const lastTypingSentRef = useRef(0);
   const handleTyping = (text: string) => {
     setInputText(text);
 

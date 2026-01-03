@@ -55,7 +55,7 @@ export default function Step2Screen() {
                 politicalLeaning: politics,
             });
             router.push('/(onboarding)/step3');
-        } catch (error) {
+        } catch {
             Alert.alert('Error', 'Failed to save changes.');
         } finally {
             setIsSaving(false);

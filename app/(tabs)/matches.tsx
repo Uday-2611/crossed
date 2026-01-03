@@ -1,8 +1,7 @@
 import { api } from '@/convex/_generated/api';
 import { useMutation, useQuery } from 'convex/react'; 
 import { useRouter } from 'expo-router';
-import { Image } from 'react-native';
-import { Alert, Dimensions, FlatList, Pressable, StatusBar, Text, View } from 'react-native'
+import { Alert, Dimensions, FlatList, Pressable, StatusBar, Text, View, Image } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
@@ -20,7 +19,7 @@ const Matches = () => {
       } else {
         Alert.alert("Info", "Nothing to rewind.");
       }
-    } catch (e) {
+    } catch {
       Alert.alert("Error", "Failed to rewind.");
     }
   };

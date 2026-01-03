@@ -58,7 +58,7 @@ const MatchProfile = () => {
         await passMutation({ targetId: profileId });
         router.back();
       }
-    } catch (error) {
+    } catch {
       router.back();
     }
   };

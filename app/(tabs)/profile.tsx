@@ -77,7 +77,7 @@ const Profile = () => {
           alert('You can only have 6 photos')
         }
       }
-    } catch (error) {
+    } catch {
       alert("Upload failed. Please try again.");
     } finally {
       setIsSaving(false);
@@ -113,7 +113,7 @@ const Profile = () => {
         age: Number(formData.age),
       });
       Alert.alert('Success', 'Profile saved successfully!');
-    } catch (error) {
+    } catch {
       Alert.alert('Error', 'Failed to save profile. Please try again.');
     } finally {
       setIsSaving(false);
