@@ -7,8 +7,6 @@ export const cleanupTypingIndicators = internalMutation({
     args: {},
     handler: async (ctx) => {
         const now = Date.now();
-        // Find all expired indicators
-        // using the index by_expiresAt for efficiency
         const expired = await ctx.db
             .query("typingIndicators")
             .withIndex("by_expiresAt", (q) => q.lt("expiresAt", now))

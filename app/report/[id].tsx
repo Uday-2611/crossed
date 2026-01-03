@@ -1,11 +1,11 @@
-import { Ionicons } from '@expo/vector-icons';
-import { useMutation } from 'convex/react';
-import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, ScrollView, StatusBar, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useMutation } from 'convex/react';
+import { Ionicons } from '@expo/vector-icons';
 import { api } from '../../convex/_generated/api';
 import { Id } from '../../convex/_generated/dataModel';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { ActivityIndicator, Alert, Pressable, ScrollView, StatusBar, Text, View } from 'react-native';
 
 const REASONS = [
     'Spam or fake profile',
@@ -31,7 +31,6 @@ const ReportScreen = () => {
             await reportMutation({
                 targetId: id as Id<"profiles">,
                 reason: selectedReason,
-                // description: "Optional description if we had a text input" 
             });
 
             Alert.alert(
@@ -40,7 +39,6 @@ const ReportScreen = () => {
                 [{ text: "OK", onPress: () => router.back() }]
             );
         } catch (error) {
-            console.error('Failed to submit report:', error);
             Alert.alert("Error", "Failed to submit report. Please try again.");
         } finally {
             setIsSubmitting(false);

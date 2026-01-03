@@ -29,7 +29,6 @@ const ChatScreen = () => {
   const { chatId } = useLocalSearchParams();
   const conversationId = (typeof chatId === 'string' ? chatId : undefined) as Id<"conversations"> | undefined;
 
-  // Convex
   const conversation = useQuery(api.chat.getConversation, conversationId ? { conversationId } : "skip");
   const messages = useQuery(api.chat.getMessages, conversationId ? { conversationId } : "skip");
 
@@ -48,18 +47,16 @@ const ChatScreen = () => {
   const unmatchMutation = useMutation(api.matches.unmatch);
   const blockMutation = useMutation(api.matches.block);
 
-  // State
   const [inputText, setInputText] = useState('');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSafetyMenuOpen, setIsSafetyMenuOpen] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
-  // Actions
   const handleSend = async () => {
     if (!inputText.trim()) return;
     const content = inputText.trim();
-    setInputText(''); // Optimistic clear
+    setInputText('');
 
     try {
       await sendMessage({
@@ -69,7 +66,7 @@ const ChatScreen = () => {
       });
     } catch (err) {
       Alert.alert("Error", "Failed to send message");
-      setInputText(content); // Revert
+      setInputText(content); 
     }
   };
 
@@ -182,19 +179,15 @@ const ChatScreen = () => {
     );
   }
 
-  // Typing Indicators
   const sendTyping = useMutation(api.chat.sendTypingIndicator);
   const typingStatus = useQuery(api.chat.getTypingStatus, conversationId ? { conversationId } : "skip");
 
-  // Throttled typing handler
-  // Throttled typing handler
   const lastTypingSentRef = useRef(0);
   const handleTyping = (text: string) => {
     setInputText(text);
 
     if (text.length > 0 && conversationId) {
       const now = Date.now();
-      // Send at most once every 2 seconds
       if (now - lastTypingSentRef.current > 2000) {
         sendTyping({ conversationId });
         lastTypingSentRef.current = now;

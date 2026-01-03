@@ -24,7 +24,6 @@ export const useLocationManager = () => {
             setPermissionStatus(status);
             return status === Location.PermissionStatus.GRANTED;
         } catch (error) {
-            console.error("Permission request failed", error);
             return false;
         }
     };
@@ -68,7 +67,6 @@ export const useLocationManager = () => {
                 };
 
             } catch (error) {
-                console.error("Error getting location:", error);
                 Alert.alert("Error", "Could not fetch location.");
                 return null;
             } finally {

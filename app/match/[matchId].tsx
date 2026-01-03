@@ -23,15 +23,12 @@ const MatchProfile = () => {
   const { matchId } = useLocalSearchParams();
   const [menuVisible, setMenuVisible] = useState(false);
 
-  // Cast matchId to Id<"profiles"> (Safe because we control navigation)
   const profileId = matchId as Id<"profiles">;
 
-  // Query with proper ID
   const profile = useQuery(api.matches.getProfileWithDetails, { profileId });
   const likeMutation = useMutation(api.matches.likeProfile);
   const passMutation = useMutation(api.matches.passProfile);
 
-  // Animation Values
   const translateX = useSharedValue(0);
   const opacity = useSharedValue(1);
   const overlayOpacity = useSharedValue(0);
@@ -51,7 +48,6 @@ const MatchProfile = () => {
       if (type === 'like') {
         const result = await likeMutation({ targetId: profileId });
         if (result.status === 'matched') {
-          // Match Alert
           Alert.alert("It's a Match! 🎉", "You and " + profile?.name + " liked each other!", [
             { text: "Awesome", onPress: () => router.back() }
           ]);
@@ -63,14 +59,12 @@ const MatchProfile = () => {
         router.back();
       }
     } catch (error) {
-      console.error("Action error:", error);
-      router.back(); // Fallback
+      router.back();
     }
   };
 
   const handleLike = () => {
     setActionType('like');
-    // Animate Right
     overlayOpacity.value = withTiming(1, { duration: 150 });
     translateX.value = withTiming(SCREEN_WIDTH * 1.2, { duration: 300 }, () => {
       runOnJS(finishAction)('like');
@@ -79,7 +73,6 @@ const MatchProfile = () => {
 
   const handlePass = () => {
     setActionType('pass');
-    // Animate Left
     overlayOpacity.value = withTiming(1, { duration: 150 });
     translateX.value = withTiming(-SCREEN_WIDTH * 1.2, { duration: 300 }, () => {
       runOnJS(finishAction)('pass');
@@ -94,7 +87,6 @@ const MatchProfile = () => {
     );
   }
 
-  // Transform flat profile to details
   const details = [
     { label: 'Height', value: profile.height ? `${profile.height} cm` : 'N/A' },
     { label: 'Job', value: profile.occupation || 'N/A' },
@@ -105,7 +97,6 @@ const MatchProfile = () => {
   ].filter(d => d.value !== 'N/A');
 
   const photos = profile.photos || [];
-  // Type Safe Access (no 'as any')
   const sharedLocations = profile.sharedLocations || [];
 
   const handleUnmatch = () => {

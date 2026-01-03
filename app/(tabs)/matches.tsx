@@ -1,17 +1,16 @@
 import { api } from '@/convex/_generated/api';
-import { useMutation, useQuery } from 'convex/react'; // Ensure useQuery is imported
+import { useMutation, useQuery } from 'convex/react'; 
 import { useRouter } from 'expo-router';
 import { Image } from 'react-native';
-import { Alert, Dimensions, FlatList, Pressable, StatusBar, Text, View } from 'react-native'; // Ensure Alert is imported
+import { Alert, Dimensions, FlatList, Pressable, StatusBar, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 
 const Matches = () => {
   const router = useRouter();
-  const candidates = useQuery(api.matches.getPotentialMatches); // Restore this
+  const candidates = useQuery(api.matches.getPotentialMatches); 
 
-  // Rewind Logic
   const rewind = useMutation(api.matches.rewindLastRejection);
   const handleRewind = async () => {
     try {
@@ -26,7 +25,6 @@ const Matches = () => {
     }
   };
 
-  // Error State
   if (candidates === null) {
     return (
       <View className='flex-1 justify-center items-center bg-background'>

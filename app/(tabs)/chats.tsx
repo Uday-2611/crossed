@@ -3,36 +3,24 @@ import { Id } from '@/convex/_generated/dataModel';
 import { Ionicons } from '@expo/vector-icons';
 import { useMutation, useQuery } from 'convex/react';
 import { useRouter } from 'expo-router';
-import { Dimensions, Image, Pressable, ScrollView, StatusBar, Text, View } from 'react-native';
+import { Image, Pressable, ScrollView, StatusBar, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-const { width } = Dimensions.get('window');
 
 const Chats = () => {
   const router = useRouter();
 
-  // Queries
   const pendingLikes = useQuery(api.matches.getPendingLikers);
   const conversations = useQuery(api.chat.getConversations);
 
-  // Mutations
   const likeProfile = useMutation(api.matches.likeProfile);
   const passProfile = useMutation(api.matches.passProfile);
 
   const handleLike = async (id: Id<"profiles">) => {
-    try {
-      await likeProfile({ targetId: id });
-    } catch (error) {
-      console.error('Failed to like profile:', error);
-    }
+    await likeProfile({ targetId: id });
   };
 
   const handlePass = async (id: Id<"profiles">) => {
-    try {
-      await passProfile({ targetId: id });
-    } catch (error) {
-      console.error('Failed to pass profile:', error);
-    }
+    await passProfile({ targetId: id });
   };
 
   const formatTime = (timestamp: number) => {
@@ -40,11 +28,9 @@ const Chats = () => {
     const now = new Date();
     const diff = now.getTime() - date.getTime();
 
-    // < 24h
     if (diff < 24 * 60 * 60 * 1000) {
       return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     }
-    // < 7 days
     if (diff < 7 * 24 * 60 * 60 * 1000) {
       return date.toLocaleDateString([], { weekday: 'short' });
     }

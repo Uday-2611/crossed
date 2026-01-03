@@ -43,11 +43,8 @@ const SignIn = () => {
           await setActive({ session: createdSessionId });
           router.replace('/(tabs)/matches');
         }
-      } else {
-        // Use signIn or signUp for next steps such as MFA
-      }
+      } 
     } catch (err) {
-      console.error('OAuth error', err);
     }
   };
 

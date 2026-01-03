@@ -60,7 +60,6 @@ export default function Step5Screen() {
 
             router.replace('/(tabs)/matches');
         } catch (error) {
-            console.error('Failed to complete onboarding:', error);
             Alert.alert('Error', 'Failed to finish setup.');
         } finally {
             setIsSaving(false);

@@ -56,7 +56,6 @@ export default function Step2Screen() {
             });
             router.push('/(onboarding)/step3');
         } catch (error) {
-            console.error('Failed to save step 2:', error);
             Alert.alert('Error', 'Failed to save changes.');
         } finally {
             setIsSaving(false);

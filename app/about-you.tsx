@@ -1,10 +1,10 @@
+import { useRouter } from 'expo-router';
+import { useEffect, useState } from 'react';
 import { api } from '@/convex/_generated/api';
 import { Ionicons } from '@expo/vector-icons';
 import { useMutation, useQuery } from 'convex/react';
-import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, ScrollView, Switch, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { ActivityIndicator, Alert, Pressable, ScrollView, Switch, Text, TextInput, View } from 'react-native';
 
 const GENDER_OPTIONS = ['Male', 'Female', 'Prefer not to say'];
 const RELIGION_OPTIONS = ['Hindu', 'Muslim', 'Christian', 'Sikh', 'Buddhist', 'Jewish', 'Spiritual', 'Atheist', 'Agnostic', 'Other', 'Prefer not to say'];
@@ -31,14 +31,13 @@ export default function AboutYouScreen() {
         datingIntentions: '',
     });
 
-    // Load initial data
     useEffect(() => {
         if (profile) {
             setFormData(prev => ({
                 ...prev,
                 occupation: profile.occupation || '',
                 university: profile.university || '',
-                isStudent: !!profile.university, // Infer student status if university is present
+                isStudent: !!profile.university, 
                 height: profile.height ? profile.height.toString() : '',
                 location: profile.location || '',
                 gender: profile.gender || '',
@@ -78,7 +77,6 @@ export default function AboutYouScreen() {
                 { text: "OK", onPress: () => router.back() }
             ]);
         } catch (error) {
-            console.error("Failed to save profile:", error);
             Alert.alert("Error", "Failed to save changes. Please try again.");
         } finally {
             setIsSaving(false);
@@ -96,7 +94,6 @@ export default function AboutYouScreen() {
     return (
         <View className="flex-1 bg-background">
             <SafeAreaView className="flex-1" edges={['top']}>
-                {/* Header */}
                 <View className="flex-row items-center justify-between px-6 py-4 border-b border-border/10">
                     <Pressable onPress={() => router.back()} className="p-2 -ml-2 active:opacity-50">
                         <Ionicons name="arrow-back" size={24} color="#000" />
@@ -157,7 +154,6 @@ export default function AboutYouScreen() {
                             <Text className="text-secondary text-xs">Only shown if you want</Text>
                         </View>
                         <View className="bg-surface rounded-2xl border border-border/20 p-4">
-                            {/* Simplified Height Input for now - just cm */}
                             <View className="flex-row items-center justify-between">
                                 <Text className="text-base font-medium">Height (cm)</Text>
                                 <TextInput

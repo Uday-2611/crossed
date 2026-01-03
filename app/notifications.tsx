@@ -1,10 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useMutation, useQuery } from 'convex/react';
 import { useRouter } from 'expo-router';
-import { Platform, Pressable, Switch, Text, View } from 'react-native';
+import React from 'react';
+import { Alert, Platform, Pressable, Switch, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { api } from '../convex/_generated/api';
-import React from 'react';
 
 export default function NotificationSettingsScreen() {
     const router = useRouter();
@@ -19,7 +19,6 @@ export default function NotificationSettingsScreen() {
         );
     }
 
-    // Handle null (e.g. user not found)
     if (settings === null) {
         return (
             <View className="flex-1 bg-black items-center justify-center">
@@ -39,8 +38,7 @@ export default function NotificationSettingsScreen() {
                 newMessage: settings.newMessage
             });
         } catch (error) {
-            console.error('Failed to update settings:', error);
-            // Optionally show an error toast/alert to the user
+            Alert.alert("Error", "Failed to update notification settings. Please try again.");
         } finally {
             setIsUpdating(false);
         }
@@ -55,8 +53,7 @@ export default function NotificationSettingsScreen() {
                 newMessage: val
             });
         } catch (error) {
-            console.error('Failed to update settings:', error);
-            // Optionally show an error toast/alert to the user
+            Alert.alert("Error", "Failed to update notification settings. Please try again.");
         } finally {
             setIsUpdating(false);
         }

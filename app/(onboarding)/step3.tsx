@@ -81,7 +81,6 @@ export default function Step3Screen() {
                 }
             }
         } catch (error) {
-            console.error('Upload failed:', error);
             Alert.alert('Upload Error', 'Failed to upload photo.');
         } finally {
             setIsUploading(false);
@@ -100,7 +99,6 @@ export default function Step3Screen() {
                 activities: profile?.activities || [],
             });
         } catch (error) {
-            console.error('Failed to remove photo:', error);
             setPhotos(previousPhotos);
             Alert.alert('Error', 'Failed to remove photo. Please try again.');
         }

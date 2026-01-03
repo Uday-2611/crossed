@@ -53,30 +53,25 @@ const Settings = () => {
             religion: updates.religion ?? selectedReligions,
         };
 
-        try {
-            setIsSavingPrefs(true);
-            await upsertProfile({
-                name: profile.name,
-                age: profile.age,
-                bio: profile.bio,
-                photos: profile.photos,
-                activities: profile.activities,
-                sexuality: profile.sexuality,
-                occupation: profile.occupation,
-                university: profile.university,
-                height: profile.height,
-                location: profile.location,
-                gender: profile.gender,
-                religion: profile.religion,
-                politicalLeaning: profile.politicalLeaning,
-                datingIntentions: profile.datingIntentions,
-                datingPreferences: finalPreferences
-            });
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setIsSavingPrefs(false);
-        }
+        setIsSavingPrefs(true);
+        await upsertProfile({
+            name: profile.name,
+            age: profile.age,
+            bio: profile.bio,
+            photos: profile.photos,
+            activities: profile.activities,
+            sexuality: profile.sexuality,
+            occupation: profile.occupation,
+            university: profile.university,
+            height: profile.height,
+            location: profile.location,
+            gender: profile.gender,
+            religion: profile.religion,
+            politicalLeaning: profile.politicalLeaning,
+            datingIntentions: profile.datingIntentions,
+            datingPreferences: finalPreferences
+        });
+        setIsSavingPrefs(false);
     };
 
     const RELIGIONS = ['Hindu', 'Muslim', 'Christian', 'Sikh', 'Buddhist', 'Not religious'];
@@ -117,7 +112,6 @@ const Settings = () => {
                                         await signOut();
                                         router.replace("/(auth)/sign-in");
                                     } catch (err) {
-                                        console.error("Logout failed", err);
                                         Alert.alert("Error", "Failed to log out. Please try again.");
                                     }
                                 }}                            >
@@ -157,7 +151,6 @@ const Settings = () => {
                                                         router.replace("/(auth)/sign-in");
 
                                                     } catch (error) {
-                                                        console.error("Delete account failed:", error as any);
                                                         Alert.alert("Error", "Failed to delete account. Please try again.");
                                                         setIsDeleting(false);
                                                     }

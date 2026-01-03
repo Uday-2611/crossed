@@ -1,9 +1,9 @@
-import { Ionicons } from '@expo/vector-icons';
-import { useMutation, useQuery } from 'convex/react';
 import { useRouter } from 'expo-router';
-import { Platform, Pressable, Switch, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import { api } from '../convex/_generated/api';
+import { useMutation, useQuery } from 'convex/react';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Platform, Pressable, Switch, Text, View } from 'react-native';
 
 export default function PrivacySettingsScreen() {
     const router = useRouter();
@@ -18,7 +18,6 @@ export default function PrivacySettingsScreen() {
         );
     }
 
-    // Default isVisible to true if undefined
     const isVisible = profile?.isVisible !== false;
 
     return (
@@ -39,7 +38,7 @@ export default function PrivacySettingsScreen() {
                         </Text>
                     </View>
                     <Switch
-                        value={!isVisible} // Toggle represents "Incognito" (Hidden)
+                        value={!isVisible} 
                         onValueChange={async (val) => {
                             await toggleVisibility({ isVisible: !val });
                         }}

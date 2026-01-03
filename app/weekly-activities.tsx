@@ -79,7 +79,6 @@ export default function WeeklyActivitiesScreen() {
                 { text: "OK", onPress: () => router.back() }
             ]);
         } catch (error: any) {
-            console.error("Failed to save activities:", error);
             Alert.alert("Cannot Update", error.message || "Something went wrong.");
         } finally {
             setIsSaving(false);

@@ -12,24 +12,20 @@ type GeofencingTaskData = {
 // Define the task that runs when a geofence is entered
 TaskManager.defineTask(LOCATION_GEOFENCE_TASK, async ({ data, error }: { data: GeofencingTaskData, error: any }) => {
     if (error) {
-        console.error("Geofencing task error:", error);
         return;
     }
 
     if (data.eventType === Location.GeofencingEventType.Enter) {
         if (!data.region) {
-            console.error("Geofencing event missing region data");
             return;
         }
         const { region } = data;
-        console.log("📍 Entered region:", region.identifier);
 
         const placeName = region.identifier;
 
         // Check notification permissions before scheduling
         const { status } = await Notifications.getPermissionsAsync();
         if (status !== 'granted') {
-            console.warn("Notification permissions not granted");
             return;
         }
 

@@ -29,9 +29,7 @@ export const savePushToken = mutation({
     },
 });
 
-// Helper mutation to get a user's push token by their Profile ID
-// We need this because interactions (Like/Message) happen via Profile IDs,
-// but tokens are stored in the 'users' table keyed by clerkId.
+// Helper mutation to get a user's push token by their Profile ID ->
 export const getMyPushToken = internalMutation({
     args: { profileId: v.id("profiles") },
     handler: async (ctx, args) => {
@@ -84,24 +82,14 @@ export const sendPushAction = internalAction({
 
             if (!response.ok) {
                 // Handle HTTP errors (e.g. 4xx, 5xx)
-                console.error("Expo Push HTTP Error:", response.status, response.statusText);
                 return;
             }
 
             const result = await response.json();
 
-            // Check for Expo-specific errors in the response
-            // Expo API returns 'data' on success or 'errors' array on failure for batch inputs.
-            // For single input, it usually returns { data: { status: "ok" | "error", ... } }
             if (result.data?.status === "error" || result.errors) {
-                console.error("Expo push notification error:", {
-                    message: result.data?.message || result.errors?.[0]?.message,
-                    details: result.data?.details || result.errors,
-                    to: args.to,
-                });
             }
         } catch (error) {
-            console.error("Error sending push notification:", error);
         }
     },
 });
@@ -116,7 +104,6 @@ export const sendPushHelper = internalMutation({
     },
     handler: async (ctx, args) => {
         // 1. Get the target user's push token
-        // We reuse the logic from getMyPushToken but inline here for simplicity in the internal call
         const targetProfile = await ctx.db.get(args.targetProfileId);
         if (!targetProfile) return;
 

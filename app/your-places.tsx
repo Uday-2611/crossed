@@ -3,7 +3,7 @@ import { useQuery } from 'convex/react';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, Text, View } from 'react-native';
-import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps'; // PROVIDER_DEFAULT uses Apple Maps on iOS
+import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AddPlaceModal from '../components/locations/AddPlaceModal';
 import { api } from '../convex/_generated/api';
@@ -23,17 +23,14 @@ export default function PlacesScreen() {
                 setCurrentLocationData(data);
                 setModalVisible(true);
             } else {
-                // Handle case where location couldn't be obtained
                 Alert.alert('Location Error', 'Unable to get current location');
             }
         } catch (error) {
-            console.error('Error getting location:', error);
             Alert.alert('Error', 'Failed to fetch location');
         }
     };
     return (
         <View className="flex-1 bg-background">
-            {/* Map filling the screen */}
             {savedLocations === undefined ? (
                 <View className="flex-1 justify-center items-center">
                     <ActivityIndicator size="large" color="#1F6F5C" />
@@ -45,7 +42,6 @@ export default function PlacesScreen() {
                     showsUserLocation={true}
                     showsMyLocationButton={true}
                     initialRegion={{
-                        // Default to a view or the first saved place
                         latitude: savedLocations.length > 0 ? savedLocations[0].lat : 37.78825,
                         longitude: savedLocations.length > 0 ? savedLocations[0].lng : -122.4324,
                         latitudeDelta: 0.05,
@@ -58,13 +54,12 @@ export default function PlacesScreen() {
                             coordinate={{ latitude: loc.lat, longitude: loc.lng }}
                             title={loc.name}
                             description={loc.category}
-                            pinColor="#1F6F5C" // Brand color
+                            pinColor="#1F6F5C"
                         />
                     ))}
                 </MapView>
             )}
 
-            {/* Overlay Header with Back Button */}
             <SafeAreaView className="absolute top-0 left-0 right-0 p-4" pointerEvents="box-none">
                 <View className="bg-surface/90 backdrop-blur-md p-4 rounded-2xl shadow-sm border border-border/50 flex-row items-center pointer-events-auto">
                     <Pressable onPress={() => router.back()} className="mr-4 p-2 bg-surface-muted rounded-full active:opacity-70">
@@ -79,7 +74,6 @@ export default function PlacesScreen() {
                 </View>
             </SafeAreaView>
 
-            {/* Floating Add Button */}
             <Pressable
                 onPress={handleAddPlace}
                 disabled={isLocating}
@@ -92,7 +86,6 @@ export default function PlacesScreen() {
                 )}
             </Pressable>
 
-            {/* Modal */}
             <AddPlaceModal
                 visible={isModalVisible}
                 onClose={() => setModalVisible(false)}

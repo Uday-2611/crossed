@@ -1,7 +1,7 @@
-import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 
 export default function PrivacyPolicyScreen() {
     const router = useRouter();
@@ -9,7 +9,6 @@ export default function PrivacyPolicyScreen() {
     return (
         <View className="flex-1 bg-white">
             <SafeAreaView className="flex-1" edges={['top']}>
-                {/* Header */}
                 <View className="px-4 py-3 flex-row items-center border-b border-gray-100">
                     <Pressable onPress={() => router.back()} className="mr-3">
                         <Ionicons name="arrow-back" size={24} color="black" />

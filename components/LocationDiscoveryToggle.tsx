@@ -25,7 +25,6 @@ export default function LocationDiscoveryToggle() {
             const isGeofencing = await Location.hasStartedGeofencingAsync(LOCATION_GEOFENCE_TASK);
             setIsEnabled(isGeofencing);
         } catch (e) {
-            console.log("Error checking geofence status", e);
         }
     };
 
@@ -93,7 +92,6 @@ export default function LocationDiscoveryToggle() {
                 setIsEnabled(false);
             }
         } catch (error) {
-            console.error("Toggle error:", error);
             Alert.alert("Error", "Could not update settings.");
             await checkStatus();
         } finally {

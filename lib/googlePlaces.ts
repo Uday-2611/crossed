@@ -1,9 +1,5 @@
 const API_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
 
-if (!API_KEY) {
-    console.warn("Google Maps API Key is missing! Places will not identify correctly.");
-}
-
 const PLACES_BASE_URL = "https://maps.googleapis.com/maps/api/place";
 
 export interface PlaceResult {
@@ -32,7 +28,6 @@ export const fetchNearbyPlaces = async (
         const response = await fetch(url);
 
         if (!response.ok) {
-            console.warn(`Google Places API HTTP error: ${response.status} ${response.statusText}`);
             return [];
         }
 
@@ -41,11 +36,9 @@ export const fetchNearbyPlaces = async (
         if (data.status === "OK") {
             return (data.results || []) as PlaceResult[];
         } else {
-            console.warn("Google Places API Error:", data.status, data.error_message);
             return [];
         }
     } catch (error) {
-        console.error("Failed to fetch nearby places:", error);
         return [];
     }
 };

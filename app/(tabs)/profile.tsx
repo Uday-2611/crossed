@@ -73,14 +73,11 @@ const Profile = () => {
             height: Number(formData.height),
             age: Number(formData.age)
           })
-
-          console.log('Photo uploaded and profile saved')
         } else {
           alert('You can only have 6 photos')
         }
       }
     } catch (error) {
-      console.error("Upload failed", error);
       alert("Upload failed. Please try again.");
     } finally {
       setIsSaving(false);
@@ -112,13 +109,11 @@ const Profile = () => {
     try {
       await upsertProfile({
         ...formData,
-        // Ensure numbers are numbers
         height: Number(formData.height),
         age: Number(formData.age),
       });
       Alert.alert('Success', 'Profile saved successfully!');
     } catch (error) {
-      console.error('Failed to save profile:', error);
       Alert.alert('Error', 'Failed to save profile. Please try again.');
     } finally {
       setIsSaving(false);
@@ -349,9 +344,7 @@ const Profile = () => {
               onPress={() => router.push('/your-places' as any)}
               className='h-48 w-full bg-surface-muted rounded-3xl border border-border overflow-hidden relative active:opacity-95'
             >
-              {/* Map Placeholder Art */}
               <View className='absolute inset-0 opacity-20'>
-                {/* Abstract map lines */}
                 <View className='absolute top-1/4 left-0 w-full h-1 bg-text-muted transform -rotate-12' />
                 <View className='absolute top-2/3 left-0 w-full h-1 bg-text-muted transform rotate-6' />
                 <View className='absolute top-0 left-1/3 h-full w-1 bg-text-muted transform rotate-12' />

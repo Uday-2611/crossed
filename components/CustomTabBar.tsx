@@ -88,10 +88,8 @@ function TabButton({
 export function CustomTabBar({ state, navigation }: any) {
     const insets = useSafeAreaInsets();
 
-    // Shared indicator animation
     const indicatorStyle = useAnimatedStyle(() => {
-        // The position is simply the number of collapsed tabs before the active one * collapsed width
-        // plus the padding offset.
+        
         const translateX = withSpring(PADDING + state.index * TAB_WIDTH, {
             damping: 15,
             stiffness: 100,
@@ -116,7 +114,7 @@ export function CustomTabBar({ state, navigation }: any) {
                 alignItems: 'center',
                 justifyContent: 'flex-end',
             }}
-            pointerEvents="box-none" // Let touches pass through the empty part of gradient if needed, but here we want to hold the buttons
+            pointerEvents="box-none"
         >
             <View
                 className="flex-row bg-black rounded-full p-2 items-center"

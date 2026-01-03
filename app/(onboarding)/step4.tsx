@@ -63,7 +63,6 @@ export default function Step4Screen() {
             });
             router.push('/(onboarding)/step5');
         } catch (error) {
-            console.error('Failed to save step 4:', error);
             Alert.alert('Error', 'Failed to save activities.');
         } finally {
             setIsSaving(false);
